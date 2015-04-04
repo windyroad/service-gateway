@@ -17,13 +17,6 @@ apply plugin: 'idea'
 apply plugin: 'spring-boot'
 apply plugin: 'io.spring.dependency-management'
 
-configurations {
-	compile
-}
-
-group = 'au.com.windyroad'
-mainClassName = 'au.com.windyroad.servicegateway.ServiceGatewayApplication'
-
 jar {
     baseName = 'service-gateway'
 }
