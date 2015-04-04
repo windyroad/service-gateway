@@ -8,7 +8,6 @@ buildscript {
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}") 
         classpath("io.spring.gradle:dependency-management-plugin:0.4.1.RELEASE")
-		classpath 'se.transmode.gradle:gradle-docker:1.2'
     }
 }
 
@@ -17,7 +16,6 @@ apply plugin: 'eclipse'
 apply plugin: 'idea' 
 apply plugin: 'spring-boot'
 apply plugin: 'io.spring.dependency-management'
-apply plugin: 'docker'
 
 group = 'au.com.windyroad'
 mainClassName = 'au.com.windyroad.servicegateway.ServiceGatewayApplication'
@@ -55,14 +53,4 @@ eclipse {
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.3'
-}
-
-docker {
-	dockerBinary = '/usr/local/bin/docker'
-	maintainer = 'Tom Howard <tom@windyroad.com.au>'
-	baseImage = 'dockerfile/java:oracle-java7'
-}
-
-distDocker {
-	exposePort 8080
 }
