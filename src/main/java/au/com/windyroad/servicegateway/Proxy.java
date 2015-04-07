@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -57,14 +58,17 @@ public class Proxy {
 		public void onFailure(Throwable ex) {
 			LOGGER.error("Failure while processing", ex);
 			endpoints.put(target, false);
+			deferredResult.setErrorResult(ex);
 		}
 	}
 
 	private Map<String, String> proxies = new HashMap<>();
 	private Map<String, Boolean> endpoints = new HashMap<>();
 
+	@Autowired
+	private AsyncRestTemplate restTemplate = new AsyncRestTemplate();
+
 	public void createProxy(String targetEndPoint, String proxyPath) {
-		targetEndPoint = normaliseUrl(targetEndPoint);
 		proxies.put(proxyPath, targetEndPoint);
 	}
 
@@ -74,8 +78,6 @@ public class Proxy {
 			final HttpServletResponse response,
 			@PathVariable("name") String name) {
 		DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<ResponseEntity<?>>();
-
-		AsyncRestTemplate restTemplate = new AsyncRestTemplate();
 
 		if (proxies.containsKey(name)) {
 			String url = (String) request
@@ -112,19 +114,10 @@ public class Proxy {
 	}
 
 	public boolean endPointExists(String endpoint) {
-		endpoint = normaliseUrl(endpoint);
 		return endpoints.containsKey(endpoint);
 	}
 
-	String normaliseUrl(String endpoint) {
-		if (endpoint.startsWith("/")) {
-			endpoint = "http://localhost:8080" + endpoint;
-		}
-		return endpoint;
-	}
-
 	public boolean endPointAvailable(String endpoint) {
-		endpoint = normaliseUrl(endpoint);
 		return endpoints.get(endpoint);
 	}
 }

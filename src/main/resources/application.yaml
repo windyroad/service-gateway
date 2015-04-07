@@ -5,3 +5,7 @@ security:
   user:
     password: 'password'
     
+logging:
+    level.org.apache.http.wire: 'DEBUG'
+    level.au.com.windyroad.servicegateway: 'DEBUG'
+    

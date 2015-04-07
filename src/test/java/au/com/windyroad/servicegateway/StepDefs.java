@@ -1,7 +1,10 @@
 package au.com.windyroad.servicegateway;
 
+import javax.annotation.PostConstruct;
+
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.SpringApplicationContextLoader;
 import org.springframework.boot.test.WebIntegrationTest;
@@ -16,17 +19,24 @@ import cucumber.api.java.en.When;
 
 @ContextConfiguration(classes = ServiceGatewayApplication.class, loader = SpringApplicationContextLoader.class)
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = ServiceGatewayApplication.class)
-// @WebAppConfiguration
+@SpringApplicationConfiguration(classes = { ServiceGatewayApplication.class })
 @Import(ServiceGatewayTestConfiguration.class)
-@WebIntegrationTest({ "server.port=8080", "management.port=0" })
+@WebIntegrationTest({ "server.port=0", "management.port=0" })
 public class StepDefs {
+
+	@Value("${local.server.port}")
+	int port;
 
 	@Autowired
 	Driver driver;
 
-	// @Value("${local.server.port}")
-	// int port;
+	@Autowired
+	ServiceGatewayTestConfiguration config;
+
+	@PostConstruct
+	private void initConfig() {
+		config.setPort(port);
+	}
 
 	@Given("^there are no proxied endpoints listed$")
 	public void there_are_no_proxied_endpoints_listed() throws Throwable {

@@ -36,6 +36,9 @@ dependencies {
 	compile("com.fasterxml.jackson.core:jackson-core:2.5.1")
 	compile('com.fasterxml.jackson.core:jackson-annotations:2.5.1')
 
+	compile('org.apache.httpcomponents:httpasyncclient:4.0.2')
+	compile('commons-codec:commons-codec:1.10')
+	
 	testCompile("org.springframework.boot:spring-boot-starter-test")
 	testCompile "info.cukes:cucumber-java:1.2.2","info.cukes:cucumber-junit:1.2.2","info.cukes:cucumber-spring:1.2.2"
 }
