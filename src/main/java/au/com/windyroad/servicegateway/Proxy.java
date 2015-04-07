@@ -1,5 +1,7 @@
 package au.com.windyroad.servicegateway;
 
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -84,7 +86,7 @@ public class Proxy {
 			HttpMethod method = HttpMethod.GET;
 			Class<String> responseType = String.class;
 
-			HttpHeaders headers = new HttpHeaders();
+			HttpHeaders headers = copyHeaders(request);
 			HttpEntity<String> requestEntity = new HttpEntity<String>("params",
 					headers);
 			ListenableFuture<ResponseEntity<String>> future = restTemplate
@@ -96,6 +98,17 @@ public class Proxy {
 			deferredResult.setResult(ResponseEntity.notFound().build());
 		}
 		return deferredResult;
+	}
+
+	HttpHeaders copyHeaders(final HttpServletRequest request) {
+		HttpHeaders headers = new HttpHeaders();
+		Enumeration<String> headerNames = request.getHeaderNames();
+		while (headerNames.hasMoreElements()) {
+			String headerName = headerNames.nextElement();
+			headers.put(headerName,
+					Collections.list(request.getHeaders(headerName)));
+		}
+		return headers;
 	}
 
 	public boolean endPointExists(String endpoint) {
