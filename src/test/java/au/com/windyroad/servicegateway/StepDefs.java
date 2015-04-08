@@ -10,6 +10,7 @@ import org.springframework.boot.test.SpringApplicationContextLoader;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import au.com.windyroad.servicegateway.driver.Driver;
@@ -17,11 +18,13 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
+@Import(ServiceGatewayTestConfiguration.class)
 @ContextConfiguration(classes = ServiceGatewayApplication.class, loader = SpringApplicationContextLoader.class)
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = { ServiceGatewayApplication.class })
-@Import(ServiceGatewayTestConfiguration.class)
+@SpringApplicationConfiguration(classes = { ServiceGatewayApplication.class,
+		ServiceGatewayTestConfiguration.class })
 @WebIntegrationTest({ "server.port=0", "management.port=0" })
+@TestExecutionListeners({ ServiceGatewayTestExecutionListener.class })
 public class StepDefs {
 
 	@Value("${local.server.port}")

@@ -1,0 +1,18 @@
+server:
+    port: 8443
+    ssl:
+        key-store: build/keystore.jks
+        key-store-password: secret
+        key-password: secret
+    
+security:
+  user:
+    password: 'password'
+    
+    
+
+logging:
+    level: 'TRACE'
+#    level.org.apache.http.wire: 'DEBUG'
+#    level.au.com.windyroad.servicegateway: 'DEBUG'
+    

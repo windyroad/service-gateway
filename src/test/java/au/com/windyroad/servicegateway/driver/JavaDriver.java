@@ -36,7 +36,7 @@ public class JavaDriver implements Driver {
 	@Override
 	public void checkPingService(String path) throws Exception {
 		ResponseEntity<String> response = restTemplate.getForEntity(new URI(
-				"http://localhost:" + config.getPort() + path), String.class);
+				"https://localhost:" + config.getPort() + path), String.class);
 		assertThat(response.getStatusCode(), equalTo(HttpStatus.NO_CONTENT));
 
 	}
@@ -49,7 +49,7 @@ public class JavaDriver implements Driver {
 	@Override
 	public void get(String path) throws Exception {
 		ResponseEntity<String> response = restTemplate.getForEntity(new URI(
-				"http://localhost:" + config.getPort() + path), String.class);
+				"https://localhost:" + config.getPort() + path), String.class);
 		assertTrue(response.getStatusCode().is2xxSuccessful());
 	}
 
