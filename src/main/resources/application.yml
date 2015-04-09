@@ -18,3 +18,5 @@ logging:
     
 javax.net.ssl.trustStore: build/truststore.jks
 javax.net.ssl.trustStorePassword: changeit
+
+au.com.windyroad.service-gateway.proxy.max.connections: 100

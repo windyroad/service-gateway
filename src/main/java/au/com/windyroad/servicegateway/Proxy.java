@@ -1,7 +1,6 @@
 package au.com.windyroad.servicegateway;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -62,7 +61,6 @@ public class Proxy {
 
 		@Override
 		public void completed(HttpResponse result) {
-			LOGGER.error("received proxy response");
 			try {
 				HttpHeaders httpHeaders = getHeaders(result);
 				HttpStatus httpStatus = HttpStatus.valueOf(result
@@ -81,7 +79,6 @@ public class Proxy {
 				}
 				deferredResult.setResult(responseEntity);
 				endpoints.put(target, true);
-				LOGGER.error("completed proxy request");
 
 			} catch (Exception e) {
 				LOGGER.error("Failure while processing response:", e);
@@ -162,17 +159,6 @@ public class Proxy {
 			deferredResult.setResult(ResponseEntity.notFound().build());
 		}
 		return deferredResult;
-	}
-
-	HttpHeaders copyHeaders(final HttpServletRequest request) {
-		HttpHeaders headers = new HttpHeaders();
-		Enumeration<String> headerNames = request.getHeaderNames();
-		while (headerNames.hasMoreElements()) {
-			String headerName = headerNames.nextElement();
-			headers.put(headerName,
-					Collections.list(request.getHeaders(headerName)));
-		}
-		return headers;
 	}
 
 	public boolean endPointExists(String endpoint) {
