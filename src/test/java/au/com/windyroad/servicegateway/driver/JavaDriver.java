@@ -5,12 +5,14 @@ import static org.junit.Assert.*;
 
 import java.net.URI;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.TestRestTemplate;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import au.com.windyroad.servicegateway.Proxy;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
@@ -19,6 +21,8 @@ import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 @Profile(value = "default")
 public class JavaDriver implements Driver {
 
+	public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+
 	@Autowired
 	Proxy proxy;
 
@@ -26,7 +30,7 @@ public class JavaDriver implements Driver {
 	ServiceGatewayTestConfiguration config;
 
 	@Autowired
-	TestRestTemplate restTemplate;
+	RestTemplate restTemplate;
 
 	@Override
 	public void clearProxies() {
@@ -35,28 +39,10 @@ public class JavaDriver implements Driver {
 
 	@Override
 	public void checkPingService(String path) throws Exception {
-		// HttpClient client = new DefaultHttpClient();
-		// SSLContext sslContext = SSLContext.getInstance("TLS");
-		//
-		// TrustManagerFactory tmf = TrustManagerFactory
-		// .getInstance(TrustManagerFactory.getDefaultAlgorithm());
-		// KeyStore ks = KeyStore.getInstance("JKS");
-		// File trustFile = new File("build/truststore.jks");
-		// ks.load(new FileInputStream(trustFile), null);
-		// tmf.init(ks);
-		// sslContext.init(null, tmf.getTrustManagers(), null);
-		// SSLSocketFactory sf = new SSLSocketFactory(sslContext);
-		// sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-		// Scheme scheme = new Scheme("https", sf, config.getPort());
-		// client.getConnectionManager().getSchemeRegistry().register(scheme);
-		// HttpGet httpGet = new HttpGet("https://localhost:" + config.getPort()
-		// + "/health");
-		// HttpResponse httpResponse = client.execute(httpGet);
-
 		ResponseEntity<String> response = restTemplate.getForEntity(new URI(
 				"https://localhost:" + config.getPort() + path), String.class);
 		assertThat(response.getStatusCode(), equalTo(HttpStatus.NO_CONTENT));
-
+		LOGGER.info("PING SERVICE CHECKED");
 	}
 
 	@Override
@@ -84,7 +70,7 @@ public class JavaDriver implements Driver {
 
 	String normaliseUrl(String endpoint) {
 		if (endpoint.startsWith("/")) {
-			endpoint = "http://localhost:" + config.getPort() + endpoint;
+			endpoint = "https://localhost:" + config.getPort() + endpoint;
 		}
 		return endpoint;
 	}
