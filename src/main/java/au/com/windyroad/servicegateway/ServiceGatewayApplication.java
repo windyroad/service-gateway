@@ -52,10 +52,11 @@ public class ServiceGatewayApplication {
 		return sf;
 	}
 
-	@Value("${au.com.windyroad.service-gateway.proxy.max.connections}")
+	@Value("${au.com.windyroad.service-gateway.proxy.max.connections.total}")
 	private int proxyMaxConnections = 100;
 
-	private static final int DEFAULT_MAX_CONNECTIONS_PER_ROUTE = 5;
+	@Value("${au.com.windyroad.service-gateway.proxy.max.connections.route}")
+	private int DEFAULT_MAX_CONNECTIONS_PER_ROUTE = 5;
 
 	private static final int DEFAULT_READ_TIMEOUT_MILLISECONDS = (60 * 1000);
 
