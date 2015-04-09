@@ -3,6 +3,7 @@ package au.com.windyroad.servicegateway;
 import java.io.File;
 import java.io.FileInputStream;
 import java.security.KeyStore;
+import java.security.NoSuchAlgorithmException;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
@@ -28,17 +29,35 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class ServiceGatewayApplication {
 
+	@Value("${au.com.windyroad.service-gateway.proxy.max.connections.total}")
+	private int proxyMaxConnectionsTotal;
+
+	@Value("${au.com.windyroad.service-gateway.proxy.max.connections.route}")
+	private int proxyMaxConnectionsRoute;
+
+	@Value("${au.com.windyroad.service-gateway.proxy.read.timeout.ms}")
+	private int proxyReadTimeoutMs;
+
+	@Value("${javax.net.ssl.trustStore}")
+	private String trustStoreFile;
+
 	public static void main(String[] args) {
 		SpringApplication.run(ServiceGatewayApplication.class, args);
 	}
 
 	@Bean
-	public SSLContext sslContext() throws Exception {
-		SSLContext sslContext = SSLContext.getInstance("TLS");
+	TrustManagerFactory trustManagerFactory() throws NoSuchAlgorithmException {
 		TrustManagerFactory tmf = TrustManagerFactory
 				.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+		return tmf;
+	}
+
+	@Bean
+	public SSLContext sslContext() throws Exception {
+		SSLContext sslContext = SSLContext.getInstance("TLS");
+		TrustManagerFactory tmf = trustManagerFactory();
 		KeyStore ks = KeyStore.getInstance("JKS");
-		File trustFile = new File("build/truststore.jks");
+		File trustFile = new File(trustStoreFile);
 		ks.load(new FileInputStream(trustFile), null);
 		tmf.init(ks);
 		sslContext.init(null, tmf.getTrustManagers(), null);
@@ -51,15 +70,6 @@ public class ServiceGatewayApplication {
 				sslContext());
 		return sf;
 	}
-
-	@Value("${au.com.windyroad.service-gateway.proxy.max.connections.total}")
-	private int proxyMaxConnectionsTotal;
-
-	@Value("${au.com.windyroad.service-gateway.proxy.max.connections.route}")
-	private int proxyMaxConnectionsRoute;
-
-	@Value("${au.com.windyroad.service-gateway.proxy.read.timeout.ms}")
-	private int proxyReadTimeoutMs;
 
 	@Bean
 	Registry<SchemeIOSessionStrategy> schemeIOSessionStrategyRegistry()
@@ -77,8 +87,7 @@ public class ServiceGatewayApplication {
 				new DefaultConnectingIOReactor(IOReactorConfig.DEFAULT),
 				schemeIOSessionStrategyRegistry());
 		connectionManager.setMaxTotal(proxyMaxConnectionsTotal);
-		connectionManager
-				.setDefaultMaxPerRoute(proxyMaxConnectionsRoute);
+		connectionManager.setDefaultMaxPerRoute(proxyMaxConnectionsRoute);
 		return connectionManager;
 	}
 
@@ -91,10 +100,8 @@ public class ServiceGatewayApplication {
 
 	@Bean
 	public HttpAsyncClientBuilder httpAsyncClientBuilder() throws Exception {
-		NHttpClientConnectionManager connectionManager = nHttpClientConntectionManager();
-
 		return HttpAsyncClientBuilder.create().setSSLContext(sslContext())
-				.setConnectionManager(connectionManager)
+				.setConnectionManager(nHttpClientConntectionManager())
 				.setDefaultRequestConfig(httpClientRequestConfig());
 	}
 

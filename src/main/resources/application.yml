@@ -19,8 +19,8 @@ logging:
 javax.net.ssl.trustStore: build/truststore.jks
 javax.net.ssl.trustStorePassword: changeit
 
-au.com.windyroad.service-gateway.proxy.max.connections:
-    total: 100
-    route: 5
-    
-au.com.windyroad.service-gateway.proxy.read.timeout.ms: 60000
+au.com.windyroad.service-gateway.proxy:
+    max.connections:
+        total: 100
+        route: 5
+    read.timeout.ms: 60000
