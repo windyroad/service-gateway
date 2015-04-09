@@ -35,6 +35,24 @@ public class JavaDriver implements Driver {
 
 	@Override
 	public void checkPingService(String path) throws Exception {
+		// HttpClient client = new DefaultHttpClient();
+		// SSLContext sslContext = SSLContext.getInstance("TLS");
+		//
+		// TrustManagerFactory tmf = TrustManagerFactory
+		// .getInstance(TrustManagerFactory.getDefaultAlgorithm());
+		// KeyStore ks = KeyStore.getInstance("JKS");
+		// File trustFile = new File("build/truststore.jks");
+		// ks.load(new FileInputStream(trustFile), null);
+		// tmf.init(ks);
+		// sslContext.init(null, tmf.getTrustManagers(), null);
+		// SSLSocketFactory sf = new SSLSocketFactory(sslContext);
+		// sf.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+		// Scheme scheme = new Scheme("https", sf, config.getPort());
+		// client.getConnectionManager().getSchemeRegistry().register(scheme);
+		// HttpGet httpGet = new HttpGet("https://localhost:" + config.getPort()
+		// + "/health");
+		// HttpResponse httpResponse = client.execute(httpGet);
+
 		ResponseEntity<String> response = restTemplate.getForEntity(new URI(
 				"https://localhost:" + config.getPort() + path), String.class);
 		assertThat(response.getStatusCode(), equalTo(HttpStatus.NO_CONTENT));

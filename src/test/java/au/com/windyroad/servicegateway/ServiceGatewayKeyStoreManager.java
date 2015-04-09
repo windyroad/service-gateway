@@ -1,7 +1,7 @@
 package au.com.windyroad.servicegateway;
 
+import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -15,7 +15,6 @@ import java.util.Date;
 import javax.security.auth.x500.X500Principal;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.openssl.PEMWriter;
 import org.bouncycastle.x509.X509V1CertificateGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +43,7 @@ public class ServiceGatewayKeyStoreManager {
 				keyPair.getPrivate(),
 				keyPassword.toCharArray(),
 				new java.security.cert.Certificate[] { createSelfSignedCertificate(
-						keyPair, "Tom-Howards-Mac-Book-Pro.local") });
+						keyPair, "localhost") });
 		// Store away the keystore.
 		FileOutputStream fos = new FileOutputStream(keyStore);
 		ks.store(fos, keyStorePassword.toCharArray());
@@ -81,10 +80,13 @@ public class ServiceGatewayKeyStoreManager {
 		certGen.setSignatureAlgorithm("SHA256WithRSAEncryption");
 		X509Certificate cert = certGen.generate(keyPair.getPrivate(), "BC");
 
-		PEMWriter pemWriter = new PEMWriter(new FileWriter(
-				"build/selfsigned.pem"));
-		pemWriter.writeObject(cert);
-		pemWriter.close();
+		KeyStore ks = KeyStore.getInstance("JKS");
+		File trustFile = new File("build/truststore.jks");
+		ks.load(null, null);
+		ks.setCertificateEntry("selfsigned", cert);
+		FileOutputStream fos = new FileOutputStream(trustFile);
+		ks.store(fos, "changeit".toCharArray());
+		fos.close();
 
 		return cert;
 	}

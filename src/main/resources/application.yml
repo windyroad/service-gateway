@@ -12,7 +12,9 @@ security:
     
 
 logging:
-    level: 'TRACE'
-#    level.org.apache.http.wire: 'DEBUG'
-#    level.au.com.windyroad.servicegateway: 'DEBUG'
+    level.org.apache.http.wire: 'DEBUG'
+    level.au.com.windyroad.servicegateway: 'DEBUG'
     
+    
+javax.net.ssl.trustStore: build/truststore.jks
+javax.net.ssl.trustStorePassword: changeit
