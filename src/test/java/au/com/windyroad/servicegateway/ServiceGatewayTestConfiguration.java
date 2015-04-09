@@ -49,7 +49,6 @@ public class ServiceGatewayTestConfiguration {
 	@Bean
 	public TomcatEmbeddedServletContainerFactory tomcatFactory()
 			throws Exception {
-		LOGGER.info("tomcatFactory");
 		serviceGatewayKeyStoreManager();
 		return new TomcatEmbeddedServletContainerFactory() {
 
@@ -61,13 +60,14 @@ public class ServiceGatewayTestConfiguration {
 		};
 	}
 
+	@Value("${au.com.windyroad.service-gateway.ssl.hostname}")
+	String sslHostname;
+
 	@Bean
 	public ServiceGatewayKeyStoreManager serviceGatewayKeyStoreManager()
 			throws Exception {
-		LOGGER.info("serviceGatewayKeyStoreManager");
-
 		return new ServiceGatewayKeyStoreManager(keyStore, keyStorePassword,
-				keyPassword);
+				keyPassword, sslHostname);
 	}
 
 	public void setPort(int port) {

@@ -22,14 +22,15 @@ import org.slf4j.LoggerFactory;
 public class ServiceGatewayKeyStoreManager {
 
 	public ServiceGatewayKeyStoreManager(String keyStore,
-			String keyStorePassword, String keyPassword) throws Exception {
-		createKeyStore(keyStore, keyStorePassword, keyPassword);
+			String keyStorePassword, String keyPassword, String domainName)
+			throws Exception {
+		createKeyStore(keyStore, keyStorePassword, keyPassword, domainName);
 	}
 
 	public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
 	private void createKeyStore(String keyStore, String keyStorePassword,
-			String keyPassword) throws Exception {
+			String keyPassword, String domainName) throws Exception {
 		KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
 
 		ks.load(null, keyStorePassword.toCharArray());
@@ -43,7 +44,7 @@ public class ServiceGatewayKeyStoreManager {
 				keyPair.getPrivate(),
 				keyPassword.toCharArray(),
 				new java.security.cert.Certificate[] { createSelfSignedCertificate(
-						keyPair, "localhost") });
+						keyPair, domainName) });
 		// Store away the keystore.
 		FileOutputStream fos = new FileOutputStream(keyStore);
 		ks.store(fos, keyStorePassword.toCharArray());

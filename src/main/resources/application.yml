@@ -1,3 +1,6 @@
+spring:
+  application.name: ServiceGateway
+
 server:
     port: 8443
     ssl:
