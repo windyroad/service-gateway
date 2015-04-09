@@ -53,12 +53,13 @@ public class ServiceGatewayApplication {
 	}
 
 	@Value("${au.com.windyroad.service-gateway.proxy.max.connections.total}")
-	private int proxyMaxConnections = 100;
+	private int proxyMaxConnectionsTotal;
 
 	@Value("${au.com.windyroad.service-gateway.proxy.max.connections.route}")
-	private int DEFAULT_MAX_CONNECTIONS_PER_ROUTE = 5;
+	private int proxyMaxConnectionsRoute;
 
-	private static final int DEFAULT_READ_TIMEOUT_MILLISECONDS = (60 * 1000);
+	@Value("${au.com.windyroad.service-gateway.proxy.read.timeout.ms}")
+	private int proxyReadTimeoutMs;
 
 	@Bean
 	Registry<SchemeIOSessionStrategy> schemeIOSessionStrategyRegistry()
@@ -75,16 +76,16 @@ public class ServiceGatewayApplication {
 		PoolingNHttpClientConnectionManager connectionManager = new PoolingNHttpClientConnectionManager(
 				new DefaultConnectingIOReactor(IOReactorConfig.DEFAULT),
 				schemeIOSessionStrategyRegistry());
-		connectionManager.setMaxTotal(proxyMaxConnections);
+		connectionManager.setMaxTotal(proxyMaxConnectionsTotal);
 		connectionManager
-				.setDefaultMaxPerRoute(DEFAULT_MAX_CONNECTIONS_PER_ROUTE);
+				.setDefaultMaxPerRoute(proxyMaxConnectionsRoute);
 		return connectionManager;
 	}
 
 	@Bean
 	RequestConfig httpClientRequestConfig() {
 		RequestConfig config = RequestConfig.custom()
-				.setConnectTimeout(DEFAULT_READ_TIMEOUT_MILLISECONDS).build();
+				.setConnectTimeout(proxyReadTimeoutMs).build();
 		return config;
 	}
 
