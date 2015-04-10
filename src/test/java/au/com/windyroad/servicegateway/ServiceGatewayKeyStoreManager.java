@@ -22,15 +22,18 @@ import org.slf4j.LoggerFactory;
 public class ServiceGatewayKeyStoreManager {
 
 	public ServiceGatewayKeyStoreManager(String keyStore,
-			String keyStorePassword, String keyPassword, String domainName)
+			String keyStorePassword, String keyPassword, String keyAlias,
+			String sslHostname, String trustStoreFile, String trustStorePassword)
 			throws Exception {
-		createKeyStore(keyStore, keyStorePassword, keyPassword, domainName);
+		createKeyStore(keyStore, keyStorePassword, keyPassword, keyAlias,
+				sslHostname, trustStoreFile, trustStorePassword);
 	}
 
 	public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
 	private void createKeyStore(String keyStore, String keyStorePassword,
-			String keyPassword, String domainName) throws Exception {
+			String keyPassword, String keyAlias, String domainName,
+			String trustStoreFile, String trustStorePassword) throws Exception {
 		KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
 
 		ks.load(null, keyStorePassword.toCharArray());
@@ -40,11 +43,12 @@ public class ServiceGatewayKeyStoreManager {
 		KeyPair keyPair = keyPairGenerator.generateKeyPair();
 
 		ks.setKeyEntry(
-				"selfsigned",
+				keyAlias,
 				keyPair.getPrivate(),
 				keyPassword.toCharArray(),
 				new java.security.cert.Certificate[] { createSelfSignedCertificate(
-						keyPair, domainName) });
+						keyPair, domainName, keyAlias, trustStoreFile,
+						trustStorePassword) });
 		// Store away the keystore.
 		FileOutputStream fos = new FileOutputStream(keyStore);
 		ks.store(fos, keyStorePassword.toCharArray());
@@ -57,7 +61,8 @@ public class ServiceGatewayKeyStoreManager {
 	}
 
 	private Certificate createSelfSignedCertificate(KeyPair keyPair,
-			String domainName) throws Exception {
+			String domainName, String keyAlias, String trustStoreFile,
+			String trustStorePassword) throws Exception {
 		// generate a key pair
 
 		// see
@@ -82,11 +87,11 @@ public class ServiceGatewayKeyStoreManager {
 		X509Certificate cert = certGen.generate(keyPair.getPrivate(), "BC");
 
 		KeyStore ks = KeyStore.getInstance("JKS");
-		File trustFile = new File("build/truststore.jks");
+		File trustFile = new File(trustStoreFile);
 		ks.load(null, null);
-		ks.setCertificateEntry("selfsigned", cert);
+		ks.setCertificateEntry(keyAlias, cert);
 		FileOutputStream fos = new FileOutputStream(trustFile);
-		ks.store(fos, "changeit".toCharArray());
+		ks.store(fos, trustStorePassword.toCharArray());
 		fos.close();
 
 		return cert;

@@ -38,8 +38,14 @@ public class ServiceGatewayApplication {
 	@Value("${au.com.windyroad.service-gateway.proxy.read.timeout.ms}")
 	private int proxyReadTimeoutMs;
 
-	@Value("${javax.net.ssl.trustStore}")
+	@Value("${server.ssl.protocol:TLS}")
+	String sslProtocol;
+
+	@Value("${javax.net.ssl.trustStore:build/truststore.jks}")
 	private String trustStoreFile;
+
+	@Value("${javax.net.ssl.trustStorePassword:changeit}")
+	private String trustStorePassword;
 
 	public static void main(String[] args) {
 		SpringApplication.run(ServiceGatewayApplication.class, args);
@@ -54,7 +60,7 @@ public class ServiceGatewayApplication {
 
 	@Bean
 	public SSLContext sslContext() throws Exception {
-		SSLContext sslContext = SSLContext.getInstance("TLS");
+		SSLContext sslContext = SSLContext.getInstance(sslProtocol);
 		TrustManagerFactory tmf = trustManagerFactory();
 		KeyStore ks = KeyStore.getInstance("JKS");
 		File trustFile = new File(trustStoreFile);

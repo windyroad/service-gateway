@@ -44,6 +44,21 @@ public class ServiceGatewayTestConfiguration {
 	@Value("${server.ssl.key-password}")
 	String keyPassword;
 
+	@Value("${server.ssl.key-alias}")
+	String keyAlias;
+
+	@Value("${au.com.windyroad.service-gateway.ssl.hostname}")
+	String sslHostname;
+
+	@Value("${server.ssl.protocol:TLS}")
+	String sslProtocol;
+
+	@Value("${javax.net.ssl.trustStore:build/truststore.jks}")
+	private String trustStoreFile;
+
+	@Value("${javax.net.ssl.trustStorePassword:changeit}")
+	private String trustStorePassword;
+
 	public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
 	@Bean
@@ -60,14 +75,12 @@ public class ServiceGatewayTestConfiguration {
 		};
 	}
 
-	@Value("${au.com.windyroad.service-gateway.ssl.hostname}")
-	String sslHostname;
-
 	@Bean
 	public ServiceGatewayKeyStoreManager serviceGatewayKeyStoreManager()
 			throws Exception {
 		return new ServiceGatewayKeyStoreManager(keyStore, keyStorePassword,
-				keyPassword, sslHostname);
+				keyPassword, keyAlias, sslHostname, trustStoreFile,
+				trustStorePassword);
 	}
 
 	public void setPort(int port) {
@@ -80,11 +93,11 @@ public class ServiceGatewayTestConfiguration {
 
 	@Bean
 	public SSLContext sslContext() throws Exception {
-		SSLContext sslContext = SSLContext.getInstance("TLS");
+		SSLContext sslContext = SSLContext.getInstance(sslProtocol);
 		TrustManagerFactory tmf = TrustManagerFactory
 				.getInstance(TrustManagerFactory.getDefaultAlgorithm());
 		KeyStore ks = KeyStore.getInstance("JKS");
-		File trustFile = new File("build/truststore.jks");
+		File trustFile = new File(trustStoreFile);
 		ks.load(new FileInputStream(trustFile), null);
 		tmf.init(ks);
 		sslContext.init(null, tmf.getTrustManagers(), null);
