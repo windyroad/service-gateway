@@ -20,10 +20,6 @@ logging:
     level.org.apache.http.wire: 'DEBUG'
     level.au.com.windyroad.servicegateway: 'DEBUG'
     
-    
-javax.net.ssl.trustStore: build/truststore.jks
-javax.net.ssl.trustStorePassword: changeit
-
 au.com.windyroad.service-gateway.proxy:
     max.connections:
         total: 100

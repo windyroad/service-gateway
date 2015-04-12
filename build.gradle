@@ -32,7 +32,8 @@ dependencies {
 	compile("org.springframework.boot:spring-boot-starter-web")
 	compile("org.springframework.boot:spring-boot-starter-actuator")
 	compile("org.springframework.boot:spring-boot-starter-security")
-
+	compile("org.springframework.boot:spring-boot-starter-security")
+	
 	compile("com.fasterxml.jackson.core:jackson-core:2.5.1")
 	compile('com.fasterxml.jackson.core:jackson-annotations:2.5.1')
 

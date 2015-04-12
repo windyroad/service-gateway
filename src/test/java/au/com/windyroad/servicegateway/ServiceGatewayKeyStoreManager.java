@@ -23,17 +23,18 @@ public class ServiceGatewayKeyStoreManager {
 
 	public ServiceGatewayKeyStoreManager(String keyStore,
 			String keyStorePassword, String keyPassword, String keyAlias,
-			String sslHostname, String trustStoreFile, String trustStorePassword)
-			throws Exception {
+			String sslHostname, String trustStoreFile,
+			String trustStorePassword, String trustStoreType) throws Exception {
 		createKeyStore(keyStore, keyStorePassword, keyPassword, keyAlias,
-				sslHostname, trustStoreFile, trustStorePassword);
+				sslHostname, trustStoreFile, trustStorePassword, trustStoreType);
 	}
 
 	public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
 	private void createKeyStore(String keyStore, String keyStorePassword,
 			String keyPassword, String keyAlias, String domainName,
-			String trustStoreFile, String trustStorePassword) throws Exception {
+			String trustStoreFile, String trustStorePassword,
+			String trustStoreType) throws Exception {
 		KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
 
 		ks.load(null, keyStorePassword.toCharArray());
@@ -48,7 +49,7 @@ public class ServiceGatewayKeyStoreManager {
 				keyPassword.toCharArray(),
 				new java.security.cert.Certificate[] { createSelfSignedCertificate(
 						keyPair, domainName, keyAlias, trustStoreFile,
-						trustStorePassword) });
+						trustStorePassword, trustStoreType) });
 		// Store away the keystore.
 		FileOutputStream fos = new FileOutputStream(keyStore);
 		ks.store(fos, keyStorePassword.toCharArray());
@@ -62,7 +63,7 @@ public class ServiceGatewayKeyStoreManager {
 
 	private Certificate createSelfSignedCertificate(KeyPair keyPair,
 			String domainName, String keyAlias, String trustStoreFile,
-			String trustStorePassword) throws Exception {
+			String trustStorePassword, String trustStoreType) throws Exception {
 		// generate a key pair
 
 		// see
@@ -86,14 +87,15 @@ public class ServiceGatewayKeyStoreManager {
 		certGen.setSignatureAlgorithm("SHA256WithRSAEncryption");
 		X509Certificate cert = certGen.generate(keyPair.getPrivate(), "BC");
 
-		KeyStore ks = KeyStore.getInstance("JKS");
-		File trustFile = new File(trustStoreFile);
-		ks.load(null, null);
-		ks.setCertificateEntry(keyAlias, cert);
-		FileOutputStream fos = new FileOutputStream(trustFile);
-		ks.store(fos, trustStorePassword.toCharArray());
-		fos.close();
-
+		if (trustStoreFile != null) {
+			KeyStore ks = KeyStore.getInstance(trustStoreType);
+			File trustFile = new File(trustStoreFile);
+			ks.load(null, null);
+			ks.setCertificateEntry(keyAlias, cert);
+			FileOutputStream fos = new FileOutputStream(trustFile);
+			ks.store(fos, trustStorePassword.toCharArray());
+			fos.close();
+		}
 		return cert;
 	}
 }

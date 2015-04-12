@@ -2,8 +2,12 @@ package au.com.windyroad.servicegateway;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
@@ -25,6 +29,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.util.StringUtils;
 
 @SpringBootApplication
 public class ServiceGatewayApplication {
@@ -41,14 +47,53 @@ public class ServiceGatewayApplication {
 	@Value("${server.ssl.protocol:TLS}")
 	String sslProtocol;
 
-	@Value("${javax.net.ssl.trustStore:build/truststore.jks}")
-	private String trustStoreFile;
+	@Value("${javax.net.ssl.trustStore:}")
+	private String trustStore;
+
+	public String getTrustStoreLocation() {
+		if (StringUtils.hasLength(trustStore)) {
+			return trustStore;
+		}
+		String locationProperty = System
+				.getProperty("javax.net.ssl.trustStore");
+		if (StringUtils.hasLength(locationProperty)) {
+			return locationProperty;
+		} else {
+			return systemDefaultTrustStoreLocation();
+		}
+	}
+
+	public String systemDefaultTrustStoreLocation() {
+		String javaHome = System.getProperty("java.home");
+		FileSystemResource location = new FileSystemResource(javaHome
+				+ "/lib/security/jssecacerts");
+		if (location.exists()) {
+			return location.getFilename();
+		} else {
+			return javaHome + "/lib/security/cacerts";
+		}
+	}
 
 	@Value("${javax.net.ssl.trustStorePassword:changeit}")
 	private String trustStorePassword;
 
+	@Value("${javax.net.ssl.trustStoreType:JKS}")
+	private String trustStoreType;
+
 	public static void main(String[] args) {
 		SpringApplication.run(ServiceGatewayApplication.class, args);
+	}
+
+	@Bean
+	KeyStore trustStore() throws KeyStoreException, IOException,
+			NoSuchAlgorithmException, CertificateException,
+			FileNotFoundException {
+		KeyStore ks = KeyStore.getInstance(trustStoreType);
+
+		File trustFile = new File(getTrustStoreLocation());
+		ks.load(new FileInputStream(trustFile),
+				trustStorePassword.toCharArray());
+		return ks;
 	}
 
 	@Bean
@@ -62,9 +107,7 @@ public class ServiceGatewayApplication {
 	public SSLContext sslContext() throws Exception {
 		SSLContext sslContext = SSLContext.getInstance(sslProtocol);
 		TrustManagerFactory tmf = trustManagerFactory();
-		KeyStore ks = KeyStore.getInstance("JKS");
-		File trustFile = new File(trustStoreFile);
-		ks.load(new FileInputStream(trustFile), null);
+		KeyStore ks = trustStore();
 		tmf.init(ks);
 		sslContext.init(null, tmf.getTrustManagers(), null);
 		return sslContext;
@@ -114,6 +157,14 @@ public class ServiceGatewayApplication {
 	@Bean
 	public CloseableHttpAsyncClient httpAsyncClient() throws Exception {
 		return httpAsyncClientBuilder().build();
+	}
+
+	public String getTrustStorePassword() {
+		return trustStorePassword;
+	}
+
+	public String getTrustStoreType() {
+		return trustStoreType;
 	}
 
 }
