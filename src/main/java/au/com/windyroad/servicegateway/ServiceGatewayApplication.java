@@ -35,13 +35,13 @@ import org.springframework.util.StringUtils;
 @SpringBootApplication
 public class ServiceGatewayApplication {
 
-	@Value("${au.com.windyroad.service-gateway.proxy.max.connections.total}")
+	@Value("${au.com.windyroad.service-gateway.proxy.max.connections.total:100}")
 	private int proxyMaxConnectionsTotal;
 
-	@Value("${au.com.windyroad.service-gateway.proxy.max.connections.route}")
+	@Value("${au.com.windyroad.service-gateway.proxy.max.connections.route:20}")
 	private int proxyMaxConnectionsRoute;
 
-	@Value("${au.com.windyroad.service-gateway.proxy.read.timeout.ms}")
+	@Value("${au.com.windyroad.service-gateway.proxy.read.timeout.ms:60000}")
 	private int proxyReadTimeoutMs;
 
 	@Value("${server.ssl.protocol:TLS}")
@@ -49,6 +49,12 @@ public class ServiceGatewayApplication {
 
 	@Value("${javax.net.ssl.trustStore:}")
 	private String trustStore;
+
+	@Value("${javax.net.ssl.trustStorePassword:changeit}")
+	private String trustStorePassword;
+
+	@Value("${javax.net.ssl.trustStoreType:JKS}")
+	private String trustStoreType;
 
 	public String getTrustStoreLocation() {
 		if (StringUtils.hasLength(trustStore)) {
@@ -73,12 +79,6 @@ public class ServiceGatewayApplication {
 			return javaHome + "/lib/security/cacerts";
 		}
 	}
-
-	@Value("${javax.net.ssl.trustStorePassword:changeit}")
-	private String trustStorePassword;
-
-	@Value("${javax.net.ssl.trustStoreType:JKS}")
-	private String trustStoreType;
 
 	public static void main(String[] args) {
 		SpringApplication.run(ServiceGatewayApplication.class, args);
