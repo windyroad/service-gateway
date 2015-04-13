@@ -12,15 +12,17 @@ public class BasicAuthHttpRequestIntercepter implements
 		ClientHttpRequestInterceptor {
 
 	private String password;
+	private String name;
 
-	public BasicAuthHttpRequestIntercepter(String password) {
+	public BasicAuthHttpRequestIntercepter(String name, String password) {
+		this.name = name;
 		this.password = password;
 	}
 
 	@Override
 	public ClientHttpResponse intercept(HttpRequest request, byte[] body,
 			ClientHttpRequestExecution execution) throws IOException {
-		String auth = "user:" + password;
+		String auth = name + ":" + password;
 		byte[] encodedAuth = org.apache.commons.codec.binary.Base64
 				.encodeBase64(auth.getBytes(Charset.forName("US-ASCII")));
 		request.getHeaders().add("Authorization",

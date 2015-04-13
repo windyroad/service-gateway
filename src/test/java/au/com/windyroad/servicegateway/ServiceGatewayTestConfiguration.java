@@ -92,31 +92,14 @@ public class ServiceGatewayTestConfiguration {
 		return port;
 	}
 
-	// @Bean
-	// public SSLContext sslContext() throws Exception {
-	// SSLContext sslContext = SSLContext.getInstance(sslProtocol);
-	// TrustManagerFactory tmf = TrustManagerFactory
-	// .getInstance(TrustManagerFactory.getDefaultAlgorithm());
-	// KeyStore ks = KeyStore.getInstance("JKS");
-	// File trustFile = new File(trustStoreFile);
-	// ks.load(new FileInputStream(trustFile), null);
-	// tmf.init(ks);
-	// sslContext.init(null, tmf.getTrustManagers(), null);
-	// return sslContext;
-	// }
+	@Value("${au.com.windyroad.service-gateway.proxy.max.connections.total:100}")
+	private int proxyMaxConnectionsTotal;
 
-	// @Bean
-	// public SSLConnectionSocketFactory sslSocketFactory() throws Exception {
-	// SSLConnectionSocketFactory sf = new SSLConnectionSocketFactory(
-	// sslContext());
-	// return sf;
-	// }
+	@Value("${au.com.windyroad.service-gateway.proxy.max.connections.route:20}")
+	private int proxyMaxConnectionsRoute;
 
-	private static final int DEFAULT_MAX_TOTAL_CONNECTIONS = 100;
-
-	private static final int DEFAULT_MAX_CONNECTIONS_PER_ROUTE = 5;
-
-	private static final int DEFAULT_READ_TIMEOUT_MILLISECONDS = (60 * 1000);
+	@Value("${au.com.windyroad.service-gateway.proxy.read.timeout.ms:60000}")
+	private int proxyReadTimeoutMs;
 
 	@Bean
 	public HttpClientBuilder httpClientBuilder() throws Exception {
@@ -135,7 +118,7 @@ public class ServiceGatewayTestConfiguration {
 	@Bean
 	RequestConfig httpClientRequestConfig() {
 		RequestConfig config = RequestConfig.custom()
-				.setConnectTimeout(DEFAULT_READ_TIMEOUT_MILLISECONDS).build();
+				.setConnectTimeout(proxyReadTimeoutMs).build();
 		return config;
 	}
 
@@ -154,9 +137,8 @@ public class ServiceGatewayTestConfiguration {
 	HttpClientConnectionManager httpClientConnectionManager() throws Exception {
 		PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(
 				httpConnectionSocketFactoryRegistry());
-		connectionManager.setMaxTotal(DEFAULT_MAX_TOTAL_CONNECTIONS);
-		connectionManager
-				.setDefaultMaxPerRoute(DEFAULT_MAX_CONNECTIONS_PER_ROUTE);
+		connectionManager.setMaxTotal(proxyMaxConnectionsTotal);
+		connectionManager.setDefaultMaxPerRoute(proxyMaxConnectionsRoute);
 		return connectionManager;
 	}
 
@@ -171,12 +153,15 @@ public class ServiceGatewayTestConfiguration {
 		return new HttpComponentsClientHttpRequestFactory(httpClient());
 	}
 
-	@Value("${security.user.password}")
+	@Value("${security.user.name:user}")
+	String name;
+
+	@Value("${security.user.password:password}")
 	String password;
 
 	@Bean
 	public BasicAuthHttpRequestIntercepter basicAuthHttpRequestIntercepter() {
-		return new BasicAuthHttpRequestIntercepter(password);
+		return new BasicAuthHttpRequestIntercepter(name, password);
 	}
 
 	@Bean
