@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import java.net.URI;
+import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,11 +56,7 @@ public class RestDriver implements Driver {
 	}
 
 	@Override
-	public void createProxy(String proxyPath, String targetEndPoint)
-			throws Exception {
-		MultiValueMap<String, String> params = new LinkedMultiValueMap<String, String>();
-		params.add("targetEndPoint", normaliseUrl(targetEndPoint));
-		params.add("proxyPath", proxyPath);
+	public void createProxy(Context context) throws Exception {
 
 		ResponseEntity<Resource> response = restTemplate.getForEntity(new URI(
 				"https://localhost:" + config.getPort() + "/admin/proxy"),
@@ -69,12 +66,21 @@ public class RestDriver implements Driver {
 		Control createProxy = resource.getControl("createProxy");
 		assertThat(createProxy, notNullValue());
 
+		MultiValueMap<String, Object> params = new LinkedMultiValueMap<String, Object>();
+		for (Entry<String, Class<?>> param : createProxy.getParams().entrySet()) {
+			Object value = context.get(param.getKey());
+			// if (param.getClass().isAssignableFrom(value.getClass())) {
+			params.add(param.getKey(), value);
+			// }
+		}
+
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
 		HttpEntity<?> request = new HttpEntity<>(params, headers);
 		URI location = restTemplate.postForLocation(createProxy.getHref(),
 				request);
+		context.put("proxy.location", location);
 	}
 
 	@Override
@@ -86,8 +92,8 @@ public class RestDriver implements Driver {
 
 	@Override
 	public void checkEndpointExists(Context context) {
-		throw new PendingException();
-
+		ResponseEntity<Resource> response = restTemplate.getForEntity(
+				(URI) context.get("proxy.location"), Resource.class);
 	}
 
 	@Override

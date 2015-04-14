@@ -29,19 +29,21 @@ public class Control {
 	@JsonProperty("params")
 	private Map<String, Class<?>> params = new HashMap<String, Class<?>>();
 
-	public Control() {
-	}
-
-	public Control(Method method) {
+	public Control(Method method, Object... pathParams) {
 		this.href = ControllerLinkBuilder.linkTo(method.getDeclaringClass(),
-				method).toUri();
+				method, pathParams).toUri();
 		this.rel = getRelName(method);
 		Parameter[] methodParams = method.getParameters();
 		this.method = method.getAnnotation(RequestMapping.class).method();
 		for (Parameter param : methodParams) {
 			RequestParam requestParam = param.getAnnotation(RequestParam.class);
-			params.put(requestParam.value(), param.getType());
+			if (requestParam != null) {
+				params.put(requestParam.value(), param.getType());
+			}
 		}
+	}
+
+	protected Control() {
 	}
 
 	private static String getRelName(Method method) {

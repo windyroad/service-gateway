@@ -52,10 +52,18 @@ public class StepDefs {
 		driver.checkPingService(path);
 	}
 
-	@Given("^\"(.*?)\" is proxied at \"(.*?)\"$")
-	public void is_proxied_at(String targetEndPoint, String proxyPath)
-			throws Throwable {
-		driver.createProxy(proxyPath.replace("/proxy/", ""), targetEndPoint);
+	@Given("^\"(.*?)\" is proxied at \"/proxy/(.*?)\"$")
+	public void is_proxied_at(String endpoint, String proxy) throws Throwable {
+		context.put("proxyName", proxy);
+		context.put("endpoint", normaliseUrl(endpoint));
+		driver.createProxy(context);
+	}
+
+	String normaliseUrl(String endpoint) {
+		if (endpoint.startsWith("/")) {
+			endpoint = "https://localhost:" + config.getPort() + endpoint;
+		}
+		return endpoint;
 	}
 
 	@When("^a request is successfully made to \"(.*?)\"$")
@@ -63,11 +71,11 @@ public class StepDefs {
 		driver.get(path);
 	}
 
-	@Then("^\"(.*?)\" will be listed in the endpoints proxied by \"(.*?)\"$")
+	@Then("^\"(.*?)\" will be listed in the endpoints proxied by \"/proxy/(.*?)\"$")
 	public void will_be_listed_in_the_endpoints_proxied_by(String endpoint,
 			String proxy) throws Throwable {
-		context.put("proxy", proxy);
-		context.put("endpoint", endpoint);
+		context.put("proxyName", proxy);
+		context.put("endpoint", normaliseUrl(endpoint));
 		driver.checkEndpointExists(context);
 	}
 

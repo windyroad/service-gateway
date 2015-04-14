@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import au.com.windyroad.hateoas.Control;
 import au.com.windyroad.hateoas.Rel;
+import au.com.windyroad.hateoas.Resource;
 import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
-import au.com.windyroad.servicegateway.resource.ProxyResource;
 
 @Controller
 @RequestMapping(value = "/admin/proxy")
@@ -34,13 +34,13 @@ public class AdminProxiesController {
 	@Rel("self")
 	public ResponseEntity<?> proxies() throws URISyntaxException,
 			NoSuchMethodException, SecurityException {
-		ProxyResource proxyResource = new ProxyResource(proxies);
+		Resource<Proxies> proxyResource = new Resource<Proxies>(proxies);
 		proxyResource.addControl(new Control(this.getClass().getMethod(
 				"proxies")));
 		proxyResource.addControl(new Control(this.getClass().getMethod(
 				"createProxy", new Class<?>[] { String.class, String.class })));
 
-		ResponseEntity<ProxyResource> responseEntity = new ResponseEntity<ProxyResource>(
+		ResponseEntity<Resource<Proxies>> responseEntity = new ResponseEntity<Resource<Proxies>>(
 				proxyResource, HttpStatus.OK);
 		return responseEntity;
 	}
@@ -49,14 +49,14 @@ public class AdminProxiesController {
 	@ResponseBody
 	@Rel("createProxy")
 	public ResponseEntity<?> createProxy(
-			@RequestParam("targetEndPoint") String targetEndPoint,
-			@RequestParam("proxyPath") String proxyPath)
+			@RequestParam("proxyName") String proxyName,
+			@RequestParam("endpoint") String endpoint)
 			throws URISyntaxException, NoSuchMethodException, SecurityException {
-		Proxy proxy = proxies.createProxy(proxyPath, targetEndPoint);
+		Proxy proxy = proxies.createProxy(proxyName, endpoint);
 		URI location = ControllerLinkBuilder.linkTo(
 				AdminProxyController.class,
 				AdminProxyController.class.getMethod("proxy",
-						new Class<?>[] { String.class }), proxyPath).toUri();
+						new Class<?>[] { String.class }), proxyName).toUri();
 		return ResponseEntity.created(location).build();
 	}
 }

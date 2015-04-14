@@ -27,18 +27,18 @@ public class AdminProxyController {
 	@Autowired
 	Proxies proxies;
 
-	@RequestMapping(value = "/{name}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{proxyName}", method = RequestMethod.GET)
 	@ResponseBody
 	@Rel("self")
-	public ResponseEntity<?> proxy(@PathVariable("name") String name)
+	public ResponseEntity<?> proxy(@PathVariable("proxyName") String proxyName)
 			throws URISyntaxException, NoSuchMethodException, SecurityException {
 		Resource<Proxy> proxyResource = new Resource<Proxy>(
-				proxies.getProxy(name));
+				proxies.getProxy(proxyName));
 		if (proxyResource.getContent() == null) {
 			return ResponseEntity.notFound().build();
 		}
-		proxyResource
-				.addControl(new Control(this.getClass().getMethod("proxy")));
+		proxyResource.addControl(new Control(this.getClass().getMethod("proxy",
+				new Class<?>[] { String.class }), proxyName));
 		ResponseEntity<Resource<Proxy>> responseEntity = new ResponseEntity<Resource<Proxy>>(
 				proxyResource, HttpStatus.OK);
 		return responseEntity;

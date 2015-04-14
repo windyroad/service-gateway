@@ -8,7 +8,7 @@ public interface Driver {
 
 	void checkPingService(String path) throws Exception;
 
-	void createProxy(String proxyPath, String targetEndPoint) throws Exception;
+	void createProxy(Context context) throws Exception;
 
 	void get(String path) throws Exception;
 

@@ -47,8 +47,9 @@ public class JavaDriver implements Driver {
 	}
 
 	@Override
-	public void createProxy(String proxyPath, String targetEndPoint) {
-		proxies.createProxy(proxyPath, normaliseUrl(targetEndPoint));
+	public void createProxy(Context context) {
+		proxies.createProxy((String) context.get("proxyName"),
+				(String) context.get("endpoint"));
 	}
 
 	@Override
@@ -60,23 +61,15 @@ public class JavaDriver implements Driver {
 
 	@Override
 	public void checkEndpointExists(Context context) {
-		assertThat(
-				proxies.getProxy(context.get("proxy")).getEndpoint(
-						normaliseUrl(context.get("endpoint"))), notNullValue());
+		assertThat(proxies.getProxy((String) context.get("proxyName"))
+				.getEndpoint((String) context.get("endpoint")), notNullValue());
 
 	}
 
 	@Override
 	public void checkEndpointAvailable(Context context) {
-		assertTrue(proxies.getProxy(context.get("proxy")).getEndpoint(
-				normaliseUrl(context.get("endpoint"))));
-	}
-
-	String normaliseUrl(String endpoint) {
-		if (endpoint.startsWith("/")) {
-			endpoint = "https://localhost:" + config.getPort() + endpoint;
-		}
-		return endpoint;
+		assertTrue(proxies.getProxy((String) context.get("proxyName"))
+				.getEndpoint((String) context.get("endpoint")));
 	}
 
 }
