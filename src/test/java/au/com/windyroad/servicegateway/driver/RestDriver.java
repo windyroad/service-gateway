@@ -21,11 +21,10 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import au.com.windyroad.hateoas.Control;
-import au.com.windyroad.hateoas.Resource;
 import au.com.windyroad.servicegateway.Context;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.model.Proxies;
-import cucumber.api.PendingException;
+import au.com.windyroad.servicegateway.model.Proxy;
 
 @Component
 @Profile(value = "integration")
@@ -58,12 +57,12 @@ public class RestDriver implements Driver {
 	@Override
 	public void createProxy(Context context) throws Exception {
 
-		ResponseEntity<Resource> response = restTemplate.getForEntity(new URI(
+		ResponseEntity<Proxies> response = restTemplate.getForEntity(new URI(
 				"https://localhost:" + config.getPort() + "/admin/proxy"),
-				Resource.class);
-		Resource<?> resource = response.getBody();
+				Proxies.class);
+		Proxies proxy = response.getBody();
 
-		Control createProxy = resource.getControl("createProxy");
+		Control createProxy = proxy.getControl("createProxy");
 		assertThat(createProxy, notNullValue());
 
 		MultiValueMap<String, Object> params = new LinkedMultiValueMap<String, Object>();
@@ -92,13 +91,17 @@ public class RestDriver implements Driver {
 
 	@Override
 	public void checkEndpointExists(Context context) {
-		ResponseEntity<Resource> response = restTemplate.getForEntity(
-				(URI) context.get("proxy.location"), Resource.class);
+		ResponseEntity<Proxy> response = restTemplate.getForEntity(
+				(URI) context.get("proxy.location"), Proxy.class);
+		Proxy proxy = response.getBody();
+		context.put("proxy", proxy);
 	}
 
 	@Override
 	public void checkEndpointAvailable(Context context) {
-		throw new PendingException();
+		Proxy proxy = (Proxy) context.get("proxy");
+		Boolean available = proxy.getEndpoint((String) context.get("endpoint"));
+		assertTrue(available);
 	}
 
 	String normaliseUrl(String endpoint) {

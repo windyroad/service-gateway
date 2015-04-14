@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import au.com.windyroad.hateoas.Control;
 import au.com.windyroad.hateoas.Rel;
-import au.com.windyroad.hateoas.Resource;
 import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
 
@@ -34,14 +33,12 @@ public class AdminProxiesController {
 	@Rel("self")
 	public ResponseEntity<?> proxies() throws URISyntaxException,
 			NoSuchMethodException, SecurityException {
-		Resource<Proxies> proxyResource = new Resource<Proxies>(proxies);
-		proxyResource.addControl(new Control(this.getClass().getMethod(
-				"proxies")));
-		proxyResource.addControl(new Control(this.getClass().getMethod(
-				"createProxy", new Class<?>[] { String.class, String.class })));
+		proxies.addControl(new Control(this.getClass().getMethod("proxies")));
+		proxies.addControl(new Control(this.getClass().getMethod("createProxy",
+				new Class<?>[] { String.class, String.class })));
 
-		ResponseEntity<Resource<Proxies>> responseEntity = new ResponseEntity<Resource<Proxies>>(
-				proxyResource, HttpStatus.OK);
+		ResponseEntity<Proxies> responseEntity = new ResponseEntity<Proxies>(
+				proxies, HttpStatus.OK);
 		return responseEntity;
 	}
 

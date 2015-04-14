@@ -5,21 +5,12 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Resource<T> {
-
-	@JsonProperty("_content")
-	private T content;
+public class Resource {
 
 	@JsonProperty("_controls")
 	private Set<Control> controls;
 
-	public Resource(T content) {
-		this.content = content;
-		this.controls = new HashSet<>();
-	}
-
 	public Resource() {
-		this.content = null;
 		this.controls = new HashSet<>();
 	}
 
@@ -39,10 +30,6 @@ public class Resource<T> {
 			}
 		}
 		return null;
-	}
-
-	public T getContent() {
-		return this.content;
 	}
 
 }
