@@ -35,6 +35,8 @@ public class StepDefs {
 	@Autowired
 	ServiceGatewayTestConfiguration config;
 
+	private Context context = new Context();
+
 	@PostConstruct
 	private void initConfig() {
 		config.setPort(port);
@@ -53,7 +55,7 @@ public class StepDefs {
 	@Given("^\"(.*?)\" is proxied at \"(.*?)\"$")
 	public void is_proxied_at(String targetEndPoint, String proxyPath)
 			throws Throwable {
-		driver.createProxy(targetEndPoint, proxyPath.replace("/proxy/", ""));
+		driver.createProxy(proxyPath.replace("/proxy/", ""), targetEndPoint);
 	}
 
 	@When("^a request is successfully made to \"(.*?)\"$")
@@ -61,15 +63,17 @@ public class StepDefs {
 		driver.get(path);
 	}
 
-	@Then("^\"(.*?)\" will be listed in the proxied endpoints$")
-	public void will_be_listed_in_the_proxied_endpoints(String endpoint)
-			throws Throwable {
-		driver.checkEndpointExists(endpoint);
+	@Then("^\"(.*?)\" will be listed in the endpoints proxied by \"(.*?)\"$")
+	public void will_be_listed_in_the_endpoints_proxied_by(String endpoint,
+			String proxy) throws Throwable {
+		context.put("proxy", proxy);
+		context.put("endpoint", endpoint);
+		driver.checkEndpointExists(context);
 	}
 
-	@Then("^\"(.*?)\" will be shown as available$")
-	public void will_be_shown_as_available(String endpoint) throws Throwable {
-		driver.checkEndpointAvailable(endpoint);
+	@Then("^the endpoint will be shown as available$")
+	public void the_endpoint_will_be_shown_as_available() throws Throwable {
+		driver.checkEndpointAvailable(context);
 	}
 
 }

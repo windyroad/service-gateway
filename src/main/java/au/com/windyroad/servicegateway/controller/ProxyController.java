@@ -1,9 +1,7 @@
-package au.com.windyroad.servicegateway;
+package au.com.windyroad.servicegateway.controller;
 
 import java.io.IOException;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,39 +20,43 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.servlet.HandlerMapping;
 
-@Component
-@RestController
-public class Proxy {
+import au.com.windyroad.servicegateway.model.Proxies;
+import au.com.windyroad.servicegateway.model.Proxy;
+
+@Controller
+public class ProxyController {
 	public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+
+	@Autowired
+	Proxies proxies;
 
 	private static class CBack implements FutureCallback<HttpResponse> {
 		private CloseableHttpAsyncClient httpAsyncClient;
 		private DeferredResult<ResponseEntity<?>> deferredResult;
 		private String target;
-		private Map<String, Boolean> endpoints;
 
 		private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+		private Proxy proxy;
 
 		public CBack(CloseableHttpAsyncClient httpAsyncClient,
-				DeferredResult<ResponseEntity<?>> deferredResult,
-				String target, Map<String, Boolean> endpoints) {
+				DeferredResult<ResponseEntity<?>> deferredResult, Proxy proxy,
+				String target) {
 			this.httpAsyncClient = httpAsyncClient;
 			this.deferredResult = deferredResult;
 			this.target = target;
-			this.endpoints = endpoints;
+			this.proxy = proxy;
 		}
 
 		@Override
 		public void failed(Exception ex) {
 			LOGGER.error("Failure while processing: ", ex);
-			endpoints.put(target, false);
+			proxy.addEndpoint(target, false);
 			deferredResult.setErrorResult(ex);
 			close();
 		}
@@ -78,7 +80,7 @@ public class Proxy {
 							httpHeaders, httpStatus);
 				}
 				deferredResult.setResult(responseEntity);
-				endpoints.put(target, true);
+				proxy.addEndpoint(target, true);
 
 			} catch (Exception e) {
 				LOGGER.error("Failure while processing response:", e);
@@ -112,13 +114,6 @@ public class Proxy {
 		}
 	}
 
-	private Map<String, String> proxies = new HashMap<>();
-	private Map<String, Boolean> endpoints = new HashMap<>();
-
-	public void createProxy(String targetEndPoint, String proxyPath) {
-		proxies.put(proxyPath, targetEndPoint);
-	}
-
 	@Autowired
 	CloseableHttpAsyncClient httpAsyncClient;
 
@@ -129,12 +124,13 @@ public class Proxy {
 			@PathVariable("name") String name) {
 		DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<ResponseEntity<?>>();
 
-		if (proxies.containsKey(name)) {
+		Proxy proxy = proxies.getProxy(name);
+		if (proxy != null) {
 			String url = (String) request
 					.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
 			String restOfTheUrl = url.replace("/proxy/" + name + "/", "");
-			String target = proxies.get(name) + "/" + restOfTheUrl;
-			endpoints.put(target, false);
+			String target = proxy.getTarget() + "/" + restOfTheUrl;
+			proxy.addEndpoint(target, false);
 
 			httpAsyncClient.start();
 			HttpGet newRequest = new HttpGet(target);
@@ -151,7 +147,7 @@ public class Proxy {
 			LOGGER.debug("{ 'event': 'proxyReqeust', 'from': '" + url
 					+ "', 'to': '" + target + "' }");
 			httpAsyncClient.execute(newRequest, new CBack(httpAsyncClient,
-					deferredResult, target, endpoints));
+					deferredResult, proxy, target));
 
 		} else {
 			LOGGER.error("{ 'error': 'proxy not found', 'proxyName' : '" + name
@@ -161,11 +157,4 @@ public class Proxy {
 		return deferredResult;
 	}
 
-	public boolean endPointExists(String endpoint) {
-		return endpoints.containsKey(endpoint);
-	}
-
-	public boolean endPointAvailable(String endpoint) {
-		return endpoints.get(endpoint);
-	}
 }

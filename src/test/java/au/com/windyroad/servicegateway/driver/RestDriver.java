@@ -9,23 +9,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import au.com.windyroad.hateoas.Control;
+import au.com.windyroad.hateoas.Resource;
 import au.com.windyroad.servicegateway.Context;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.model.Proxies;
+import cucumber.api.PendingException;
 
 @Component
-@Profile(value = "default")
-public class JavaDriver implements Driver {
+@Profile(value = "integration")
+public class RestDriver implements Driver {
 
 	public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
-	Proxies proxies;
+	Proxies proxy;
 
 	@Autowired
 	ServiceGatewayTestConfiguration config;
@@ -47,8 +55,26 @@ public class JavaDriver implements Driver {
 	}
 
 	@Override
-	public void createProxy(String proxyPath, String targetEndPoint) {
-		proxies.createProxy(proxyPath, normaliseUrl(targetEndPoint));
+	public void createProxy(String proxyPath, String targetEndPoint)
+			throws Exception {
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<String, String>();
+		params.add("targetEndPoint", normaliseUrl(targetEndPoint));
+		params.add("proxyPath", proxyPath);
+
+		ResponseEntity<Resource> response = restTemplate.getForEntity(new URI(
+				"https://localhost:" + config.getPort() + "/admin/proxy"),
+				Resource.class);
+		Resource<?> resource = response.getBody();
+
+		Control createProxy = resource.getControl("createProxy");
+		assertThat(createProxy, notNullValue());
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+		HttpEntity<?> request = new HttpEntity<>(params, headers);
+		URI location = restTemplate.postForLocation(createProxy.getHref(),
+				request);
 	}
 
 	@Override
@@ -60,16 +86,13 @@ public class JavaDriver implements Driver {
 
 	@Override
 	public void checkEndpointExists(Context context) {
-		assertThat(
-				proxies.getProxy(context.get("proxy")).getEndpoint(
-						normaliseUrl(context.get("endpoint"))), notNullValue());
+		throw new PendingException();
 
 	}
 
 	@Override
 	public void checkEndpointAvailable(Context context) {
-		assertTrue(proxies.getProxy(context.get("proxy")).getEndpoint(
-				normaliseUrl(context.get("endpoint"))));
+		throw new PendingException();
 	}
 
 	String normaliseUrl(String endpoint) {
