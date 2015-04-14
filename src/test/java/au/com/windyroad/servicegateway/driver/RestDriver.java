@@ -68,9 +68,9 @@ public class RestDriver implements Driver {
 		MultiValueMap<String, Object> params = new LinkedMultiValueMap<String, Object>();
 		for (Entry<String, Class<?>> param : createProxy.getParams().entrySet()) {
 			Object value = context.get(param.getKey());
-			// if (param.getClass().isAssignableFrom(value.getClass())) {
-			params.add(param.getKey(), value);
-			// }
+			if (param.getValue().isAssignableFrom(value.getClass())) {
+				params.add(param.getKey(), value);
+			}
 		}
 
 		HttpHeaders headers = new HttpHeaders();
