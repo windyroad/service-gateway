@@ -1,5 +1,6 @@
 package au.com.windyroad.servicegateway;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 import org.apache.catalina.startup.Tomcat;
@@ -12,6 +13,7 @@ import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +22,12 @@ import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletCon
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
+
+import au.com.windyroad.servicegateway.driver.WebDriverFactory;
 
 @Configuration
 public class ServiceGatewayTestConfiguration {
@@ -171,6 +176,18 @@ public class ServiceGatewayTestConfiguration {
 				.setInterceptors(Arrays
 						.asList(new ClientHttpRequestInterceptor[] { basicAuthHttpRequestIntercepter() }));
 		return restTemplate;
+	}
+
+	@Autowired
+	private WebDriverFactory webDriverFactory;
+
+	@Bean(destroyMethod = "quit")
+	@Profile("ui-integration")
+	public WebDriver webDriver() throws ClassNotFoundException,
+			NoSuchMethodException, SecurityException, InstantiationException,
+			IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException {
+		return webDriverFactory.createWebDriver();
 	}
 
 }
