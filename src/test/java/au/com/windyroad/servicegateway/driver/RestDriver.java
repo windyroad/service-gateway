@@ -30,6 +30,7 @@ import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.TestContext;
 import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
+import cucumber.api.PendingException;
 
 @Component
 @Profile(value = "integration")
@@ -75,6 +76,8 @@ public class RestDriver implements Driver {
 			Object value = context.get(param.getKey());
 			if (isValid(value, param.getKey(), param.getValue())) {
 				params.add(param.getKey(), value);
+			} else {
+				throw new PendingException("handle validation error here");
 			}
 		}
 
