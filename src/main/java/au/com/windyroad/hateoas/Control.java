@@ -1,5 +1,6 @@
 package au.com.windyroad.hateoas;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.net.URI;
@@ -27,9 +28,11 @@ public class Control {
 	private RequestMethod[] method;
 
 	@JsonProperty("params")
-	private Map<String, Class<?>> params = new HashMap<String, Class<?>>();
+	private Map<String, Param> params = new HashMap<>();
 
-	public Control(Method method, Object... pathParams) {
+	public Control(Method method, Object... pathParams)
+			throws IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException, NoSuchMethodException, SecurityException {
 		this.href = ControllerLinkBuilder.linkTo(method.getDeclaringClass(),
 				method, pathParams).toUri();
 		this.rel = getRelName(method);
@@ -38,7 +41,12 @@ public class Control {
 		for (Parameter param : methodParams) {
 			RequestParam requestParam = param.getAnnotation(RequestParam.class);
 			if (requestParam != null) {
-				params.put(requestParam.value(), param.getType());
+				Validation validation = param.getAnnotation(Validation.class);
+				Class<?> type = param.getType();
+				String validationMethodName = validation.value();
+				String validator = (String) method.getDeclaringClass()
+						.getMethod(validationMethodName).invoke(null);
+				params.put(requestParam.value(), new Param(type, validator));
 			}
 		}
 	}
@@ -94,7 +102,7 @@ public class Control {
 		return this.href;
 	}
 
-	public Map<String, Class<?>> getParams() {
+	public Map<String, Param> getParams() {
 		return this.params;
 	}
 

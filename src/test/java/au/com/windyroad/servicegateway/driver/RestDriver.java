@@ -6,6 +6,10 @@ import static org.junit.Assert.*;
 import java.net.URI;
 import java.util.Map.Entry;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +25,9 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import au.com.windyroad.hateoas.Control;
-import au.com.windyroad.servicegateway.Context;
+import au.com.windyroad.hateoas.Param;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
+import au.com.windyroad.servicegateway.TestContext;
 import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
 
@@ -55,7 +60,7 @@ public class RestDriver implements Driver {
 	}
 
 	@Override
-	public void createProxy(Context context) throws Exception {
+	public void createProxy(TestContext context) throws Exception {
 
 		ResponseEntity<Proxies> response = restTemplate.getForEntity(new URI(
 				"https://localhost:" + config.getPort() + "/admin/proxy"),
@@ -66,9 +71,9 @@ public class RestDriver implements Driver {
 		assertThat(createProxy, notNullValue());
 
 		MultiValueMap<String, Object> params = new LinkedMultiValueMap<String, Object>();
-		for (Entry<String, Class<?>> param : createProxy.getParams().entrySet()) {
+		for (Entry<String, Param> param : createProxy.getParams().entrySet()) {
 			Object value = context.get(param.getKey());
-			if (param.getValue().isAssignableFrom(value.getClass())) {
+			if (isValid(value, param.getKey(), param.getValue())) {
 				params.add(param.getKey(), value);
 			}
 		}
@@ -82,6 +87,20 @@ public class RestDriver implements Driver {
 		context.put("proxy.location", location);
 	}
 
+	private boolean isValid(Object value, String paramName, Param param)
+			throws ScriptException {
+		if (param.getType().isAssignableFrom(value.getClass())) {
+			String validation = param.getValidation();
+			ScriptEngineManager factory = new ScriptEngineManager();
+			ScriptEngine engine = factory.getEngineByName("JavaScript");
+			engine.put(paramName, value);
+			engine.eval(validation);
+			Boolean result = (Boolean) engine.get("valid");
+			return result;
+		}
+		return false;
+	}
+
 	@Override
 	public void get(String path) throws Exception {
 		ResponseEntity<String> response = restTemplate.getForEntity(new URI(
@@ -90,7 +109,7 @@ public class RestDriver implements Driver {
 	}
 
 	@Override
-	public void checkEndpointExists(Context context) {
+	public void checkEndpointExists(TestContext context) {
 		ResponseEntity<Proxy> response = restTemplate.getForEntity(
 				(URI) context.get("proxy.location"), Proxy.class);
 		Proxy proxy = response.getBody();
@@ -98,7 +117,7 @@ public class RestDriver implements Driver {
 	}
 
 	@Override
-	public void checkEndpointAvailable(Context context) {
+	public void checkEndpointAvailable(TestContext context) {
 		Proxy proxy = (Proxy) context.get("proxy");
 		Boolean available = proxy.getEndpoint((String) context.get("endpoint"));
 		assertTrue(available);

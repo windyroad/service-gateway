@@ -1,6 +1,6 @@
 package au.com.windyroad.servicegateway.driver;
 
-import au.com.windyroad.servicegateway.Context;
+import au.com.windyroad.servicegateway.TestContext;
 
 public interface Driver {
 
@@ -8,12 +8,12 @@ public interface Driver {
 
 	void checkPingService(String path) throws Exception;
 
-	void createProxy(Context context) throws Exception;
+	void createProxy(TestContext context) throws Exception;
 
 	void get(String path) throws Exception;
 
-	void checkEndpointAvailable(Context context);
+	void checkEndpointAvailable(TestContext context);
 
-	void checkEndpointExists(Context context);
+	void checkEndpointExists(TestContext context);
 
 }

@@ -35,7 +35,7 @@ public class StepDefs {
 	@Autowired
 	ServiceGatewayTestConfiguration config;
 
-	private Context context = new Context();
+	private TestContext context = new TestContext();
 
 	@PostConstruct
 	private void initConfig() {

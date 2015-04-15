@@ -1,5 +1,6 @@
 package au.com.windyroad.servicegateway.controller;
 
+import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 
 import org.slf4j.Logger;
@@ -30,7 +31,9 @@ public class AdminProxyController {
 	@ResponseBody
 	@Rel("self")
 	public ResponseEntity<?> proxy(@PathVariable("proxyName") String proxyName)
-			throws URISyntaxException, NoSuchMethodException, SecurityException {
+			throws URISyntaxException, NoSuchMethodException,
+			SecurityException, IllegalAccessException,
+			IllegalArgumentException, InvocationTargetException {
 		Proxy proxy = proxies.getProxy(proxyName);
 		if (proxy == null) {
 			return ResponseEntity.notFound().build();

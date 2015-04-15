@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import au.com.windyroad.servicegateway.Context;
+import au.com.windyroad.servicegateway.TestContext;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.model.Proxies;
 
@@ -47,7 +47,7 @@ public class JavaDriver implements Driver {
 	}
 
 	@Override
-	public void createProxy(Context context) {
+	public void createProxy(TestContext context) {
 		proxies.createProxy((String) context.get("proxyName"),
 				(String) context.get("endpoint"));
 	}
@@ -60,14 +60,14 @@ public class JavaDriver implements Driver {
 	}
 
 	@Override
-	public void checkEndpointExists(Context context) {
+	public void checkEndpointExists(TestContext context) {
 		assertThat(proxies.getProxy((String) context.get("proxyName"))
 				.getEndpoint((String) context.get("endpoint")), notNullValue());
 
 	}
 
 	@Override
-	public void checkEndpointAvailable(Context context) {
+	public void checkEndpointAvailable(TestContext context) {
 		assertTrue(proxies.getProxy((String) context.get("proxyName"))
 				.getEndpoint((String) context.get("endpoint")));
 	}
