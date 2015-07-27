@@ -35,136 +35,136 @@ import org.springframework.util.StringUtils;
 @SpringBootApplication
 public class ServiceGatewayApplication {
 
-	@Value("${au.com.windyroad.service-gateway.proxy.max.connections.total:100}")
-	private int proxyMaxConnectionsTotal;
+    @Value("${au.com.windyroad.service-gateway.proxy.max.connections.total:100}")
+    private int proxyMaxConnectionsTotal;
 
-	@Value("${au.com.windyroad.service-gateway.proxy.max.connections.route:20}")
-	private int proxyMaxConnectionsRoute;
+    @Value("${au.com.windyroad.service-gateway.proxy.max.connections.route:20}")
+    private int proxyMaxConnectionsRoute;
 
-	@Value("${au.com.windyroad.service-gateway.proxy.read.timeout.ms:60000}")
-	private int proxyReadTimeoutMs;
+    @Value("${au.com.windyroad.service-gateway.proxy.read.timeout.ms:60000}")
+    private int proxyReadTimeoutMs;
 
-	@Value("${server.ssl.protocol:TLS}")
-	String sslProtocol;
+    @Value("${server.ssl.protocol:TLS}")
+    String sslProtocol;
 
-	@Value("${javax.net.ssl.trustStore:}")
-	private String trustStore;
+    @Value("${javax.net.ssl.trustStore:}")
+    private String trustStore;
 
-	@Value("${javax.net.ssl.trustStorePassword:changeit}")
-	private String trustStorePassword;
+    @Value("${javax.net.ssl.trustStorePassword:changeit}")
+    private String trustStorePassword;
 
-	@Value("${javax.net.ssl.trustStoreType:JKS}")
-	private String trustStoreType;
+    @Value("${javax.net.ssl.trustStoreType:JKS}")
+    private String trustStoreType;
 
-	public String getTrustStoreLocation() {
-		if (StringUtils.hasLength(trustStore)) {
-			return trustStore;
-		}
-		String locationProperty = System
-				.getProperty("javax.net.ssl.trustStore");
-		if (StringUtils.hasLength(locationProperty)) {
-			return locationProperty;
-		} else {
-			return systemDefaultTrustStoreLocation();
-		}
-	}
+    public String getTrustStoreLocation() {
+        if (StringUtils.hasLength(trustStore)) {
+            return trustStore;
+        }
+        String locationProperty = System
+                .getProperty("javax.net.ssl.trustStore");
+        if (StringUtils.hasLength(locationProperty)) {
+            return locationProperty;
+        } else {
+            return systemDefaultTrustStoreLocation();
+        }
+    }
 
-	public String systemDefaultTrustStoreLocation() {
-		String javaHome = System.getProperty("java.home");
-		FileSystemResource location = new FileSystemResource(javaHome
-				+ "/lib/security/jssecacerts");
-		if (location.exists()) {
-			return location.getFilename();
-		} else {
-			return javaHome + "/lib/security/cacerts";
-		}
-	}
+    public String systemDefaultTrustStoreLocation() {
+        String javaHome = System.getProperty("java.home");
+        FileSystemResource location = new FileSystemResource(javaHome
+                + "/lib/security/jssecacerts");
+        if (location.exists()) {
+            return location.getFilename();
+        } else {
+            return javaHome + "/lib/security/cacerts";
+        }
+    }
 
-	public static void main(String[] args) {
-		SpringApplication.run(ServiceGatewayApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(ServiceGatewayApplication.class, args);
+    }
 
-	@Bean
-	KeyStore trustStore() throws KeyStoreException, IOException,
-			NoSuchAlgorithmException, CertificateException,
-			FileNotFoundException {
-		KeyStore ks = KeyStore.getInstance(trustStoreType);
+    @Bean
+    KeyStore trustStore() throws KeyStoreException, IOException,
+            NoSuchAlgorithmException, CertificateException,
+            FileNotFoundException {
+        KeyStore ks = KeyStore.getInstance(trustStoreType);
 
-		File trustFile = new File(getTrustStoreLocation());
-		ks.load(new FileInputStream(trustFile),
-				trustStorePassword.toCharArray());
-		return ks;
-	}
+        File trustFile = new File(getTrustStoreLocation());
+        ks.load(new FileInputStream(trustFile),
+                trustStorePassword.toCharArray());
+        return ks;
+    }
 
-	@Bean
-	TrustManagerFactory trustManagerFactory() throws NoSuchAlgorithmException {
-		TrustManagerFactory tmf = TrustManagerFactory
-				.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-		return tmf;
-	}
+    @Bean
+    TrustManagerFactory trustManagerFactory() throws NoSuchAlgorithmException {
+        TrustManagerFactory tmf = TrustManagerFactory
+                .getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        return tmf;
+    }
 
-	@Bean
-	public SSLContext sslContext() throws Exception {
-		SSLContext sslContext = SSLContext.getInstance(sslProtocol);
-		TrustManagerFactory tmf = trustManagerFactory();
-		KeyStore ks = trustStore();
-		tmf.init(ks);
-		sslContext.init(null, tmf.getTrustManagers(), null);
-		return sslContext;
-	}
+    @Bean
+    public SSLContext sslContext() throws Exception {
+        SSLContext sslContext = SSLContext.getInstance(sslProtocol);
+        TrustManagerFactory tmf = trustManagerFactory();
+        KeyStore ks = trustStore();
+        tmf.init(ks);
+        sslContext.init(null, tmf.getTrustManagers(), null);
+        return sslContext;
+    }
 
-	@Bean
-	public SSLConnectionSocketFactory sslSocketFactory() throws Exception {
-		SSLConnectionSocketFactory sf = new SSLConnectionSocketFactory(
-				sslContext());
-		return sf;
-	}
+    @Bean
+    public SSLConnectionSocketFactory sslSocketFactory() throws Exception {
+        SSLConnectionSocketFactory sf = new SSLConnectionSocketFactory(
+                sslContext());
+        return sf;
+    }
 
-	@Bean
-	Registry<SchemeIOSessionStrategy> schemeIOSessionStrategyRegistry()
-			throws Exception {
-		return RegistryBuilder.<SchemeIOSessionStrategy> create()
-				.register("http", NoopIOSessionStrategy.INSTANCE)
-				.register("https", new SSLIOSessionStrategy(sslContext()))
-				.build();
-	}
+    @Bean
+    Registry<SchemeIOSessionStrategy> schemeIOSessionStrategyRegistry()
+            throws Exception {
+        return RegistryBuilder.<SchemeIOSessionStrategy> create()
+                .register("http", NoopIOSessionStrategy.INSTANCE)
+                .register("https", new SSLIOSessionStrategy(sslContext()))
+                .build();
+    }
 
-	@Bean
-	public NHttpClientConnectionManager nHttpClientConntectionManager()
-			throws Exception {
-		PoolingNHttpClientConnectionManager connectionManager = new PoolingNHttpClientConnectionManager(
-				new DefaultConnectingIOReactor(IOReactorConfig.DEFAULT),
-				schemeIOSessionStrategyRegistry());
-		connectionManager.setMaxTotal(proxyMaxConnectionsTotal);
-		connectionManager.setDefaultMaxPerRoute(proxyMaxConnectionsRoute);
-		return connectionManager;
-	}
+    @Bean
+    public NHttpClientConnectionManager nHttpClientConntectionManager()
+            throws Exception {
+        PoolingNHttpClientConnectionManager connectionManager = new PoolingNHttpClientConnectionManager(
+                new DefaultConnectingIOReactor(IOReactorConfig.DEFAULT),
+                schemeIOSessionStrategyRegistry());
+        connectionManager.setMaxTotal(proxyMaxConnectionsTotal);
+        connectionManager.setDefaultMaxPerRoute(proxyMaxConnectionsRoute);
+        return connectionManager;
+    }
 
-	@Bean
-	RequestConfig httpClientRequestConfig() {
-		RequestConfig config = RequestConfig.custom()
-				.setConnectTimeout(proxyReadTimeoutMs).build();
-		return config;
-	}
+    @Bean
+    RequestConfig httpClientRequestConfig() {
+        RequestConfig config = RequestConfig.custom()
+                .setConnectTimeout(proxyReadTimeoutMs).build();
+        return config;
+    }
 
-	@Bean
-	public HttpAsyncClientBuilder httpAsyncClientBuilder() throws Exception {
-		return HttpAsyncClientBuilder.create().setSSLContext(sslContext())
-				.setConnectionManager(nHttpClientConntectionManager())
-				.setDefaultRequestConfig(httpClientRequestConfig());
-	}
+    @Bean
+    public HttpAsyncClientBuilder httpAsyncClientBuilder() throws Exception {
+        return HttpAsyncClientBuilder.create().setSSLContext(sslContext())
+                .setConnectionManager(nHttpClientConntectionManager())
+                .setDefaultRequestConfig(httpClientRequestConfig());
+    }
 
-	@Bean
-	public CloseableHttpAsyncClient httpAsyncClient() throws Exception {
-		return httpAsyncClientBuilder().build();
-	}
+    @Bean
+    public CloseableHttpAsyncClient httpAsyncClient() throws Exception {
+        return httpAsyncClientBuilder().build();
+    }
 
-	public String getTrustStorePassword() {
-		return trustStorePassword;
-	}
+    public String getTrustStorePassword() {
+        return trustStorePassword;
+    }
 
-	public String getTrustStoreType() {
-		return trustStoreType;
-	}
+    public String getTrustStoreType() {
+        return trustStoreType;
+    }
 
 }

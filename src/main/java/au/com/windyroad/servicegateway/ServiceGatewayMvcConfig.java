@@ -11,4 +11,19 @@ public class ServiceGatewayMvcConfig extends WebMvcConfigurerAdapter {
 	public void addViewControllers(ViewControllerRegistry registry) {
 		registry.addViewController("/").setViewName("index");
 	}
+
+	// @Bean(name = "shiroFilter")
+	// public ShiroFilterFactoryBean shiroFilter() {
+	//
+	// ShiroFilterFactoryBean shiroFilter = new ShiroFilterFactoryBean();
+	// shiroFilter.setLoginUrl("/sophia/*");
+	// shiroFilter.setSecurityManager(securityManager());
+	//
+	// Map<String, Filter> filters = new HashMap<>();
+	// filters.put("anon", new FormAuthenticationFilter());
+	// filters.put("authc", new FormAuthenticationFilter());
+	// shiroFilter.setFilters(filters);
+	//
+	// return shiroFilter;
+	// }
 }
