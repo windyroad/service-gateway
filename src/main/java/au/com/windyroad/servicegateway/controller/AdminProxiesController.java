@@ -8,6 +8,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,68 +28,70 @@ import au.com.windyroad.hateoas.Rel;
 import au.com.windyroad.hateoas.Validation;
 import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
-import cucumber.api.PendingException;
 
 @Controller
 @RequestMapping(value = "/admin/proxy")
 public class AdminProxiesController {
-	public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+    public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
-	Proxies proxies;
+    @Autowired
+    Proxies proxies;
 
-	@RequestMapping(method = RequestMethod.GET)
-	@ResponseBody
-	@Rel("self")
-	public ResponseEntity<?> proxies() throws URISyntaxException,
-			NoSuchMethodException, SecurityException, IllegalAccessException,
-			IllegalArgumentException, InvocationTargetException {
-		final Authentication authentication = SecurityContextHolder
-				.getContext().getAuthentication();
+    @RequestMapping(method = RequestMethod.GET)
+    @ResponseBody
+    @Rel("self")
+    public ResponseEntity<?> proxies() throws URISyntaxException,
+            NoSuchMethodException, SecurityException, IllegalAccessException,
+            IllegalArgumentException, InvocationTargetException {
+        final Authentication authentication = SecurityContextHolder.getContext()
+                .getAuthentication();
 
-		proxies.addControl(new Control(this.getClass().getMethod("proxies")));
-		proxies.addControl(new Control(this.getClass().getMethod("createProxy",
-				new Class<?>[] { String.class, String.class })));
+        proxies.addControl(new Control(this.getClass().getMethod("proxies")));
+        proxies.addControl(new Control(this.getClass().getMethod("createProxy",
+                new Class<?>[] { String.class, String.class })));
 
-		ResponseEntity<Proxies> responseEntity = new ResponseEntity<Proxies>(
-				proxies, HttpStatus.OK);
-		return responseEntity;
-	}
+        ResponseEntity<Proxies> responseEntity = new ResponseEntity<Proxies>(
+                proxies, HttpStatus.OK);
+        return responseEntity;
+    }
 
-	@RequestMapping(method = RequestMethod.POST)
-	@ResponseBody
-	@Rel("createProxy")
-	public ResponseEntity<?> createProxy(
-			@RequestParam("proxyName") @Validation("getCreateProxyProxyNameValidator") String proxyName,
-			@RequestParam("endpoint") @Validation("getCreateProxyEndPointValidator") String endpoint)
-			throws URISyntaxException, NoSuchMethodException,
-			SecurityException, ScriptException {
-		if (!isValid(proxyName, "proxyName", getCreateProxyProxyNameValidator())) {
-			throw new PendingException("Do validation error stuff here");
-		}
-		Proxy proxy = proxies.createProxy(proxyName, endpoint);
-		URI location = ControllerLinkBuilder.linkTo(
-				AdminProxyController.class,
-				AdminProxyController.class.getMethod("proxy",
-						new Class<?>[] { String.class }), proxyName).toUri();
-		return ResponseEntity.created(location).build();
-	}
+    @RequestMapping(method = RequestMethod.POST)
+    @ResponseBody
+    @Rel("createProxy")
+    public ResponseEntity<?> createProxy(
+            @RequestParam("proxyName") @Validation("getCreateProxyProxyNameValidator") String proxyName,
+            @RequestParam("endpoint") @Validation("getCreateProxyEndPointValidator") String endpoint)
+                    throws URISyntaxException, NoSuchMethodException,
+                    SecurityException, ScriptException {
+        if (!isValid(proxyName, "proxyName",
+                getCreateProxyProxyNameValidator())) {
+            throw new NotImplementedException("Do validation error stuff here");
+        }
+        Proxy proxy = proxies.createProxy(proxyName, endpoint);
+        URI location = ControllerLinkBuilder
+                .linkTo(AdminProxyController.class,
+                        AdminProxyController.class.getMethod("proxy",
+                                new Class<?>[] { String.class }),
+                        proxyName)
+                .toUri();
+        return ResponseEntity.created(location).build();
+    }
 
-	private boolean isValid(Object value, String paramName, String validation)
-			throws ScriptException {
-		ScriptEngineManager factory = new ScriptEngineManager();
-		ScriptEngine engine = factory.getEngineByName("JavaScript");
-		Boolean result = (Boolean) engine.eval("var " + paramName + " = \""
-				+ value.toString() + "\";" + validation);
-		return result;
-	}
+    private boolean isValid(Object value, String paramName, String validation)
+            throws ScriptException {
+        ScriptEngineManager factory = new ScriptEngineManager();
+        ScriptEngine engine = factory.getEngineByName("JavaScript");
+        Boolean result = (Boolean) engine.eval("var " + paramName + " = \""
+                + value.toString() + "\";" + validation);
+        return result;
+    }
 
-	public static String getCreateProxyProxyNameValidator() {
-		return "valid = /^[^/\\.]*$/.test(proxyName);";
-	}
+    public static String getCreateProxyProxyNameValidator() {
+        return "valid = /^[^/\\.]*$/.test(proxyName);";
+    }
 
-	public static String getCreateProxyEndPointValidator() {
-		return "valid = true;";
-	}
+    public static String getCreateProxyEndPointValidator() {
+        return "valid = true;";
+    }
 
 }
