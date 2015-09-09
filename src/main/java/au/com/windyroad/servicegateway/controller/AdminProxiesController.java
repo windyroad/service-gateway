@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import au.com.windyroad.hateoas.Control;
+import au.com.windyroad.hateoas.Action;
 import au.com.windyroad.hateoas.Rel;
 import au.com.windyroad.hateoas.Validation;
 import au.com.windyroad.servicegateway.model.Proxies;
@@ -46,8 +46,8 @@ public class AdminProxiesController {
         final Authentication authentication = SecurityContextHolder.getContext()
                 .getAuthentication();
 
-        proxies.addControl(new Control(this.getClass().getMethod("proxies")));
-        proxies.addControl(new Control(this.getClass().getMethod("createProxy",
+        proxies.addAction(new Action(this.getClass().getMethod("proxies")));
+        proxies.addAction(new Action(this.getClass().getMethod("createProxy",
                 new Class<?>[] { String.class, String.class })));
 
         ResponseEntity<Proxies> responseEntity = new ResponseEntity<Proxies>(

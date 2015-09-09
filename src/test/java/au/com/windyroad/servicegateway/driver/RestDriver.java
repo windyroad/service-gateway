@@ -24,7 +24,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import au.com.windyroad.hateoas.Control;
+import au.com.windyroad.hateoas.Action;
 import au.com.windyroad.hateoas.Param;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.TestContext;
@@ -68,7 +68,7 @@ public class RestDriver implements Driver {
 				Proxies.class);
 		Proxies proxy = response.getBody();
 
-		Control createProxy = proxy.getControl("createProxy");
+		Action createProxy = proxy.getAction("createProxy");
 		assertThat(createProxy, notNullValue());
 
 		MultiValueMap<String, Object> params = new LinkedMultiValueMap<String, Object>();

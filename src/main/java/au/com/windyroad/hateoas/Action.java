@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Control {
+public class Action {
 
 	private static final long serialVersionUID = 1L;
 
@@ -30,7 +30,7 @@ public class Control {
 	@JsonProperty("params")
 	private Map<String, Param> params = new HashMap<>();
 
-	public Control(Method method, Object... pathParams)
+	public Action(Method method, Object... pathParams)
 			throws IllegalAccessException, IllegalArgumentException,
 			InvocationTargetException, NoSuchMethodException, SecurityException {
 		this.href = ControllerLinkBuilder.linkTo(method.getDeclaringClass(),
@@ -51,7 +51,7 @@ public class Control {
 		}
 	}
 
-	protected Control() {
+	protected Action() {
 	}
 
 	private static String getRelName(Method method) {
@@ -85,7 +85,7 @@ public class Control {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Control other = (Control) obj;
+		Action other = (Action) obj;
 		if (rel == null) {
 			if (other.rel != null)
 				return false;

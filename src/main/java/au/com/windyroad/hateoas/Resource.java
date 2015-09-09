@@ -1,35 +1,28 @@
 package au.com.windyroad.hateoas;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Resource {
 
-	@JsonProperty("_controls")
-	private Set<Control> controls;
+    private Map<String, Action> actions;
 
-	public Resource() {
-		this.controls = new HashSet<>();
-	}
+    public Resource() {
+        this.actions = new HashMap<>();
+    }
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
 
-	public void addControl(Control control) {
-		this.controls.add(control);
-	}
+    public void addAction(Action action) {
+        this.actions.put(action.getRel(), action);
+    }
 
-	public Control getControl(String rel) {
-		for (Control control : controls) {
-			if (control.getRel().equals(rel)) {
-				return control;
-			}
-		}
-		return null;
-	}
+    public Action getAction(String name) {
+        Action rval = this.actions.get(name);
+        return rval;
+    }
 
 }
