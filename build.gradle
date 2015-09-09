@@ -12,6 +12,7 @@ apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'spring-boot'
 apply plugin: 'io.spring.dependency-management'
+apply plugin: 'announce'
 
 
 dependencyManagement {
@@ -68,4 +69,11 @@ test {
 	systemProperties 'cucumber.options':  "--plugin json:${outputDir}/cucumber.json --plugin html:${outputDir}/html --plugin junit:${outputDir}/TEST-cucumber.xml"
 }
 
-test.ignoreFailures = true
+gradle.taskGraph.afterTask { Task task, TaskState state ->
+    if (state.failure) {
+        announce.announce("':${task.name}' FAILED", "local")
+    }
+    else {
+        announce.announce("':${task.name}' succeeded", "local")
+    }
+}

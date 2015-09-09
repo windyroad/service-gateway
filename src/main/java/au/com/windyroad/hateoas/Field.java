@@ -1,14 +1,14 @@
 package au.com.windyroad.hateoas;
 
-public class Param {
+public class Field {
 
 	private Class<?> type;
 	private String validation;
 
-	protected Param() {
+	protected Field() {
 	}
 
-	public Param(Class<?> type, String validation) {
+	public Field(Class<?> type, String validation) {
 		this.type = type;
 		this.validation = validation;
 	}

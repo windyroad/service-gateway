@@ -25,7 +25,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import au.com.windyroad.hateoas.Action;
-import au.com.windyroad.hateoas.Param;
+import au.com.windyroad.hateoas.Field;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.TestContext;
 import au.com.windyroad.servicegateway.model.Proxies;
@@ -72,7 +72,7 @@ public class RestDriver implements Driver {
 		assertThat(createProxy, notNullValue());
 
 		MultiValueMap<String, Object> params = new LinkedMultiValueMap<String, Object>();
-		for (Entry<String, Param> param : createProxy.getParams().entrySet()) {
+		for (Entry<String, Field> param : createProxy.getFields().entrySet()) {
 			Object value = context.get(param.getKey());
 			if (isValid(value, param.getKey(), param.getValue())) {
 				params.add(param.getKey(), value);
@@ -90,7 +90,7 @@ public class RestDriver implements Driver {
 		context.put("proxy.location", location);
 	}
 
-	private boolean isValid(Object value, String paramName, Param param)
+	private boolean isValid(Object value, String paramName, Field param)
 			throws ScriptException {
 		if (param.getType().isAssignableFrom(value.getClass())) {
 			String validation = param.getValidation();
