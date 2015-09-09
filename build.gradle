@@ -60,7 +60,7 @@ eclipse {
 	}
 }
 
-task wrapper(type: Wrapper) { gradleVersion = '2.3' }
+task wrapper(type: Wrapper) { gradleVersion = '2.6' }
 
 test {
 	ext.outputDir = "${buildDir}/test-results"
