@@ -1,24 +1,33 @@
 package au.com.windyroad.hateoas;
 
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Field {
 
-	private Class<?> type;
-	private String validation;
+    private String name;
+    @JsonProperty("class")
+    private List<String> classes;
+    private String type;
+    private String value;
+    private String title;
+    private String validation;
 
-	protected Field() {
-	}
+    protected Field() {
+    }
 
-	public Field(Class<?> type, String validation) {
-		this.type = type;
-		this.validation = validation;
-	}
+    public Field(String type, String validation) {
+        this.type = type;
+        this.validation = validation;
+    }
 
-	public Class<?> getType() {
-		return type;
-	}
+    public String getType() {
+        return type;
+    }
 
-	public String getValidation() {
-		return validation;
-	}
+    public String getValidation() {
+        return validation;
+    }
 
 }

@@ -3,8 +3,11 @@ package au.com.windyroad.hateoas;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Resource {
 
+    @JsonProperty("actions")
     private Map<String, Action> actions;
 
     public Resource() {
