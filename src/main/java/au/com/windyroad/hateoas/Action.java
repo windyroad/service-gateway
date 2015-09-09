@@ -16,94 +16,54 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Action {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@JsonProperty("rel")
-	private String rel;
+    private String name;
 
-	@JsonProperty("href")
-	private URI href;
+    @JsonProperty("href")
+    private URI href;
 
-	@JsonProperty("method")
-	private RequestMethod[] method;
+    @JsonProperty("method")
+    private RequestMethod[] method;
 
-	@JsonProperty("params")
-	private Map<String, Param> params = new HashMap<>();
+    @JsonProperty("params")
+    private Map<String, Param> params = new HashMap<>();
 
-	public Action(Method method, Object... pathParams)
-			throws IllegalAccessException, IllegalArgumentException,
-			InvocationTargetException, NoSuchMethodException, SecurityException {
-		this.href = ControllerLinkBuilder.linkTo(method.getDeclaringClass(),
-				method, pathParams).toUri();
-		this.rel = getRelName(method);
-		Parameter[] methodParams = method.getParameters();
-		this.method = method.getAnnotation(RequestMapping.class).method();
-		for (Parameter param : methodParams) {
-			RequestParam requestParam = param.getAnnotation(RequestParam.class);
-			if (requestParam != null) {
-				Validation validation = param.getAnnotation(Validation.class);
-				Class<?> type = param.getType();
-				String validationMethodName = validation.value();
-				String validator = (String) method.getDeclaringClass()
-						.getMethod(validationMethodName).invoke(null);
-				params.put(requestParam.value(), new Param(type, validator));
-			}
-		}
-	}
+    public Action(Method method, Object... pathParams)
+            throws IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException, NoSuchMethodException,
+            SecurityException {
+        this.href = ControllerLinkBuilder
+                .linkTo(method.getDeclaringClass(), method, pathParams).toUri();
+        this.name = method.getAnnotation(Rel.class).value();
+        Parameter[] methodParams = method.getParameters();
+        this.method = method.getAnnotation(RequestMapping.class).method();
+        for (Parameter param : methodParams) {
+            RequestParam requestParam = param.getAnnotation(RequestParam.class);
+            if (requestParam != null) {
+                Validation validation = param.getAnnotation(Validation.class);
+                Class<?> type = param.getType();
+                String validationMethodName = validation.value();
+                String validator = (String) method.getDeclaringClass()
+                        .getMethod(validationMethodName).invoke(null);
+                params.put(requestParam.value(), new Param(type, validator));
+            }
+        }
+    }
 
-	protected Action() {
-	}
+    protected Action() {
+    }
 
-	private static String getRelName(Method method) {
-		Rel rel = method.getAnnotation(Rel.class);
-		return rel.value();
-	}
+    public String getName() {
+        return this.name;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((rel == null) ? 0 : rel.hashCode());
-		return result;
-	}
+    public URI getHref() {
+        return this.href;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Action other = (Action) obj;
-		if (rel == null) {
-			if (other.rel != null)
-				return false;
-		} else if (!rel.equals(other.rel))
-			return false;
-		return true;
-	}
-
-	public String getRel() {
-		return this.rel;
-	}
-
-	public URI getHref() {
-		return this.href;
-	}
-
-	public Map<String, Param> getParams() {
-		return this.params;
-	}
+    public Map<String, Param> getParams() {
+        return this.params;
+    }
 
 }

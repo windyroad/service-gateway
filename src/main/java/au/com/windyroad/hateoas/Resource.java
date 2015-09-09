@@ -17,7 +17,7 @@ public class Resource {
     private static final long serialVersionUID = 1L;
 
     public void addAction(Action action) {
-        this.actions.put(action.getRel(), action);
+        this.actions.put(action.getName(), action);
     }
 
     public Action getAction(String name) {
