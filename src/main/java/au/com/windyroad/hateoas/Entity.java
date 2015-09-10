@@ -5,12 +5,17 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Resource {
+public class Entity {
+
+    @JsonProperty("class")
+    private String classes;
+
+    private Map<String, Object> properties;
 
     @JsonProperty("actions")
     private Map<String, Action> actions;
 
-    public Resource() {
+    public Entity() {
         this.actions = new HashMap<>();
     }
 

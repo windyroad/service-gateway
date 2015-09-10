@@ -7,13 +7,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import au.com.windyroad.hateoas.Resource;
+import au.com.windyroad.hateoas.Entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Component
-public class Proxies extends Resource {
+public class Proxies extends Entity {
 	@JsonIgnore
 	private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 

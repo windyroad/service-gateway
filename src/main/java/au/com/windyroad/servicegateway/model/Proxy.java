@@ -3,11 +3,11 @@ package au.com.windyroad.servicegateway.model;
 import java.util.HashMap;
 import java.util.Map;
 
-import au.com.windyroad.hateoas.Resource;
+import au.com.windyroad.hateoas.Entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Proxy extends Resource {
+public class Proxy extends Entity {
 
 	@JsonProperty("target")
 	private String target;
