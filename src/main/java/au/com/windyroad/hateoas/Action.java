@@ -55,6 +55,10 @@ public class Action {
     protected Action() {
     }
 
+    public Action(String name) {
+        this.name = name;
+    }
+
     public String getName() {
         return this.name;
     }
