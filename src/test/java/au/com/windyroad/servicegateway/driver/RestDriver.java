@@ -14,10 +14,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -25,6 +27,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import au.com.windyroad.hateoas.Action;
+import au.com.windyroad.hateoas.Entity;
 import au.com.windyroad.hateoas.Field;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.TestContext;
@@ -64,10 +67,15 @@ public class RestDriver implements Driver {
     @Override
     public void createProxy(TestContext context) throws Exception {
 
-        ResponseEntity<Proxies> response = restTemplate.getForEntity(new URI(
-                "https://localhost:" + config.getPort() + "/admin/proxy"),
-                Proxies.class);
-        Proxies proxy = response.getBody();
+        ParameterizedTypeReference<Entity<Proxies>> type = new ParameterizedTypeReference<Entity<Proxies>>() {
+        };
+        ResponseEntity<Entity<Proxies>> response = restTemplate
+                .exchange(
+                        RequestEntity
+                                .get(new URI("https://localhost:"
+                                        + config.getPort() + "/admin/proxy"))
+                        .build(), type);
+        Entity<Proxies> proxy = response.getBody();
 
         Action createProxy = proxy.getAction("createProxy");
         assertThat(createProxy, notNullValue());

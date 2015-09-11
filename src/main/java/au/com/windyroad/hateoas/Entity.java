@@ -2,7 +2,6 @@ package au.com.windyroad.hateoas;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -11,12 +10,12 @@ import com.gs.collections.impl.map.mutable.UnifiedMap;
 import com.gs.collections.impl.set.strategy.mutable.UnifiedSetWithHashingStrategy;
 
 @JsonPropertyOrder({ "class", "properties", "entities", "actions", "links" })
-public class Entity {
+public class Entity<T> {
 
     @JsonProperty("class")
-    private String classes;
+    private String[] classes;
 
-    private Map<String, Object> properties;
+    private T properties;
 
     private List<SubEntity> entities;
 
@@ -27,6 +26,12 @@ public class Entity {
     public Entity() {
         this.actions = new UnifiedSetWithHashingStrategy<>(
                 HashingStrategies.fromFunction(Action::getName));
+    }
+
+    public Entity(T properties, Collection<Action> actions) {
+        this.classes = new String[] { properties.getClass().getSimpleName() };
+        this.properties = properties;
+        setActions(actions);
     }
 
     /**
@@ -45,7 +50,7 @@ public class Entity {
     /**
      * @return the classes
      */
-    public String getClasses() {
+    public String[] getClasses() {
         return classes;
     }
 
@@ -53,14 +58,14 @@ public class Entity {
      * @param classes
      *            the classes to set
      */
-    public void setClasses(String classes) {
+    public void setClasses(String[] classes) {
         this.classes = classes;
     }
 
     /**
      * @return the properties
      */
-    public Map<String, Object> getProperties() {
+    public T getProperties() {
         return properties;
     }
 
@@ -68,7 +73,7 @@ public class Entity {
      * @param properties
      *            the properties to set
      */
-    public void setProperties(Map<String, Object> properties) {
+    public void setProperties(T properties) {
         this.properties = properties;
     }
 

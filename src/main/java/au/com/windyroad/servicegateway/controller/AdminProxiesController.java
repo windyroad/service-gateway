@@ -33,6 +33,7 @@ import com.gs.collections.impl.block.factory.HashingStrategies;
 import com.gs.collections.impl.set.strategy.mutable.UnifiedSetWithHashingStrategy;
 
 import au.com.windyroad.hateoas.Action;
+import au.com.windyroad.hateoas.Entity;
 import au.com.windyroad.hateoas.Rel;
 import au.com.windyroad.hateoas.Validation;
 import au.com.windyroad.servicegateway.model.Proxies;
@@ -57,9 +58,9 @@ public class AdminProxiesController {
         final Authentication authentication = SecurityContextHolder.getContext()
                 .getAuthentication();
 
-        proxies.setActions(getActions());
-        ResponseEntity<Proxies> responseEntity = new ResponseEntity<Proxies>(
-                proxies, HttpStatus.OK);
+        Entity<?> entity = new Entity<>(proxies, getActions());
+        ResponseEntity<?> responseEntity = new ResponseEntity<>(entity,
+                HttpStatus.OK);
         return responseEntity;
     }
 
