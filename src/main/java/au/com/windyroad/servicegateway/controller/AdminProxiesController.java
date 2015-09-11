@@ -1,8 +1,11 @@
 package au.com.windyroad.servicegateway.controller;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
+import java.util.Set;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -23,6 +26,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.gs.collections.impl.block.factory.HashingStrategies;
+import com.gs.collections.impl.set.strategy.mutable.UnifiedSetWithHashingStrategy;
+
 import au.com.windyroad.hateoas.Action;
 import au.com.windyroad.hateoas.Rel;
 import au.com.windyroad.hateoas.Validation;
@@ -37,22 +43,41 @@ public class AdminProxiesController {
     @Autowired
     Proxies proxies;
 
+    private Set<Action> actions = null;
+
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
     @Rel("self")
-    public ResponseEntity<?> proxies() throws URISyntaxException,
-            NoSuchMethodException, SecurityException, IllegalAccessException,
-            IllegalArgumentException, InvocationTargetException {
+    public ResponseEntity<?> proxies()
+            throws IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException, NoSuchMethodException, SecurityException // throws
+                                                                                // URISyntaxException,
+    // NoSuchMethodException, SecurityException, IllegalAccessException,
+    // IllegalArgumentException, InvocationTargetException
+    {
         final Authentication authentication = SecurityContextHolder.getContext()
                 .getAuthentication();
 
-        proxies.addAction(new Action(this.getClass().getMethod("proxies")));
-        proxies.addAction(new Action(this.getClass().getMethod("createProxy",
-                new Class<?>[] { String.class, String.class })));
-
+        proxies.setActions(getActions());
         ResponseEntity<Proxies> responseEntity = new ResponseEntity<Proxies>(
                 proxies, HttpStatus.OK);
         return responseEntity;
+    }
+
+    private Collection<Action> getActions() throws IllegalAccessException,
+            IllegalArgumentException, InvocationTargetException,
+            NoSuchMethodException, SecurityException {
+        if (actions == null) {
+            actions = new UnifiedSetWithHashingStrategy<>(
+                    HashingStrategies.fromFunction(Action::getName));
+            for (Method method : this.getClass().getMethods()) {
+                if (method.getReturnType().equals(ResponseEntity.class)) {
+                    Action action = new Action(method);
+                    actions.add(action);
+                }
+            }
+        }
+        return actions;
     }
 
     @RequestMapping(method = RequestMethod.POST)
