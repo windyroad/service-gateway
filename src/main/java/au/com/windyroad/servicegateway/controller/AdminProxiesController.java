@@ -1,9 +1,13 @@
 package au.com.windyroad.servicegateway.controller;
 
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 
@@ -15,7 +19,6 @@ import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -48,13 +51,9 @@ public class AdminProxiesController {
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
     @Rel("self")
-    public ResponseEntity<?> proxies()
-            throws IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException, NoSuchMethodException, SecurityException // throws
-                                                                                // URISyntaxException,
-    // NoSuchMethodException, SecurityException, IllegalAccessException,
-    // IllegalArgumentException, InvocationTargetException
-    {
+    public ResponseEntity<?> proxies() throws IllegalAccessException,
+            IllegalArgumentException, InvocationTargetException,
+            NoSuchMethodException, SecurityException {
         final Authentication authentication = SecurityContextHolder.getContext()
                 .getAuthentication();
 
@@ -72,13 +71,23 @@ public class AdminProxiesController {
                     HashingStrategies.fromFunction(Action::getName));
             for (Method method : this.getClass().getMethods()) {
                 if (method.getReturnType().equals(ResponseEntity.class)) {
-                    Action action = new Action(method);
-                    actions.add(action);
+                    Parameter[] parameters = method.getParameters();
+                    if (Arrays.stream(parameters).filter(this::hasRequestParam)
+                            .findFirst().isPresent()) {
+                        actions.add(new Action(method));
+                    }
                 }
             }
         }
         return actions;
     }
+
+    boolean hasRequestParam(Parameter p) {
+        return p.getAnnotation(RequestParam.class) != null;
+    }
+
+    @Autowired
+    AdminProxyController adminProxyController;
 
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
@@ -87,18 +96,15 @@ public class AdminProxiesController {
             @RequestParam("proxyName") @Validation("getCreateProxyProxyNameValidator") String proxyName,
             @RequestParam("endpoint") @Validation("getCreateProxyEndPointValidator") String endpoint)
                     throws URISyntaxException, NoSuchMethodException,
-                    SecurityException, ScriptException {
+                    SecurityException, ScriptException, IllegalAccessException,
+                    IllegalArgumentException, InvocationTargetException {
         if (!isValid(proxyName, "proxyName",
                 getCreateProxyProxyNameValidator())) {
             throw new NotImplementedException("Do validation error stuff here");
         }
         Proxy proxy = proxies.createProxy(proxyName, endpoint);
-        URI location = ControllerLinkBuilder
-                .linkTo(AdminProxyController.class,
-                        AdminProxyController.class.getMethod("proxy",
-                                new Class<?>[] { String.class }),
-                        proxyName)
-                .toUri();
+        URI location = linkTo(
+                methodOn(AdminProxyController.class).proxy(proxyName)).toUri();
         return ResponseEntity.created(location).build();
     }
 
