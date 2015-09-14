@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 
 @Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Rel {
-	String value() default "";
+public @interface Name {
+    String value() default "";
+
 }

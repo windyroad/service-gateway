@@ -36,7 +36,7 @@ public class Action {
             SecurityException {
         this.href = ControllerLinkBuilder
                 .linkTo(method.getDeclaringClass(), method, pathParams).toUri();
-        this.name = method.getAnnotation(Rel.class).value();
+        this.name = method.getAnnotation(Name.class).value();
         Parameter[] methodParams = method.getParameters();
         this.method = method.getAnnotation(RequestMapping.class).method()[0];
         for (Parameter param : methodParams) {

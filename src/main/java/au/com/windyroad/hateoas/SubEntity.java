@@ -1,5 +1,4 @@
 package au.com.windyroad.hateoas;
 
-public class SubEntity extends Entity {
-
+public class SubEntity<T> extends Entity<T> {
 }

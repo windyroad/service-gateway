@@ -92,7 +92,6 @@ public class RestDriver implements Driver {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
         HttpEntity<?> request = new HttpEntity<>(params, headers);
         URI location = restTemplate.postForLocation(createProxy.getHref(),
                 request);

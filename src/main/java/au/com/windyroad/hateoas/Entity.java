@@ -1,12 +1,13 @@
 package au.com.windyroad.hateoas;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.gs.collections.impl.block.factory.HashingStrategies;
-import com.gs.collections.impl.map.mutable.UnifiedMap;
 import com.gs.collections.impl.set.strategy.mutable.UnifiedSetWithHashingStrategy;
 
 @JsonPropertyOrder({ "class", "properties", "entities", "actions", "links" })
@@ -19,13 +20,12 @@ public class Entity<T> {
 
     private List<SubEntity> entities;
 
-    private UnifiedMap<String, Link> links;
+    private Set<Link> links = new HashSet<>();
 
-    private UnifiedSetWithHashingStrategy<Action> actions;
+    private UnifiedSetWithHashingStrategy<Action> actions = new UnifiedSetWithHashingStrategy<>(
+            HashingStrategies.fromFunction(Action::getName));
 
     public Entity() {
-        this.actions = new UnifiedSetWithHashingStrategy<>(
-                HashingStrategies.fromFunction(Action::getName));
     }
 
     public Entity(T properties, Collection<Action> actions) {
@@ -80,7 +80,7 @@ public class Entity<T> {
     /**
      * @return the links
      */
-    public UnifiedMap<String, Link> getLinks() {
+    public Set<Link> getLinks() {
         return links;
     }
 
@@ -88,7 +88,7 @@ public class Entity<T> {
      * @param links
      *            the links to set
      */
-    public void setLinks(UnifiedMap<String, Link> links) {
+    public void setLinks(Set<Link> links) {
         this.links = links;
     }
 
@@ -102,5 +102,9 @@ public class Entity<T> {
     public void setActions(Collection<Action> actions) {
         this.actions = new UnifiedSetWithHashingStrategy<>(
                 HashingStrategies.fromFunction(Action::getName), actions);
+    }
+
+    public void addLink(Link link) {
+        this.links.add(link);
     }
 }

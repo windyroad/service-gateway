@@ -19,6 +19,7 @@ import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.core.DummyInvocationUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -34,6 +35,8 @@ import com.gs.collections.impl.set.strategy.mutable.UnifiedSetWithHashingStrateg
 
 import au.com.windyroad.hateoas.Action;
 import au.com.windyroad.hateoas.Entity;
+import au.com.windyroad.hateoas.Link;
+import au.com.windyroad.hateoas.Name;
 import au.com.windyroad.hateoas.Rel;
 import au.com.windyroad.hateoas.Validation;
 import au.com.windyroad.servicegateway.model.Proxies;
@@ -59,6 +62,8 @@ public class AdminProxiesController {
                 .getAuthentication();
 
         Entity<?> entity = new Entity<>(proxies, getActions());
+        entity.addLink(Link.linkTo(DummyInvocationUtils
+                .methodOn(AdminProxiesController.class).proxies()));
         ResponseEntity<?> responseEntity = new ResponseEntity<>(entity,
                 HttpStatus.OK);
         return responseEntity;
@@ -87,12 +92,9 @@ public class AdminProxiesController {
         return p.getAnnotation(RequestParam.class) != null;
     }
 
-    @Autowired
-    AdminProxyController adminProxyController;
-
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
-    @Rel("createProxy")
+    @Name("createProxy")
     public ResponseEntity<?> createProxy(
             @RequestParam("proxyName") @Validation("getCreateProxyProxyNameValidator") String proxyName,
             @RequestParam("endpoint") @Validation("getCreateProxyEndPointValidator") String endpoint)
