@@ -44,6 +44,7 @@ dependencies {
 	compile("org.springframework.boot:spring-boot-starter-hateoas")
 	compile 'com.goldmansachs:gs-collections:6.2.0'
 	compile("org.eclipse.jdt:org.eclipse.jdt.annotation:2.0.0")
+	compile('com.google.guava:guava:18.0')
 	
 	compile 'org.apache.shiro:shiro-web:1.2.3'
 	

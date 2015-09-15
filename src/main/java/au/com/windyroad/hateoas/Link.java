@@ -10,6 +10,7 @@ import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.util.Assert;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -20,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * 
  * Links may contain the following attributes:
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Link {
 
     private String[] rel;
