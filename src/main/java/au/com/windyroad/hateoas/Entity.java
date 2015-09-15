@@ -27,7 +27,7 @@ public class Entity<T> {
     private T properties;
 
     @Nullable
-    private List<SubEntity> entities;
+    private List<EmbeddedEntity> entities;
 
     @Nullable
     private Multimap<String, Link> links = HashMultimap.create();

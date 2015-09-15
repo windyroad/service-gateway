@@ -36,8 +36,7 @@ public class Link {
     @Nullable
     private MediaType type;
 
-    @SuppressWarnings("unused")
-    private Link() {
+    protected Link() {
     }
 
     public Link(String[] rel, URI href) {
