@@ -4,7 +4,6 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import java.net.URI;
-import java.util.Map.Entry;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -81,13 +80,15 @@ public class RestDriver implements Driver {
         assertThat(createProxy, notNullValue());
 
         MultiValueMap<String, Object> params = new LinkedMultiValueMap<String, Object>();
-        for (Entry<String, Field> param : createProxy.getFields().entrySet()) {
-            Object value = context.get(param.getKey());
-            if (isValid(value, param.getKey(), param.getValue())) {
-                params.add(param.getKey(), value);
-            } else {
-                throw new PendingException("handle validation error here");
+        for (Field field : createProxy.getFields()) {
+            Object value = field.getValue();
+            if (field.getType() != "hidden") {
+                value = context.get(field.getName());
+                if (!isValid(value, field)) {
+                    throw new PendingException("handle validation error here");
+                }
             }
+            params.add(field.getName(), value);
         }
 
         HttpHeaders headers = new HttpHeaders();
@@ -98,13 +99,12 @@ public class RestDriver implements Driver {
         context.put("proxy.location", location);
     }
 
-    private boolean isValid(Object value, String paramName, Field param)
-            throws ScriptException {
+    private boolean isValid(Object value, Field field) throws ScriptException {
 
-        String validation = param.getValidation();
+        String validation = field.getValidation();
         ScriptEngineManager factory = new ScriptEngineManager();
         ScriptEngine engine = factory.getEngineByName("JavaScript");
-        engine.put(paramName, value);
+        engine.put(field.getName(), value);
         engine.eval(validation);
         Boolean result = (Boolean) engine.get("valid");
         return result;

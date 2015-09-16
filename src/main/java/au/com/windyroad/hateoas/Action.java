@@ -4,10 +4,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.net.URI;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,27 +19,33 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.gs.collections.impl.block.factory.HashingStrategies;
+import com.gs.collections.impl.set.strategy.mutable.UnifiedSetWithHashingStrategy;
 
 import au.com.windyroad.hateoas.serialization.MediaTypeDeserializer;
 import au.com.windyroad.hateoas.serialization.MediaTypeSerializer;
 
 @JsonPropertyOrder({ "name", "class", "method", "href", "title", "fields" })
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Action {
 
     private static final long serialVersionUID = 1L;
 
     private String name;
     @JsonProperty("class")
+    @Nullable
     private List<String> classes;
     private RequestMethod method = RequestMethod.GET;
     private URI href;
+    @Nullable
     private String title;
     @JsonDeserialize(using = MediaTypeDeserializer.class)
     @JsonSerialize(using = MediaTypeSerializer.class)
     private MediaType type = MediaType.APPLICATION_FORM_URLENCODED;
 
-    private Map<String, Field> fields = new HashMap<>();
+    @Nullable
+    private UnifiedSetWithHashingStrategy<Field> fields = new UnifiedSetWithHashingStrategy<>(
+            HashingStrategies.fromFunction(Field::getName));
 
     public Action(Method method, Object... pathParams)
             throws IllegalAccessException, IllegalArgumentException,
@@ -58,7 +64,7 @@ public class Action {
                 String validationMethodName = validation.value();
                 String validator = (String) method.getDeclaringClass()
                         .getMethod(validationMethodName).invoke(null);
-                fields.put(requestParam.value(), new Field(type, validator));
+                addField(new Field(requestParam.value(), type, validator));
             }
         }
     }
@@ -76,10 +82,6 @@ public class Action {
 
     public URI getHref() {
         return this.href;
-    }
-
-    public Map<String, Field> getFields() {
-        return this.fields;
     }
 
     /**
@@ -162,12 +164,20 @@ public class Action {
         this.href = href;
     }
 
-    /**
-     * @param fields
-     *            the fields to set
-     */
-    public void setFields(Map<String, Field> fields) {
-        this.fields = fields;
+    public Collection<Field> getFields() {
+        return fields;
     }
 
+    public void setFields(Collection<Field> fields) {
+        this.fields = new UnifiedSetWithHashingStrategy<>(
+                HashingStrategies.fromFunction(Field::getName), fields);
+    }
+
+    public void addField(Field field) {
+        this.fields.add(field);
+    }
+
+    public Field getField(String name) {
+        return this.fields.get(new Field(name));
+    }
 }

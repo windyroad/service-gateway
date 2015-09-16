@@ -24,11 +24,17 @@ public class Field {
     private String validation;
 
     protected Field() {
+
     }
 
-    public Field(String type, String validation) {
+    public Field(String name, String type, String validation) {
+        this.name = name;
         this.type = type;
         this.validation = validation;
+    }
+
+    public Field(String name) {
+        this.name = name;
     }
 
     public String getType() {

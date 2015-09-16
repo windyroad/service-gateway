@@ -53,14 +53,6 @@ public class Entity<T> {
      */
     private static final long serialVersionUID = 1L;
 
-    public void addAction(Action action) {
-        this.actions.add(action);
-    }
-
-    public Action getAction(String name) {
-        return this.actions.get(new Action(name));
-    }
-
     /**
      * @return the classes
      */
@@ -119,6 +111,14 @@ public class Entity<T> {
     public void setActions(Collection<Action> actions) {
         this.actions = new UnifiedSetWithHashingStrategy<>(
                 HashingStrategies.fromFunction(Action::getName), actions);
+    }
+
+    public void addAction(Action action) {
+        this.actions.add(action);
+    }
+
+    public Action getAction(String name) {
+        return this.actions.get(new Action(name));
     }
 
     public void addLink(Link link) {
