@@ -71,8 +71,8 @@ public class ServiceGatewayApplication {
 
     public String systemDefaultTrustStoreLocation() {
         String javaHome = System.getProperty("java.home");
-        FileSystemResource location = new FileSystemResource(javaHome
-                + "/lib/security/jssecacerts");
+        FileSystemResource location = new FileSystemResource(
+                javaHome + "/lib/security/jssecacerts");
         if (location.exists()) {
             return location.getFilename();
         } else {
@@ -85,9 +85,9 @@ public class ServiceGatewayApplication {
     }
 
     @Bean
-    KeyStore trustStore() throws KeyStoreException, IOException,
-            NoSuchAlgorithmException, CertificateException,
-            FileNotFoundException {
+    KeyStore trustStore()
+            throws KeyStoreException, IOException, NoSuchAlgorithmException,
+            CertificateException, FileNotFoundException {
         KeyStore ks = KeyStore.getInstance(trustStoreType);
 
         File trustFile = new File(getTrustStoreLocation());
