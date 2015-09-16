@@ -12,6 +12,28 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Field {
 
+    class Type {
+        public final String HIDDEN = "hidden";
+        public final String TEXT = "text";
+        public final String SEARCH = "search";
+        public final String TEL = "tel";
+        public final String URL = "url";
+        public final String EMAIL = "email";
+        public final String PASSWORD = "password";
+        public final String DATETIME = "datetime";
+        public final String DATE = "date";
+        public final String MONTH = "month";
+        public final String WEEK = "week";
+        public final String TIME = "time";
+        public final String DATETIME_LOCAL = "datetime-local";
+        public final String NUMBER = "number";
+        public final String RANGE = "range";
+        public final String COLOR = "color";
+        public final String CHECKBOX = "checkbox";
+        public final String RADIO = "radio";
+        public final String FILE = "file";
+    }
+
     private String name;
     @JsonProperty("class")
     private List<String> classes;
