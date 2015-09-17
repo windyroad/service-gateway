@@ -59,12 +59,7 @@ public class Action {
         for (Parameter param : methodParams) {
             RequestParam requestParam = param.getAnnotation(RequestParam.class);
             if (requestParam != null) {
-                Validation validation = param.getAnnotation(Validation.class);
-                String type = "text";// param.getAnnotation(PresentationType.class).value();
-                String validationMethodName = validation.value();
-                String validator = (String) method.getDeclaringClass()
-                        .getMethod(validationMethodName).invoke(null);
-                addField(new Field(requestParam.value(), type, validator));
+                addField(new Field(method, param));
             }
         }
     }

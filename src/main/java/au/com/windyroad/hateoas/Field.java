@@ -1,8 +1,12 @@
 package au.com.windyroad.hateoas;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.List;
 
 import org.eclipse.jdt.annotation.Nullable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -15,7 +19,7 @@ public class Field {
     private String name;
     @JsonProperty("class")
     private List<String> classes;
-    private String type = Type.TEXT;
+    private String type = PresentationType.TEXT;
     @Nullable
     private String value;
     @Nullable
@@ -35,6 +39,24 @@ public class Field {
 
     public Field(String name) {
         this.name = name;
+    }
+
+    public Field(Method method, Parameter param) throws IllegalAccessException,
+            IllegalArgumentException, InvocationTargetException,
+            NoSuchMethodException, SecurityException {
+        RequestParam requestParam = param.getAnnotation(RequestParam.class);
+        this.name = requestParam.value();
+
+        Validation validation = param.getAnnotation(Validation.class);
+        String validationMethodName = validation.value();
+        this.validation = (String) method.getDeclaringClass()
+                .getMethod(validationMethodName).invoke(null);
+
+        PresentationType type = param.getAnnotation(PresentationType.class);
+        if (type != null) {
+            this.type = type.value();
+        }
+
     }
 
     public String getType() {

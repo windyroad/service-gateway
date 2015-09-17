@@ -7,8 +7,8 @@ import java.lang.annotation.Target;
 
 @Target({ ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Type {
-    String[]value() default TEXT;
+public @interface PresentationType {
+    String value() default TEXT;
 
     // sourced from
     // http://www.iana.org/assignments/link-relations/link-relations.xhtml on

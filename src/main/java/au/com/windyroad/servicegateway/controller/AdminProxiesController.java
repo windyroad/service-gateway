@@ -38,7 +38,7 @@ import au.com.windyroad.hateoas.Entity;
 import au.com.windyroad.hateoas.Link;
 import au.com.windyroad.hateoas.Name;
 import au.com.windyroad.hateoas.Rel;
-import au.com.windyroad.hateoas.Type;
+import au.com.windyroad.hateoas.PresentationType;
 import au.com.windyroad.hateoas.Validation;
 import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
@@ -97,7 +97,7 @@ public class AdminProxiesController {
     @ResponseBody
     @Name("createProxy")
     public ResponseEntity<?> createProxy(
-            @RequestParam("proxyName") @Type(Type.TEXT) @Validation("getCreateProxyProxyNameValidator") String proxyName,
+            @RequestParam("proxyName") @PresentationType(PresentationType.TEXT) @Validation("getCreateProxyProxyNameValidator") String proxyName,
             @RequestParam("endpoint") @Validation("getCreateProxyEndPointValidator") String endpoint)
                     throws URISyntaxException, NoSuchMethodException,
                     SecurityException, ScriptException, IllegalAccessException,
