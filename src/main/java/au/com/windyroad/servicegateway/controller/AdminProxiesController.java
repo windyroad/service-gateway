@@ -13,6 +13,7 @@ import java.util.Set;
 
 import javax.script.ScriptException;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,6 @@ import au.com.windyroad.hateoas.Name;
 import au.com.windyroad.hateoas.PresentationType;
 import au.com.windyroad.hateoas.Rel;
 import au.com.windyroad.servicegateway.model.Proxies;
-import au.com.windyroad.servicegateway.model.Proxy;
 
 @Controller
 @RequestMapping(value = "/admin/proxies")
@@ -92,11 +92,16 @@ public class AdminProxiesController {
                     SecurityException, ScriptException, IllegalAccessException,
                     IllegalArgumentException, InvocationTargetException {
 
-        Proxy proxy = proxies.createProxy(proxyName, endpoint);
-        URI location = Link
-                .linkTo(methodOn(AdminProxyController.class).proxy(proxyName))
-                .getHref();
-        return ResponseEntity.created(location).build();
+        boolean added = proxies.createProxy(proxyName, endpoint);
+        if (added) {
+            URI location = Link.linkTo(
+                    methodOn(AdminProxyController.class).proxy(proxyName))
+                    .getHref();
+            return ResponseEntity.created(location).build();
+        } else {
+            throw new NotImplementedException(
+                    "TODO: Handle duplicate proxy create attempt. 409 or similar");
+        }
     }
 
 }

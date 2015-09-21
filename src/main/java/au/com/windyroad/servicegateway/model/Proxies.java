@@ -20,10 +20,9 @@ public class Proxies {
     private UnifiedSetWithHashingStrategy<Proxy> proxies = new UnifiedSetWithHashingStrategy<>(
             HashingStrategies.fromFunction(Proxy::getName));
 
-    public Proxy createProxy(String proxyPath, String targetEndPoint) {
+    public boolean createProxy(String proxyPath, String targetEndPoint) {
         Proxy proxy = new Proxy(proxyPath, targetEndPoint);
-        addProxy(proxy);
-        return proxy;
+        return addProxy(proxy);
     }
 
     public Collection<Proxy> getProxies() {
@@ -35,8 +34,8 @@ public class Proxies {
                 HashingStrategies.fromFunction(Proxy::getName), proxies);
     }
 
-    public void addProxy(Proxy proxy) {
-        this.proxies.add(proxy);
+    public boolean addProxy(Proxy proxy) {
+        return this.proxies.add(proxy);
     }
 
     public Proxy getProxy(String path) {
