@@ -1,6 +1,6 @@
 package au.com.windyroad.servicegateway.controller;
 
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
+import static org.springframework.hateoas.core.DummyInvocationUtils.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -16,7 +16,6 @@ import javax.script.ScriptException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.core.DummyInvocationUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -38,7 +37,7 @@ import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
 
 @Controller
-@RequestMapping(value = "/admin/proxy")
+@RequestMapping(value = "/admin/proxies")
 public class AdminProxiesController {
     public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
@@ -55,8 +54,8 @@ public class AdminProxiesController {
             NoSuchMethodException, SecurityException {
 
         Entity<?> entity = new Entity<>(proxies, getActions());
-        entity.addLink(Link.linkTo(DummyInvocationUtils
-                .methodOn(AdminProxiesController.class).proxies()));
+        entity.addLink(
+                Link.linkTo(methodOn(AdminProxiesController.class).proxies()));
         ResponseEntity<?> responseEntity = new ResponseEntity<>(entity,
                 HttpStatus.OK);
         return responseEntity;
@@ -71,7 +70,9 @@ public class AdminProxiesController {
             for (Method method : this.getClass().getMethods()) {
                 if (method.getReturnType().equals(ResponseEntity.class)) {
                     Parameter[] parameters = method.getParameters();
-                    if (Arrays.stream(parameters).filter(this::hasRequestParam)
+                    if (Arrays.stream(parameters)
+                            .filter(p -> p
+                                    .getAnnotation(RequestParam.class) != null)
                             .findFirst().isPresent()) {
                         actions.add(new Action(method));
                     }
@@ -79,10 +80,6 @@ public class AdminProxiesController {
             }
         }
         return actions;
-    }
-
-    boolean hasRequestParam(Parameter p) {
-        return p.getAnnotation(RequestParam.class) != null;
     }
 
     @RequestMapping(method = RequestMethod.POST)
@@ -96,8 +93,9 @@ public class AdminProxiesController {
                     IllegalArgumentException, InvocationTargetException {
 
         Proxy proxy = proxies.createProxy(proxyName, endpoint);
-        URI location = linkTo(
-                methodOn(AdminProxyController.class).proxy(proxyName)).toUri();
+        URI location = Link
+                .linkTo(methodOn(AdminProxyController.class).proxy(proxyName))
+                .getHref();
         return ResponseEntity.created(location).build();
     }
 

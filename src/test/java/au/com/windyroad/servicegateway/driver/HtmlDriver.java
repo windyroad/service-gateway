@@ -13,33 +13,34 @@ import cucumber.api.PendingException;
 @Profile(value = "ui-integration")
 public class HtmlDriver extends RestDriver {
 
-	@Autowired
-	private WebDriver webDriver;
+    @Autowired
+    private WebDriver webDriver;
 
-	@Value("${security.user.name:user}")
-	String name;
+    @Value("${security.user.name:user}")
+    String name;
 
-	@Value("${security.user.password:password}")
-	String password;
+    @Value("${security.user.password:password}")
+    String password;
 
-	@Override
-	public void createProxy(TestContext context) throws Exception {
-		webDriver.get("https://localhost:" + config.getPort() + "/admin/proxy");
-		throw new PendingException();
-	}
+    @Override
+    public void createProxy(TestContext context) throws Exception {
+        webDriver.get(
+                "https://localhost:" + config.getPort() + "/admin/proxies");
+        throw new PendingException();
+    }
 
-	@Override
-	public void get(String path) throws Exception {
-		throw new PendingException();
-	}
+    @Override
+    public void get(String path) throws Exception {
+        throw new PendingException();
+    }
 
-	@Override
-	public void checkEndpointAvailable(TestContext context) {
-		throw new PendingException();
-	}
+    @Override
+    public void checkEndpointAvailable(TestContext context) {
+        throw new PendingException();
+    }
 
-	@Override
-	public void checkEndpointExists(TestContext context) {
-		throw new PendingException();
-	}
+    @Override
+    public void checkEndpointExists(TestContext context) {
+        throw new PendingException();
+    }
 }

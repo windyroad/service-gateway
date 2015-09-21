@@ -44,6 +44,11 @@ public class Link {
         this.href = href;
     }
 
+    public Link(Method method, URI href) {
+        this.rel = method.getAnnotation(Rel.class).value();
+        this.href = href;
+    }
+
     public String[] getRel() {
         return rel;
     }
@@ -123,7 +128,7 @@ public class Link {
 
         MethodInvocation invocation = invocations.getLastInvocation();
         Method method = invocation.getMethod();
-        return new Link(method.getAnnotation(Rel.class).value(), location);
+        return new Link(method, location);
     }
 
 }

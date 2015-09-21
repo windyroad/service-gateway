@@ -9,6 +9,7 @@ public class Proxy {
 
     @JsonProperty("target")
     private String target;
+    private String name;
 
     @JsonProperty("endpoints")
     private Map<String, Boolean> endpoints = new HashMap<>();
@@ -16,8 +17,13 @@ public class Proxy {
     protected Proxy() {
     }
 
-    public Proxy(String target) {
+    public Proxy(String name, String target) {
+        this.name = name;
         this.target = target;
+    }
+
+    public Proxy(String name) {
+        this.name = name;
     }
 
     public String getTarget() {
@@ -30,6 +36,21 @@ public class Proxy {
 
     public Boolean getEndpoint(String target) {
         return endpoints.get(target);
+    }
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name
+     *            the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
     }
 
 }

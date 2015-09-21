@@ -22,7 +22,7 @@ import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
 
 @Controller
-@RequestMapping(value = "/admin/proxy")
+@RequestMapping(value = "/admin/proxies")
 public class AdminProxyController {
     public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 

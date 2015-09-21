@@ -67,7 +67,7 @@ public class RestDriver implements Driver {
                 .exchange(
                         RequestEntity
                                 .get(new URI("https://localhost:"
-                                        + config.getPort() + "/admin/proxy"))
+                                        + config.getPort() + "/admin/proxies"))
                         .build(), type);
         Entity<Proxies> proxy = response.getBody();
 
