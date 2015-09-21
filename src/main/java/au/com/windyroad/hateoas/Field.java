@@ -19,6 +19,10 @@ public class Field {
     private String name;
     @JsonProperty("class")
     private List<String> classes;
+
+    // the default is TEXT as per
+    // http://www.w3.org/TR/html51/semantics.html#the-input-element on
+    // 2015/09/21
     private String type = PresentationType.TEXT;
     @Nullable
     private String value;
