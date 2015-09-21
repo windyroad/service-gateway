@@ -40,7 +40,6 @@ dependencies {
 	compile("org.springframework.boot:spring-boot-starter-mustache")
 	compile("org.springframework.boot:spring-boot-starter-web")
 	compile("org.springframework.boot:spring-boot-starter-actuator")
-	compile("org.springframework.boot:spring-boot-starter-security")
 	compile("org.springframework.boot:spring-boot-starter-hateoas")
 	compile 'com.goldmansachs:gs-collections:6.2.0'
 	compile("org.eclipse.jdt:org.eclipse.jdt.annotation:2.0.0")
