@@ -2,7 +2,7 @@ package au.com.windyroad.servicegateway;
 
 import javax.annotation.PostConstruct;
 
-import org.junit.runner.RunWith;
+import org.junit.runners.BlockJUnit4ClassRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -10,7 +10,6 @@ import org.springframework.boot.test.SpringApplicationContextLoader;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import au.com.windyroad.servicegateway.driver.Driver;
 import cucumber.api.java.en.Given;
@@ -19,7 +18,6 @@ import cucumber.api.java.en.When;
 
 @ContextConfiguration(classes = { ServiceGatewayApplication.class,
         ServiceGatewayTestConfiguration.class }, loader = SpringApplicationContextLoader.class)
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = { ServiceGatewayApplication.class,
         ServiceGatewayTestConfiguration.class })
 @WebIntegrationTest({ "server.port=0", "management.port=0" })
@@ -67,7 +65,8 @@ public class StepDefs {
     }
 
     @When("^a request is successfully made to \"(.*?)\"$")
-    public void a_request_is_successfully_made_to(String path) throws Throwable {
+    public void a_request_is_successfully_made_to(String path)
+            throws Throwable {
         driver.get(path);
     }
 
@@ -76,6 +75,7 @@ public class StepDefs {
             String proxy) throws Throwable {
         context.put("proxyName", proxy);
         context.put("endpoint", normaliseUrl(endpoint));
+        BlockJUnit4ClassRunner x;
         driver.checkEndpointExists(context);
     }
 
