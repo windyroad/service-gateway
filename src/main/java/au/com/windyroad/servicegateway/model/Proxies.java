@@ -30,7 +30,7 @@ public class Proxies {
         return proxies;
     }
 
-    public void setFields(Collection<Proxy> proxies) {
+    public void setProxies(Collection<Proxy> proxies) {
         this.proxies = new UnifiedSetWithHashingStrategy<>(
                 HashingStrategies.fromFunction(Proxy::getName), proxies);
     }
