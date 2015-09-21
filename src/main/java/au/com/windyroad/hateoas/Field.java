@@ -28,17 +28,14 @@ public class Field {
     private String value;
     @Nullable
     private String title;
-    @Nullable
-    private String validation;
 
     protected Field() {
 
     }
 
-    public Field(String name, String type, String validation) {
+    public Field(String name, String type) {
         this.name = name;
         this.type = type;
-        this.validation = validation;
     }
 
     public Field(String name) {
@@ -51,11 +48,6 @@ public class Field {
         RequestParam requestParam = param.getAnnotation(RequestParam.class);
         this.name = requestParam.value();
 
-        Validation validation = param.getAnnotation(Validation.class);
-        String validationMethodName = validation.value();
-        this.validation = (String) method.getDeclaringClass()
-                .getMethod(validationMethodName).invoke(null);
-
         PresentationType type = param.getAnnotation(PresentationType.class);
         if (type != null) {
             this.type = type.value();
@@ -65,10 +57,6 @@ public class Field {
 
     public String getType() {
         return type;
-    }
-
-    public String getValidation() {
-        return validation;
     }
 
     /**
@@ -137,14 +125,6 @@ public class Field {
      */
     public void setType(String type) {
         this.type = type;
-    }
-
-    /**
-     * @param validation
-     *            the validation to set
-     */
-    public void setValidation(String validation) {
-        this.validation = validation;
     }
 
 }

@@ -5,10 +5,6 @@ import static org.junit.Assert.*;
 
 import java.net.URI;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +28,6 @@ import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.TestContext;
 import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
-import cucumber.api.PendingException;
 
 @Component
 @Profile(value = "integration")
@@ -84,9 +79,6 @@ public class RestDriver implements Driver {
             Object value = field.getValue();
             if (field.getType() != "hidden") {
                 value = context.get(field.getName());
-                if (!isValid(value, field)) {
-                    throw new PendingException("handle validation error here");
-                }
             }
             params.add(field.getName(), value);
         }
@@ -97,18 +89,6 @@ public class RestDriver implements Driver {
         URI location = restTemplate.postForLocation(createProxy.getHref(),
                 request);
         context.put("proxy.location", location);
-    }
-
-    private boolean isValid(Object value, Field field) throws ScriptException {
-
-        String validation = field.getValidation();
-        ScriptEngineManager factory = new ScriptEngineManager();
-        ScriptEngine engine = factory.getEngineByName("JavaScript");
-        engine.put(field.getName(), value);
-        engine.eval(validation);
-        Boolean result = (Boolean) engine.get("valid");
-        return result;
-
     }
 
     @Override

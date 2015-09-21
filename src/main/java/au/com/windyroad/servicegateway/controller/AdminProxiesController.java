@@ -11,11 +11,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,9 +34,8 @@ import au.com.windyroad.hateoas.Action;
 import au.com.windyroad.hateoas.Entity;
 import au.com.windyroad.hateoas.Link;
 import au.com.windyroad.hateoas.Name;
-import au.com.windyroad.hateoas.Rel;
 import au.com.windyroad.hateoas.PresentationType;
-import au.com.windyroad.hateoas.Validation;
+import au.com.windyroad.hateoas.Rel;
 import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
 
@@ -97,36 +93,16 @@ public class AdminProxiesController {
     @ResponseBody
     @Name("createProxy")
     public ResponseEntity<?> createProxy(
-            @RequestParam("proxyName") @PresentationType(PresentationType.TEXT) @Validation("getCreateProxyProxyNameValidator") String proxyName,
-            @RequestParam("endpoint") @Validation("getCreateProxyEndPointValidator") String endpoint)
+            @RequestParam("proxyName") @PresentationType(PresentationType.TEXT) String proxyName,
+            @RequestParam("endpoint") String endpoint)
                     throws URISyntaxException, NoSuchMethodException,
                     SecurityException, ScriptException, IllegalAccessException,
                     IllegalArgumentException, InvocationTargetException {
-        if (!isValid(proxyName, "proxyName",
-                getCreateProxyProxyNameValidator())) {
-            throw new NotImplementedException("Do validation error stuff here");
-        }
+
         Proxy proxy = proxies.createProxy(proxyName, endpoint);
         URI location = linkTo(
                 methodOn(AdminProxyController.class).proxy(proxyName)).toUri();
         return ResponseEntity.created(location).build();
-    }
-
-    private boolean isValid(Object value, String paramName, String validation)
-            throws ScriptException {
-        ScriptEngineManager factory = new ScriptEngineManager();
-        ScriptEngine engine = factory.getEngineByName("JavaScript");
-        Boolean result = (Boolean) engine.eval("var " + paramName + " = \""
-                + value.toString() + "\";" + validation);
-        return result;
-    }
-
-    public static String getCreateProxyProxyNameValidator() {
-        return "valid = /^[^/\\.]*$/.test(proxyName);";
-    }
-
-    public static String getCreateProxyEndPointValidator() {
-        return "valid = true;";
     }
 
 }
