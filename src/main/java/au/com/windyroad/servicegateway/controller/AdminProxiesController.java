@@ -13,17 +13,18 @@ import java.util.Set;
 
 import javax.script.ScriptException;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.HttpServerErrorException;
 
 import com.gs.collections.impl.block.factory.HashingStrategies;
 import com.gs.collections.impl.set.strategy.mutable.UnifiedSetWithHashingStrategy;
@@ -46,7 +47,8 @@ public class AdminProxiesController {
 
     private Set<Action> actions = null;
 
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET, produces = {
+            "application/vnd.siren+json", "application/json" })
     @ResponseBody
     @Rel("self")
     public ResponseEntity<?> proxies() throws IllegalAccessException,
@@ -82,7 +84,8 @@ public class AdminProxiesController {
         return actions;
     }
 
-    @RequestMapping(method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST, produces = {
+            "application/vnd.siren+json", "application/json" })
     @ResponseBody
     @Name("createProxy")
     public ResponseEntity<?> createProxy(
@@ -99,9 +102,13 @@ public class AdminProxiesController {
                     .getHref();
             return ResponseEntity.created(location).build();
         } else {
-            throw new NotImplementedException(
+            throw new HttpServerErrorException(HttpStatus.NOT_IMPLEMENTED,
                     "TODO: Handle duplicate proxy create attempt. 409 or similar");
         }
     }
 
+    @RequestMapping("/")
+    String index(@PathVariable String page) {
+        return "index";
+    }
 }
