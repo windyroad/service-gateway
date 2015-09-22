@@ -52,5 +52,10 @@ public class ServiceGatewayMvcConfig extends WebMvcConfigurationSupport {
             registry.addResourceHandler("/**")
                     .addResourceLocations(RESOURCE_LOCATIONS);
         }
+
+        // if (!registry.hasMappingForPattern("/**")) {
+        // registry.addResourceHandler("/**")
+        // .addResourceLocations(RESOURCE_LOCATIONS);
+        // }
     }
 }
