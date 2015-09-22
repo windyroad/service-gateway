@@ -27,12 +27,14 @@ import org.apache.http.nio.conn.SchemeIOSessionStrategy;
 import org.apache.http.nio.conn.ssl.SSLIOSessionStrategy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.util.StringUtils;
 
 @SpringBootApplication
+@EnableAutoConfiguration
 public class ServiceGatewayApplication {
 
     @Value("${au.com.windyroad.service-gateway.proxy.max.connections.total:100}")
