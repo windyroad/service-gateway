@@ -130,4 +130,15 @@ public class Entity<T> {
     public Collection<Link> getLink(String rel) {
         return this.links.get(rel);
     }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    /**
+     * @return the title
+     */
+    public String getTitle() {
+        return title;
+    }
 }

@@ -2,10 +2,10 @@
 <html ng-app="serviceGateway">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="webjars/jquery/2.0.3/jquery.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="webjars/bootstrap/3.0.3/css/bootstrap.min.css" />
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.6/angular.min.js"></script>
-    <script src="/js/hello.js"></script>
+    <script src="/webjars/jquery/2.0.3/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/webjars/bootstrap/3.0.3/css/bootstrap.min.css" />
+    <script src="/webjars/angularjs/1.4.6/angular.min.js"></script>
+    <script src="/js/entity.js"></script>
     <link rel="stylesheet" href="css/todo.css">
   </head>
   <body>
@@ -28,15 +28,21 @@
                 
       </div>
     <div class="jumbotron">
-        <h1>Home</h1>
-        <p>Some static content</p>
-        <p>
-          <a class="btn btn-lg btn-primary" href="#navbar" role="button">Go &raquo;</a>
-        </p>
-    </div>
-  
-    <h2>Todo</h2>
-    <div ng-controller="EntityController as controller" class="{{controller.entity.class[0]}}">
+        <h1>Service Gateway</h1>
+    <div ng-controller="EntityController as controller" class="{{controller.entity.class.join(' ')}}">
+        <h2 ng-hide="{{controller.entity.title}}">{{controller.entity.title}}</h2>
+      <ul class="unstyled">
+        <li ng-repeat="action in controller.entity.actions">
+          <h3>{{action.name}}</h3>
+          <form ng-sumbit="controller.execute('{{action.name}}')">
+            <div ng-repeat="field in action.fields">
+                <label for="{{action.name}}:{{field.name}}">{{field.title || field.name}}</label>
+                <input type="{{field.type || 'text'}}" ng-model="field.value" name="{{field.name}}" id="{{action.name}}:{{field.name}}" value="{{field.value}}"/>
+            </div>
+            <input class="btn-primary" type="submit" value="execute">
+          </form>
+        </li>
+      </ul>
       <span>{{controller.remaining()}} of {{controller.todos.length}} remaining</span>
       [ <a href="" ng-click="controller.archive()">archive</a> ]
       <ul class="unstyled">
@@ -51,6 +57,9 @@
         <input class="btn-primary" type="submit" value="add">
       </form>
     </div>
+    </div>
+  
+
     <script type="text/javascript" src="webjars/bootstrap/3.0.3/js/bootstrap.min.js"></script>
     
   </body>

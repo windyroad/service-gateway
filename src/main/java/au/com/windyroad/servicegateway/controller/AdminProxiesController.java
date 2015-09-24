@@ -58,6 +58,7 @@ public class AdminProxiesController {
         Entity<?> entity = new Entity<>(proxies, getActions());
         entity.addLink(
                 Link.linkTo(methodOn(AdminProxiesController.class).proxies()));
+        entity.setTitle("Proxies");
         ResponseEntity<?> responseEntity = new ResponseEntity<>(entity,
                 HttpStatus.OK);
         return responseEntity;
@@ -89,8 +90,8 @@ public class AdminProxiesController {
     @ResponseBody
     @Name("createProxy")
     public ResponseEntity<?> createProxy(
-            @RequestParam("proxyName") @PresentationType(PresentationType.TEXT) String proxyName,
-            @RequestParam("endpoint") String endpoint)
+            @RequestParam("proxyName") String proxyName,
+            @RequestParam("endpoint") @PresentationType(PresentationType.URL) String endpoint)
                     throws URISyntaxException, NoSuchMethodException,
                     SecurityException, ScriptException, IllegalAccessException,
                     IllegalArgumentException, InvocationTargetException {
