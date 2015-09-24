@@ -1,15 +1,15 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Static</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" type="text/css"
-    href="webjars/bootstrap/3.0.3/css/bootstrap.min.css" />
-</head>
-<body>
-    <script type="text/javascript"
-        src="webjars/jquery/2.0.3/jquery.min.js"></script>
-    <div id="navbar" class="navbar navbar-default" role="navigation">
+<!doctype html>
+<html ng-app="todoApp">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="webjars/jquery/2.0.3/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="webjars/bootstrap/3.0.3/css/bootstrap.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.6/angular.min.js"></script>
+    <script src="/js/hello.js"></script>
+    <link rel="stylesheet" href="css/todo.css">
+  </head>
+  <body>
+      <div id="navbar" class="navbar navbar-default" role="navigation">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse"
                 data-target=".navbar-collapse">
@@ -23,9 +23,10 @@
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
                 <li><a href="./"> Home </a></li>
-            </ul>
+                            </ul>
         </div>
-    </div>
+                
+      </div>
     <div class="jumbotron">
         <h1>Home</h1>
         <p>Some static content</p>
@@ -33,7 +34,24 @@
           <a class="btn btn-lg btn-primary" href="#navbar" role="button">Go &raquo;</a>
         </p>
     </div>
-    <script type="text/javascript"
-        src="webjars/bootstrap/3.0.3/js/bootstrap.min.js"></script>
-</body>
+  
+    <h2>Todo</h2>
+    <div ng-controller="TodoListController as todoList">
+      <span>{{todoList.remaining()}} of {{todoList.todos.length}} remaining</span>
+      [ <a href="" ng-click="todoList.archive()">archive</a> ]
+      <ul class="unstyled">
+        <li ng-repeat="todo in todoList.todos">
+          <input type="checkbox" ng-model="todo.done">
+          <span class="done-{{todo.done}}">{{todo.text}}</span>
+        </li>
+      </ul>
+      <form ng-submit="todoList.addTodo()">
+        <input type="text" ng-model="todoList.todoText"  size="30"
+               placeholder="add new todo here">
+        <input class="btn-primary" type="submit" value="add">
+      </form>
+    </div>
+    <script type="text/javascript" src="webjars/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    
+  </body>
 </html>
