@@ -29,20 +29,24 @@
       </div>
     <div class="jumbotron">
         <h1>Service Gateway</h1>
+ 
     <div ng-controller="EntityController as controller" class="{{controller.entity.class.join(' ')}}">
         <h2 ng-hide="{{controller.entity.title}}">{{controller.entity.title}}</h2>
       <ul class="unstyled">
         <li ng-repeat="action in controller.entity.actions">
           <h3>{{action.name}}</h3>
-          <form ng-sumbit="controller.execute('{{action.name}}')">
-            <div ng-repeat="field in action.fields">
+          <form ng-sumbit="controller.execute('{{action.name}}')" class="{{action.class}}" name="{{action.name}}" method="{{action.method}}" action="{{action.url}}" enctype="{{action.type}}">
+            <div ng-repeat="field in action.fields" class="{{field.class}}">
                 <label for="{{action.name}}:{{field.name}}">{{field.title || field.name}}</label>
                 <input type="{{field.type || 'text'}}" ng-model="field.value" name="{{field.name}}" id="{{action.name}}:{{field.name}}" value="{{field.value}}"/>
             </div>
-            <input class="btn-primary" type="submit" value="execute">
+            <input class="btn" type="submit" value="submit">
           </form>
         </li>
       </ul>
+      
+      
+      
       <span>{{controller.remaining()}} of {{controller.todos.length}} remaining</span>
       [ <a href="" ng-click="controller.archive()">archive</a> ]
       <ul class="unstyled">
