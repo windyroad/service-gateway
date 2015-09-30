@@ -5,7 +5,8 @@ app.controller('EntityController', function($scope, $http) {
   
   $http.get('/admin/proxies').success(function(data) {
     controller.entity = data;
-  })
+  })  
+  
   controller.todos = [
     {text:'learn angular', done:true},
       {text:'build an angular app', done:false}];

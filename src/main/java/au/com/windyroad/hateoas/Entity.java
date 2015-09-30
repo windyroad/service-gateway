@@ -1,5 +1,6 @@
 package au.com.windyroad.hateoas;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,7 +28,7 @@ public class Entity<T> {
     private T properties;
 
     @Nullable
-    private List<EmbeddedEntity> entities;
+    private List<EmbeddedEntity> entities = new ArrayList<>();
 
     @Nullable
     private Multimap<String, Link> links = HashMultimap.create();
@@ -40,6 +41,11 @@ public class Entity<T> {
     private String title;
 
     public Entity() {
+    }
+
+    public Entity(T properties) {
+        this.classes = new String[] { properties.getClass().getSimpleName() };
+        this.properties = properties;
     }
 
     public Entity(T properties, Collection<Action> actions) {
@@ -140,5 +146,24 @@ public class Entity<T> {
      */
     public String getTitle() {
         return title;
+    }
+
+    /**
+     * @return the entities
+     */
+    public List<EmbeddedEntity> getEntities() {
+        return entities;
+    }
+
+    /**
+     * @param entities
+     *            the entities to set
+     */
+    public void setEntities(List<EmbeddedEntity> entities) {
+        this.entities = entities;
+    }
+
+    public void addEmbeddedEntity(EmbeddedEntity<?> embeddedEntity) {
+        entities.add(embeddedEntity);
     }
 }

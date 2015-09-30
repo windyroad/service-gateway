@@ -2,7 +2,6 @@ package au.com.windyroad.servicegateway;
 
 import javax.annotation.PostConstruct;
 
-import org.junit.runners.BlockJUnit4ClassRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -75,7 +74,6 @@ public class StepDefs {
             String proxy) throws Throwable {
         context.put("proxyName", proxy);
         context.put("endpoint", normaliseUrl(endpoint));
-        BlockJUnit4ClassRunner x;
         driver.checkEndpointExists(context);
     }
 

@@ -1,6 +1,12 @@
 package au.com.windyroad.servicegateway.driver;
 
+import java.util.List;
+
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -26,12 +32,26 @@ public class HtmlDriver extends RestDriver {
     public void createProxy(TestContext context) throws Exception {
         webDriver.get("https://localhost:" + config.getPort() + "/index.html");// +
         // "/admin/proxies");
-        throw new PendingException();
+        WebElement form = (new WebDriverWait(webDriver, 5))
+                .until(ExpectedConditions
+                        .presenceOfElementLocated(By.name("createProxy")));
+        List<WebElement> inputs = form.findElements(By.tagName("input"));
+        for (WebElement input : inputs) {
+            String inputName = input.getAttribute("name");
+            if (inputName != null) {
+                Object value = context.get(inputName);
+                if (value != null) {
+                    input.sendKeys(value.toString());
+                }
+            }
+        }
+        form.findElement(By.cssSelector("input[type='submit']")).click();
     }
 
     @Override
     public void get(String path) throws Exception {
-        throw new PendingException();
+        // just being explicit about calling the rest driver's get
+        super.get(path);
     }
 
     @Override
@@ -41,6 +61,7 @@ public class HtmlDriver extends RestDriver {
 
     @Override
     public void checkEndpointExists(TestContext context) {
+        // webDriver.get(webDriver.getCurrentUrl());
         throw new PendingException();
     }
 }

@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="css/style.css">
   </head>
   <body>
+    <div ng-controller="EntityController as controller" class="{{controller.entity.class.join(' ')}}">
       <div id="navbar" class="navbar navbar-default" role="navigation">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse"
@@ -23,19 +24,21 @@
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
                 <li><a href="/"> Home </a></li>
+                <li ng-repeat="link in controller.entity.links"><a href="{{link.href}}" rel="{{link.rel.join(' ')}}">{{link.title || link.rel[0]}}</a></li>
                             </ul>
+                
         </div>
                 
       </div>
     <div class="jumbotron">
         <h1>Service Gateway</h1>
  
-    <div ng-controller="EntityController as controller" class="{{controller.entity.class.join(' ')}}">
-        <h2 ng-hide="{{controller.entity.title}}">{{controller.entity.title}}</h2>
+    <h2 ng-hide="{{controller.entity.title}}">{{controller.entity.title}}</h2>
+    
       <ul class="unstyled">
         <li ng-repeat="action in controller.entity.actions">
           <h3>{{action.name}}</h3>
-          <form ng-sumbit="controller.execute('{{action.name}}')" class="{{action.class}}" name="{{action.name}}" method="{{action.method}}" action="{{action.url}}" enctype="{{action.type}}">
+          <form ng-sumbit="controller.execute('{{action.name}}')" class="{{action.class}}" name="{{action.name}}" method="{{action.method || 'GET' }}" action="{{action.href}}" enctype="{{action.type || 'application/x-www-form-urlencoded'}}">
             <div ng-repeat="field in action.fields" class="{{field.class}}">
                 <label for="{{action.name}}:{{field.name}}">{{field.title || field.name}}</label>
                 <input type="{{field.type || 'text'}}" ng-model="field.value" name="{{field.name}}" id="{{action.name}}:{{field.name}}" value="{{field.value}}"/>

@@ -30,12 +30,15 @@ import com.gs.collections.impl.block.factory.HashingStrategies;
 import com.gs.collections.impl.set.strategy.mutable.UnifiedSetWithHashingStrategy;
 
 import au.com.windyroad.hateoas.Action;
+import au.com.windyroad.hateoas.EmbeddedEntity;
+import au.com.windyroad.hateoas.EmbeddedEntityRepresentation;
 import au.com.windyroad.hateoas.Entity;
 import au.com.windyroad.hateoas.Link;
 import au.com.windyroad.hateoas.Name;
 import au.com.windyroad.hateoas.PresentationType;
 import au.com.windyroad.hateoas.Rel;
 import au.com.windyroad.servicegateway.model.Proxies;
+import au.com.windyroad.servicegateway.model.Proxy;
 
 @Controller
 @RequestMapping(value = "/admin/proxies")
@@ -59,6 +62,11 @@ public class AdminProxiesController {
         entity.addLink(
                 Link.linkTo(methodOn(AdminProxiesController.class).proxies()));
         entity.setTitle("Proxies");
+        for (Proxy proxy : proxies.getProxies()) {
+            EmbeddedEntity<?> embeddedEntity = new EmbeddedEntityRepresentation<Proxy>(
+                    proxy, Rel.ITEM);
+            entity.addEmbeddedEntity(embeddedEntity);
+        }
         ResponseEntity<?> responseEntity = new ResponseEntity<>(entity,
                 HttpStatus.OK);
         return responseEntity;
