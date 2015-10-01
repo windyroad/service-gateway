@@ -8,6 +8,10 @@ public class EmbeddedEntityRepresentation<T> extends Entity<T>
 
     private String[] rel;
 
+    protected EmbeddedEntityRepresentation() {
+
+    }
+
     public EmbeddedEntityRepresentation(T properties, String rel) {
         super(properties);
     }
