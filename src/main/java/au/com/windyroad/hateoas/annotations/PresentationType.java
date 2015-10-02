@@ -1,4 +1,4 @@
-package au.com.windyroad.hateoas;
+package au.com.windyroad.hateoas.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

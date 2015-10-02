@@ -12,6 +12,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import au.com.windyroad.hateoas.annotations.PresentationType;
+
 @JsonPropertyOrder({ "name", "class", "type", "value", "title" })
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Field {

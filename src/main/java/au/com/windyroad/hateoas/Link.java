@@ -13,6 +13,9 @@ import org.springframework.util.Assert;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import au.com.windyroad.hateoas.annotations.Rel;
+import au.com.windyroad.hateoas.annotations.Title;
+
 /**
  *
  * Links represent navigational transitions. In JSON Siren, links are
@@ -47,6 +50,8 @@ public class Link {
     public Link(Method method, URI href) {
         this.rel = method.getAnnotation(Rel.class).value();
         this.href = href;
+        Title titleAnnotation = method.getAnnotation(Title.class);
+        this.title = titleAnnotation == null ? null : titleAnnotation.value();
     }
 
     public String[] getRel() {

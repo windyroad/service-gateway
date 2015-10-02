@@ -18,23 +18,28 @@
     <![endif]-->
 </head>
 <body>
-  <div id="navbar" class="navbar navbar-default" role="navigation">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-        <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="https://github.com/windyroad/service-gateway"> Service Gateway </a>
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+          aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span
+            class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="https://github.com/windyroad/service-gateway">Service Gateway</a>
+      </div>
+      <div id="navbar" class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/">Home</a></li>
+          <li ng-repeat="link in controller.entity.links" ng-if="link.title"
+            class="{{$.inArray('self', link.rel) ? 'active' : ''}}"><a href="{{link.href}}"
+            rel="{{link.rel.join(' ')}}">{{link.title}}</a></li>
+        </ul>
+      </div>
+      <!--/.nav-collapse -->
     </div>
-    <div class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-        <li><a href="/"> Home </a></li>
-        <li ng-repeat="link in controller.entity.links"><a href="{{link.href}}" rel="{{link.rel.join(' ')}}">{{link.title
-            || link.rel[0]}}</a></li>
-      </ul>
+  </nav>
 
-    </div>
-
-  </div>
   <div class="jumbotron">
     <h1>Service Gateway</h1>
 
@@ -65,25 +70,11 @@
     </ul>
 
 
-
-    <span>{{controller.remaining()}} of {{controller.todos.length}} remaining</span> [ <a href=""
-      ng-click="controller.archive()">archive</a> ]
-    <ul class="unstyled">
-      <li ng-repeat="todo in controller.todos"><input type="checkbox" ng-model="todo.done"> <span
-        class="done-{{todo.done}}">{{todo.text}}</span></li>
-    </ul>
-    <form ng-submit="controller.addTodo()" action="">
-      <input type="text" ng-model="controller.todoText" size="30" placeholder="add new todo here"> <input
-        class="btn-primary" type="submit" value="add">
-    </form>
-  </div>
-
-  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-  <script src="/webjars/jquery/2.0.3/jquery.min.js" type="text/javascript"></script>
-  <!-- Include all compiled plugins (below), or include individual files as needed -->
-  <script type="text/javascript" src="/webjars/bootstrap/3.0.3/js/bootstrap.min.js"></script>
-  <script src="/webjars/angularjs/1.4.6/angular.min.js" type="text/javascript"></script>
-  <script src="/js/entity.js" type="text/javascript"></script>
-
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="/webjars/jquery/2.0.3/jquery.min.js" type="text/javascript"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script type="text/javascript" src="/webjars/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <script src="/webjars/angularjs/1.4.6/angular.min.js" type="text/javascript"></script>
+    <script src="/js/entity.js" type="text/javascript"></script>
 </body>
 </html>

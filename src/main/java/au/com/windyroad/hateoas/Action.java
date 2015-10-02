@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.gs.collections.impl.block.factory.HashingStrategies;
 import com.gs.collections.impl.set.strategy.mutable.UnifiedSetWithHashingStrategy;
 
+import au.com.windyroad.hateoas.annotations.Name;
 import au.com.windyroad.hateoas.serialization.MediaTypeDeserializer;
 import au.com.windyroad.hateoas.serialization.MediaTypeSerializer;
 

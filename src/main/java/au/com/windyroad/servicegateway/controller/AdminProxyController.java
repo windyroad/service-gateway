@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import au.com.windyroad.hateoas.Entity;
 import au.com.windyroad.hateoas.Link;
-import au.com.windyroad.hateoas.Rel;
+import au.com.windyroad.hateoas.annotations.Rel;
 import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
 

@@ -34,9 +34,10 @@ import au.com.windyroad.hateoas.EmbeddedEntity;
 import au.com.windyroad.hateoas.EmbeddedEntityRepresentation;
 import au.com.windyroad.hateoas.Entity;
 import au.com.windyroad.hateoas.Link;
-import au.com.windyroad.hateoas.Name;
-import au.com.windyroad.hateoas.PresentationType;
-import au.com.windyroad.hateoas.Rel;
+import au.com.windyroad.hateoas.annotations.Name;
+import au.com.windyroad.hateoas.annotations.PresentationType;
+import au.com.windyroad.hateoas.annotations.Rel;
+import au.com.windyroad.hateoas.annotations.Title;
 import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
 
@@ -54,6 +55,7 @@ public class AdminProxiesController {
             "application/vnd.siren+json", "application/json" })
     @ResponseBody
     @Rel("self")
+    @Title("Proxies")
     public ResponseEntity<?> proxies() throws IllegalAccessException,
             IllegalArgumentException, InvocationTargetException,
             NoSuchMethodException, SecurityException {
@@ -62,6 +64,7 @@ public class AdminProxiesController {
         entity.addLink(
                 Link.linkTo(methodOn(AdminProxiesController.class).proxies()));
         entity.setTitle("Proxies");
+        // TODO: move title to annotation
         for (Proxy proxy : proxies.getProxies()) {
             EmbeddedEntity<?> embeddedEntity = new EmbeddedEntityRepresentation<Proxy>(
                     proxy, Rel.ITEM);
