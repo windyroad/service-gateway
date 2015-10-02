@@ -101,9 +101,13 @@ public class RestDriver implements Driver {
 
     @Override
     public void checkEndpointExists(TestContext context) {
-        ResponseEntity<Proxy> response = restTemplate
-                .getForEntity((URI) context.get("proxy.location"), Proxy.class);
-        Proxy proxy = response.getBody();
+        ParameterizedTypeReference<Entity<Proxy>> type = new ParameterizedTypeReference<Entity<Proxy>>() {
+        };
+
+        ResponseEntity<Entity<Proxy>> response = restTemplate.exchange(
+                RequestEntity.get((URI) context.get("proxy.location")).build(),
+                type);
+        Proxy proxy = response.getBody().getProperties();
         assertThat(proxy.getName(), equalTo(context.get("proxyName")));
         assertThat(proxy.getEndpoint((String) context.get("endpoint")),
                 notNullValue());

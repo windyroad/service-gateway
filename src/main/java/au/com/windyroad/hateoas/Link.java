@@ -1,6 +1,7 @@
 package au.com.windyroad.hateoas;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.net.URI;
 
 import org.eclipse.jdt.annotation.Nullable;
@@ -9,6 +10,7 @@ import org.springframework.hateoas.core.DummyInvocationUtils.MethodInvocation;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -47,11 +49,28 @@ public class Link {
         this.href = href;
     }
 
-    public Link(Method method, URI href) {
+    public Link(Method method, URI href, Object... args) {
         this.rel = method.getAnnotation(Rel.class).value();
         this.href = href;
+        this.title = computeTitle(method, args);
+
+    }
+
+    private String computeTitle(Method method, Object... args) {
         Title titleAnnotation = method.getAnnotation(Title.class);
-        this.title = titleAnnotation == null ? null : titleAnnotation.value();
+        String title = titleAnnotation == null ? null : titleAnnotation.value();
+        if (title != null) {
+            Parameter[] params = method.getParameters();
+            for (int i = 0; i < args.length; ++i) {
+                PathVariable pathVariable = params[i]
+                        .getAnnotation(PathVariable.class);
+                if (pathVariable != null) {
+                    title = title.replace("{" + pathVariable.value() + "}",
+                            args[0].toString());
+                }
+            }
+        }
+        return title;
     }
 
     public String[] getRel() {
@@ -133,7 +152,8 @@ public class Link {
 
         MethodInvocation invocation = invocations.getLastInvocation();
         Method method = invocation.getMethod();
-        return new Link(method, location);
+
+        return new Link(method, location, invocation.getArguments());
     }
 
 }

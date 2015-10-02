@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import au.com.windyroad.hateoas.Entity;
 import au.com.windyroad.hateoas.Link;
 import au.com.windyroad.hateoas.annotations.Rel;
+import au.com.windyroad.hateoas.annotations.Title;
 import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
 
@@ -32,6 +33,7 @@ public class AdminProxyController {
     @RequestMapping(value = "/{proxyName}", method = RequestMethod.GET)
     @ResponseBody
     @Rel("self")
+    @Title("Proxy `{proxyName}`")
     public ResponseEntity<?> proxy(@PathVariable("proxyName") String proxyName)
             throws URISyntaxException, NoSuchMethodException, SecurityException,
             IllegalAccessException, IllegalArgumentException,
@@ -40,10 +42,10 @@ public class AdminProxyController {
         if (proxy == null) {
             return ResponseEntity.notFound().build();
         }
-        Entity<Proxy> entity = new Entity<>();
+        Entity<Proxy> entity = new Entity<>(proxy);
         entity.addLink(Link.linkTo(DummyInvocationUtils
                 .methodOn(AdminProxyController.class).proxy(proxyName)));
-        ResponseEntity<Proxy> responseEntity = new ResponseEntity<Proxy>(proxy,
+        ResponseEntity<?> responseEntity = new ResponseEntity<>(entity,
                 HttpStatus.OK);
         return responseEntity;
     }
