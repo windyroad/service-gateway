@@ -43,7 +43,7 @@
   <div class="container">
     <div class="page-header">
       <h1>Service Gateway</h1>
-      <h2 ng-if="{{controller.entity.title}}">{{controller.entity.title}}</h2>
+      <h2 ng-if="controller.entity.title">{{controller.entity.title}}</h2>
     </div>
 
 
@@ -53,18 +53,21 @@
       <form ng-submit="controller.processForm()" class="{{action.class}}" name="{{action.name}}"
         method="{{action.method || 'GET' }}" action="{{action.href}}"
         enctype="{{action.type || 'application/x-www-form-urlencoded'}}">
-        <div ng-repeat="field in action.fields" class="{{field.class.join(' ')}} form-group">
-          <label for="{{action.name}}:{{field.name}}">{{field.title || field.name}}</label> <input
-            type="{{field.type || 'text'}}" ng-model="field.value" name="{{field.name}}"
-            id="{{action.name}}:{{field.name}}" class="form-control" />
-          <p class="help-block"></p>
+        <div class="row">
+          <div ng-repeat="field in action.fields" class="{{field.class.join(' ')}} form-group col-sm-4">
+            <label for="{{action.name}}:{{field.name}}">{{field.title || field.name}}</label> <input
+              type="{{field.type || 'text'}}" ng-model="field.value" name="{{field.name}}"
+              id="{{action.name}}:{{field.name}}" class="form-control" />
+            <p class="help-block"></p>
+          </div>
         </div>
-        <button type="submit" class="btn btn-success">{{action.title || 'Submit'}}</button>
-
+        <div class="row">
+          <div class="col-sm-4">
+            <button type="submit" class="btn btn-success">{{action.title || 'Submit'}}</button>
+          </div>
+        </div>
       </form>
-      <pre>
-            {{action}}
-            </pre>
+      <pre>{{action}}</pre>
     </div>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
