@@ -23,6 +23,7 @@ import com.gs.collections.impl.block.factory.HashingStrategies;
 import com.gs.collections.impl.set.strategy.mutable.UnifiedSetWithHashingStrategy;
 
 import au.com.windyroad.hateoas.annotations.Name;
+import au.com.windyroad.hateoas.annotations.Title;
 import au.com.windyroad.hateoas.serialization.MediaTypeDeserializer;
 import au.com.windyroad.hateoas.serialization.MediaTypeSerializer;
 
@@ -55,6 +56,8 @@ public class Action {
         this.href = ControllerLinkBuilder
                 .linkTo(method.getDeclaringClass(), method, pathParams).toUri();
         this.name = method.getAnnotation(Name.class).value();
+        Title titleAnnotation = method.getAnnotation(Title.class);
+        this.title = titleAnnotation == null ? null : titleAnnotation.value();
         Parameter[] methodParams = method.getParameters();
         this.method = method.getAnnotation(RequestMapping.class).method()[0];
         for (Parameter param : methodParams) {

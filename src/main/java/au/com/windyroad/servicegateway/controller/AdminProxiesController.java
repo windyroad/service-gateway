@@ -100,9 +100,10 @@ public class AdminProxiesController {
             "application/vnd.siren+json", "application/json" })
     @ResponseBody
     @Name("createProxy")
+    @Title("Create Proxy")
     public ResponseEntity<?> createProxy(
-            @RequestParam("proxyName") String proxyName,
-            @RequestParam("endpoint") @PresentationType(PresentationType.URL) String endpoint)
+            @RequestParam("proxyName") @Title("Proxy Name") String proxyName,
+            @RequestParam("endpoint") @PresentationType(PresentationType.URL) @Title("Endpoint URL") String endpoint)
                     throws URISyntaxException, NoSuchMethodException,
                     SecurityException, ScriptException, IllegalAccessException,
                     IllegalArgumentException, InvocationTargetException {

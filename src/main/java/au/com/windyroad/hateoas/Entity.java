@@ -128,6 +128,8 @@ public class Entity<T> {
     }
 
     public void addLink(Link link) {
+        // TODO: have multiple rels for a single link rather than creating
+        // multiple links for each rel.
         for (String rel : link.getRel()) {
             this.links.put(rel, link);
         }

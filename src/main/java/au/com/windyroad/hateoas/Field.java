@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import au.com.windyroad.hateoas.annotations.PresentationType;
+import au.com.windyroad.hateoas.annotations.Title;
 
 @JsonPropertyOrder({ "name", "class", "type", "value", "title" })
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -51,9 +52,10 @@ public class Field {
         this.name = requestParam.value();
 
         PresentationType type = param.getAnnotation(PresentationType.class);
-        if (type != null) {
-            this.type = type.value();
-        }
+        this.type = type == null ? null : type.value();
+
+        Title titleAnnotation = param.getAnnotation(Title.class);
+        this.title = titleAnnotation == null ? null : titleAnnotation.value();
 
     }
 
