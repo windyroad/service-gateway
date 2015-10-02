@@ -45,7 +45,7 @@ public class HtmlDriver extends RestDriver {
                 }
             }
         }
-        form.findElement(By.cssSelector("input[type='submit']")).click();
+        form.findElement(By.cssSelector("button[type='submit']")).click();
     }
 
     @Override
@@ -61,7 +61,7 @@ public class HtmlDriver extends RestDriver {
 
     @Override
     public void checkEndpointExists(TestContext context) {
-        // webDriver.get(webDriver.getCurrentUrl());
+        webDriver.get(webDriver.getCurrentUrl());
         throw new PendingException();
     }
 }

@@ -104,6 +104,9 @@ public class RestDriver implements Driver {
         ResponseEntity<Proxy> response = restTemplate
                 .getForEntity((URI) context.get("proxy.location"), Proxy.class);
         Proxy proxy = response.getBody();
+        assertThat(proxy.getName(), equalTo(context.get("proxyName")));
+        assertThat(proxy.getEndpoint((String) context.get("endpoint")),
+                notNullValue());
         context.put("proxy", proxy);
     }
 
