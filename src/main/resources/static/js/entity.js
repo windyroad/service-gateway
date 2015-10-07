@@ -3,7 +3,9 @@ var app = angular.module('serviceGateway', []);
 app.controller('EntityController', function($scope, $http) {
 	var controller = this;
 
-	$http.get('/admin/proxies').success(function(data) {
+	$http.defaults.headers.common.Accept = 'application/vnd.siren+json'
+	
+	$http.get('/admin/proxies?test=true').success(function(data) {
 		controller.entity = data;
 	})
 
@@ -18,8 +20,7 @@ app.controller('EntityController', function($scope, $http) {
 					data : $.param(action.fields), // pass in data as strings
 					headers : {
 						'Content-Type' : action.type
-								|| "application/x-www-form-urlencoded",
-						'Accept' : "application/vnd.siren+json"
+								|| "application/x-www-form-urlencoded"
 					}
 				// set the headers so angular passing info as form data (not
 				// request
@@ -30,14 +31,14 @@ app.controller('EntityController', function($scope, $http) {
 				console.log("LOC: " + location);
 				$http.get(location).then(function successCallback(response) {
 					controller.entity = response.data;
-				}, 
-						function errorCallback(response) {
+				}, function errorCallback(response) {
 					alert("TODO: location follow error handing");
-					});
+				});
 			}
 		}, function errorCallback(response) {
 			alert("TODO: error handing");
 		});
+		return false;
 	};
 
 	controller.todos = [ {

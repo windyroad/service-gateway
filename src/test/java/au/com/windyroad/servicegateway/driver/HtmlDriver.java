@@ -30,8 +30,8 @@ public class HtmlDriver extends RestDriver {
 
     @Override
     public void createProxy(TestContext context) throws Exception {
-        webDriver.get("https://localhost:" + config.getPort() + "/index.html");// +
-        // "/admin/proxies");
+        webDriver.get(
+                "https://localhost:" + config.getPort() + "/admin/proxies");
         WebElement form = (new WebDriverWait(webDriver, 5))
                 .until(ExpectedConditions
                         .presenceOfElementLocated(By.name("createProxy")));

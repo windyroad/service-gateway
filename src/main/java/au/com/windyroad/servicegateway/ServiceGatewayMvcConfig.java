@@ -1,22 +1,28 @@
 package au.com.windyroad.servicegateway;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
+import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 @Configuration
-public class ServiceGatewayMvcConfig extends WebMvcConfigurationSupport {
+public class ServiceGatewayMvcConfig extends WebMvcConfigurerAdapter {
 
-    // @Override
-    // public void configureContentNegotiation(
-    // ContentNegotiationConfigurer configurer) {
-    // configurer.favorPathExtension(true).favorParameter(true)
-    // .parameterName("mediaType").ignoreAcceptHeader(false)
-    // .useJaf(false).defaultContentType(MediaType.APPLICATION_JSON)
-    // .mediaType("xml", MediaType.APPLICATION_XML)
-    // .mediaType("json", MediaType.APPLICATION_JSON);
-    // }
+    private static final MediaType SIREN_MEDIA_TYPE = new MediaType(
+            "application", "vnd.siren+json");
+
+    @Override
+    public void configureContentNegotiation(
+            ContentNegotiationConfigurer configurer) {
+        configurer.favorPathExtension(true).favorParameter(true)
+                .parameterName("mediaType").ignoreAcceptHeader(false)
+                .useJaf(false).defaultContentType(MediaType.TEXT_HTML)
+                .mediaType("json", MediaType.APPLICATION_JSON)
+                .mediaType("html", MediaType.TEXT_HTML)
+                .mediaType("siren", SIREN_MEDIA_TYPE);
+    }
 
     @Override
     public void configureDefaultServletHandling(
@@ -52,10 +58,18 @@ public class ServiceGatewayMvcConfig extends WebMvcConfigurationSupport {
             registry.addResourceHandler("/**")
                     .addResourceLocations(RESOURCE_LOCATIONS);
         }
-
-        // if (!registry.hasMappingForPattern("/**")) {
-        // registry.addResourceHandler("/**")
-        // .addResourceLocations(RESOURCE_LOCATIONS);
-        // }
     }
+
+    // @Override
+    // public void addViewControllers(ViewControllerRegistry registry) {
+    // registry.addViewController("/").setViewName("redirect:/index.html");
+    // }
+
+    // @Bean
+    // public RequestMappingHandlerMapping requestMappingHandlerMapping() {
+    // RequestMappingHandlerMapping handlerMapping =
+    // super.requestMappingHandlerMapping();
+    // handlerMapping.setUrlDecode(false);
+    // return handlerMapping;
+    // }
 }

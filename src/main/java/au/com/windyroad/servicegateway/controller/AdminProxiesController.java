@@ -75,6 +75,12 @@ public class AdminProxiesController {
         return responseEntity;
     }
 
+    @RequestMapping(method = RequestMethod.GET, produces = { "text/html",
+            "application/xhtml+xml" })
+    public String proxiesView() {
+        return "/index.html";
+    }
+
     private Collection<Action> getActions() throws IllegalAccessException,
             IllegalArgumentException, InvocationTargetException,
             NoSuchMethodException, SecurityException {

@@ -8,7 +8,7 @@
 <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 <title>Service Gateway</title>
 <link rel="stylesheet" type="text/css" href="/webjars/bootstrap/3.0.3/css/bootstrap.min.css" />
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="/css/style.css">
 
 <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -50,9 +50,7 @@
 
     <div ng-repeat="action in controller.entity.actions">
       <h3>{{action.title || action.name}}</h3>
-      <form ng-submit="controller.processForm()" class="{{action.class}}" name="{{action.name}}"
-        method="{{action.method || 'GET' }}" action="{{action.href}}"
-        enctype="{{action.type || 'application/x-www-form-urlencoded'}}">
+      <form ng-submit="controller.processForm()" class="{{action.class}}" name="{{action.name}}">
         <div class="row">
           <div ng-repeat="field in action.fields" class="{{field.class.join(' ')}} form-group col-sm-4">
             <label for="{{action.name}}:{{field.name}}">{{field.title || field.name}}</label> <input
