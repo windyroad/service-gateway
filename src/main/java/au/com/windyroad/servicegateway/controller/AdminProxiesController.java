@@ -16,6 +16,7 @@ import javax.script.ScriptException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -70,7 +71,10 @@ public class AdminProxiesController {
                     proxy, Rel.ITEM);
             entity.addEmbeddedEntity(embeddedEntity);
         }
-        ResponseEntity<?> responseEntity = new ResponseEntity<>(entity,
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.VARY, "Accept");
+        headers.add("CustomHeader", "Accept");
+        ResponseEntity<?> responseEntity = new ResponseEntity<>(entity, headers,
                 HttpStatus.OK);
         return responseEntity;
     }

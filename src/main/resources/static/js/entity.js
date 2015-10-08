@@ -1,11 +1,45 @@
 var app = angular.module('serviceGateway', []);
 
-app.controller('EntityController', function($scope, $http) {
-	var controller = this;
+app.config(function($locationProvider, $httpProvider) {
+	  $locationProvider.html5Mode(true);
+//	  $httpProvider.defaults.cache=false;
+//	  $httpProvider.defaults.headers.common.Accept = 'application/vnd.siren+json';
+//	//initialize get if not there
+//	    if (!$httpProvider.defaults.headers.get) {
+//	        $httpProvider.defaults.headers.get = {};    
+//	    }    
+//
+//	    // Answer edited to include suggestions from comments
+//	    // because previous version of code introduced browser-related errors
+//
+//	    //disable IE ajax request caching
+//	    $httpProvider.defaults.headers.get['If-Modified-Since'] = 'Mon, 26 Jul 1997 05:00:00 GMT';
+//	    // extra
+//	    $httpProvider.defaults.headers.get['Cache-Control'] = 'no-cache';
+//	    $httpProvider.defaults.headers.get['Pragma'] = 'no-cache';
+});
 
-	$http.defaults.headers.common.Accept = 'application/vnd.siren+json'
+function getLocation(href) {
+    var location = document.createElement("a");
+    location.href = href;
+    // IE doesn't populate all link properties when setting .href with a relative URL,
+    // however .href will return an absolute URL which then can be used on itself
+    // to populate these additional fields.
+    if (location.host == "") {
+      location.href = location.href;
+    }
+    return location;
+};
+
+
+app.controller('EntityController', function($scope, $http, $location, $window) {
+	var controller = this;
 	
-	$http.get('/admin/proxies?test=true').success(function(data) {
+	
+	
+	$http.get('/admin/proxies', {
+		cache: false
+	}).success(function(data) {
 		controller.entity = data;
 	})
 
@@ -27,13 +61,28 @@ app.controller('EntityController', function($scope, $http) {
 				// payload)
 				}).then(function successCallback(response) {
 			if (response.status == 201) {
-				var location = response.headers("Location");
+				var location = getLocation(response.headers("Location"));
+				var currLoc = getLocation($location.absUrl());
 				console.log("LOC: " + location);
-				$http.get(location).then(function successCallback(response) {
-					controller.entity = response.data;
-				}, function errorCallback(response) {
-					alert("TODO: location follow error handing");
-				});
+				console.log("proto: " + location.protocol);
+				console.log("host: " + location.host );
+				console.log("CLOC: " + currLoc);
+				console.log("Cproto: " + currLoc.protocol);
+				console.log("Chost: " + currLoc.host);
+				console.log("Eproto: " + (location.protocol == currLoc.protocol));
+				console.log("Ehost: " + (location.host == currLoc.host));
+				if(location.protocol == currLoc.protocol
+						&& location.host == currLoc.host) {
+					$location.url(location.pathname + location.search + location.hash);					
+					$http.get(location).then(function successCallback(response) {
+						controller.entity = response.data;
+					}, function errorCallback(response) {
+						alert("TODO: location follow error handing");
+					});
+				}
+				else {
+					$window.location.href=location
+				}
 			}
 		}, function errorCallback(response) {
 			alert("TODO: error handing");

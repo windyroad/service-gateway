@@ -61,7 +61,8 @@ public class HtmlDriver extends RestDriver {
 
     @Override
     public void checkEndpointExists(TestContext context) {
-        webDriver.get(webDriver.getCurrentUrl());
-        throw new PendingException();
+        WebElement form = (new WebDriverWait(webDriver, 5))
+                .until(ExpectedConditions
+                        .presenceOfElementLocated(By.name("createProxy")));
     }
 }
