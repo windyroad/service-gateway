@@ -46,8 +46,9 @@ public class JavaDriver implements Driver {
         HttpClient client = HttpClientBuilder.create().build();
         HttpPost post = new HttpPost();
 
-        ResponseEntity<String> response = restTemplate.getForEntity(new URI(
-                "https://localhost:" + config.getPort() + path), String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity(
+                new URI("https://localhost:" + config.getPort() + path),
+                String.class);
         assertThat(response.getStatusCode(), equalTo(HttpStatus.NO_CONTENT));
         LOGGER.info("PING SERVICE CHECKED");
     }
@@ -60,8 +61,9 @@ public class JavaDriver implements Driver {
 
     @Override
     public void get(String path) throws Exception {
-        ResponseEntity<String> response = restTemplate.getForEntity(new URI(
-                "https://localhost:" + config.getPort() + path), String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity(
+                new URI("https://localhost:" + config.getPort() + path),
+                String.class);
         assertTrue(response.getStatusCode().is2xxSuccessful());
     }
 

@@ -43,6 +43,9 @@ public class AdminProxyController {
             return ResponseEntity.notFound().build();
         }
         Entity<Proxy> entity = new Entity<>(proxy);
+        entity.setTitle("Proxy `" + proxyName + "`");
+        // TODO: move title to annotation
+
         entity.addLink(Link.linkTo(DummyInvocationUtils
                 .methodOn(AdminProxyController.class).proxy(proxyName)));
         ResponseEntity<?> responseEntity = new ResponseEntity<>(entity,

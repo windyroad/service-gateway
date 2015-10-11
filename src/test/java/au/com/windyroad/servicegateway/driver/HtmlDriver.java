@@ -1,5 +1,8 @@
 package au.com.windyroad.servicegateway.driver;
 
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
+
 import java.util.List;
 
 import org.openqa.selenium.By;
@@ -61,8 +64,10 @@ public class HtmlDriver extends RestDriver {
 
     @Override
     public void checkEndpointExists(TestContext context) {
-        WebElement form = (new WebDriverWait(webDriver, 5))
+        WebElement properties = (new WebDriverWait(webDriver, 5))
                 .until(ExpectedConditions
-                        .presenceOfElementLocated(By.name("createProxy")));
+                        .presenceOfElementLocated(By.name("properties")));
+        assertThat(properties.findElement(By.id("property:name")).getText(),
+                equalTo((String) context.get("proxyName")));
     }
 }

@@ -47,7 +47,14 @@
       <h2 ng-if="controller.entity.title">{{controller.entity.title}}</h2>
     </div>
 
-
+    <div class="properties">
+      <div class="row" ng-repeat="(key, value) in controller.entity.properties">
+        <div class="{{key}}">
+            <label for="property:{{key}}">{{key}}</label>
+            <div id="property:{{key}}">{{value}}</div>
+        </div>
+      </div>
+    </div>
 
     <div ng-repeat="action in controller.entity.actions">
       <h3>{{action.title || action.name}}</h3>
