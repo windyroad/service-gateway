@@ -66,8 +66,12 @@ public class HtmlDriver extends RestDriver {
     public void checkEndpointExists(TestContext context) {
         WebElement properties = (new WebDriverWait(webDriver, 5))
                 .until(ExpectedConditions
-                        .presenceOfElementLocated(By.name("properties")));
+                        .presenceOfElementLocated(By.id("properties")));
         assertThat(properties.findElement(By.id("property:name")).getText(),
                 equalTo((String) context.get("proxyName")));
+
+        String location = properties.findElement(By.id("property:target"))
+                .getText();
+        throw new PendingException("TODO check endpoint");
     }
 }
