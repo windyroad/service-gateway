@@ -168,4 +168,8 @@ public class Entity<T> {
     public void addEmbeddedEntity(EmbeddedEntity<?> embeddedEntity) {
         entities.add(embeddedEntity);
     }
+
+    public boolean addEmbeddedEntity(Entity<?> entity, String... rel) {
+        return entities.add(new EmbeddedEntityRepresentation<>(entity, rel));
+    }
 }

@@ -1,6 +1,6 @@
 package au.com.windyroad.servicegateway.model;
 
-import java.util.Collection;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,8 +10,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gs.collections.impl.block.factory.HashingStrategies;
 import com.gs.collections.impl.set.strategy.mutable.UnifiedSetWithHashingStrategy;
 
+import au.com.windyroad.hateoas.Entity;
+import au.com.windyroad.hateoas.annotations.Rel;
+
 @Component
-public class Proxies {
+public class Proxies extends Entity<Map<String, String>> {
     @JsonIgnore
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
@@ -24,17 +27,9 @@ public class Proxies {
         return addProxy(proxy);
     }
 
-    public Collection<Proxy> getProxies() {
-        return proxies;
-    }
-
-    public void setProxies(Collection<Proxy> proxies) {
-        this.proxies = new UnifiedSetWithHashingStrategy<>(
-                HashingStrategies.fromFunction(Proxy::getName), proxies);
-    }
-
     public boolean addProxy(Proxy proxy) {
-        return this.proxies.add(proxy);
+        proxies.add(proxy);
+        return super.addEmbeddedEntity(proxy, Rel.ITEM);
     }
 
     public Proxy getProxy(String path) {

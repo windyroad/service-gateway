@@ -5,7 +5,9 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Proxy {
+import au.com.windyroad.hateoas.Entity;
+
+public class Proxy extends Entity<Map<String, String>> {
 
     @JsonProperty("target")
     private String target;

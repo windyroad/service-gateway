@@ -12,8 +12,9 @@ public class EmbeddedEntityRepresentation<T> extends Entity<T>
 
     }
 
-    public EmbeddedEntityRepresentation(T properties, String rel) {
+    public EmbeddedEntityRepresentation(T properties, String... rel) {
         super(properties);
+        this.rel = rel;
     }
 
     /**

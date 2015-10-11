@@ -31,16 +31,12 @@ import com.gs.collections.impl.block.factory.HashingStrategies;
 import com.gs.collections.impl.set.strategy.mutable.UnifiedSetWithHashingStrategy;
 
 import au.com.windyroad.hateoas.Action;
-import au.com.windyroad.hateoas.EmbeddedEntity;
-import au.com.windyroad.hateoas.EmbeddedEntityRepresentation;
-import au.com.windyroad.hateoas.Entity;
 import au.com.windyroad.hateoas.Link;
 import au.com.windyroad.hateoas.annotations.Name;
 import au.com.windyroad.hateoas.annotations.PresentationType;
 import au.com.windyroad.hateoas.annotations.Rel;
 import au.com.windyroad.hateoas.annotations.Title;
 import au.com.windyroad.servicegateway.model.Proxies;
-import au.com.windyroad.servicegateway.model.Proxy;
 
 @Controller
 @RequestMapping(value = "/admin/proxies")
@@ -61,21 +57,16 @@ public class AdminProxiesController {
             IllegalArgumentException, InvocationTargetException,
             NoSuchMethodException, SecurityException {
 
-        Entity<?> entity = new Entity<>(proxies, getActions());
-        entity.addLink(
+        proxies.setActions(getActions());
+        proxies.addLink(
                 Link.linkTo(methodOn(AdminProxiesController.class).proxies()));
-        entity.setTitle("Proxies");
+        proxies.setTitle("Proxies");
         // TODO: move title to annotation
-        for (Proxy proxy : proxies.getProxies()) {
-            EmbeddedEntity<?> embeddedEntity = new EmbeddedEntityRepresentation<Proxy>(
-                    proxy, Rel.ITEM);
-            entity.addEmbeddedEntity(embeddedEntity);
-        }
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.VARY, "Accept");
         headers.add("CustomHeader", "Accept");
-        ResponseEntity<?> responseEntity = new ResponseEntity<>(entity, headers,
-                HttpStatus.OK);
+        ResponseEntity<?> responseEntity = new ResponseEntity<>(proxies,
+                headers, HttpStatus.OK);
         return responseEntity;
     }
 
