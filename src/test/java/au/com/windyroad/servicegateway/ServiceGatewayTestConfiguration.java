@@ -27,6 +27,7 @@ import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
+import au.com.windyroad.hateoas.SirenTemplate;
 import au.com.windyroad.servicegateway.driver.WebDriverFactory;
 
 @Configuration
@@ -173,6 +174,12 @@ public class ServiceGatewayTestConfiguration {
                 Arrays.asList(new ClientHttpRequestInterceptor[] {
                         basicAuthHttpRequestIntercepter() }));
         return restTemplate;
+    }
+
+    @Bean
+    public SirenTemplate sirenTemplate() throws Exception {
+        SirenTemplate sirenTemplate = new SirenTemplate(restTemplate());
+        return sirenTemplate;
     }
 
     @Autowired

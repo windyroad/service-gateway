@@ -1,10 +1,12 @@
 package au.com.windyroad.hateoas;
 
+import org.springframework.core.ParameterizedTypeReference;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class EmbeddedEntityRepresentation<T> extends Entity<T>
-        implements EmbeddedEntity<T> {
+        implements EmbeddedEntity {
 
     private String[] rel;
 
@@ -12,8 +14,7 @@ public class EmbeddedEntityRepresentation<T> extends Entity<T>
 
     }
 
-    public EmbeddedEntityRepresentation(T properties, String... rel) {
-        super(properties);
+    public EmbeddedEntityRepresentation(Entity<T> properties, String... rel) {
         this.rel = rel;
     }
 
@@ -34,7 +35,13 @@ public class EmbeddedEntityRepresentation<T> extends Entity<T>
     }
 
     @Override
-    public Entity<T> toEntity() {
-        return this;
+    public <T extends Entity<?>> T toEntity(Class<T> type) {
+        return null;
+    }
+
+    @Override
+    public <T extends Entity<?>> T toEntity(
+            ParameterizedTypeReference<T> type) {
+        return null;
     }
 }

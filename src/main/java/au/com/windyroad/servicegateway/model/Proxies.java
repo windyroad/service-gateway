@@ -35,4 +35,5 @@ public class Proxies extends Entity<Map<String, String>> {
     public Proxy getProxy(String path) {
         return this.proxies.get(new Proxy(path));
     }
+
 }

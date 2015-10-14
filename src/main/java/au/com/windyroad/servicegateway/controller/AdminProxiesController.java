@@ -1,11 +1,8 @@
 package au.com.windyroad.servicegateway.controller;
 
-import static org.springframework.hateoas.core.DummyInvocationUtils.*;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -18,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,7 +29,6 @@ import com.gs.collections.impl.block.factory.HashingStrategies;
 import com.gs.collections.impl.set.strategy.mutable.UnifiedSetWithHashingStrategy;
 
 import au.com.windyroad.hateoas.Action;
-import au.com.windyroad.hateoas.Link;
 import au.com.windyroad.hateoas.annotations.Name;
 import au.com.windyroad.hateoas.annotations.PresentationType;
 import au.com.windyroad.hateoas.annotations.Rel;
@@ -58,8 +55,8 @@ public class AdminProxiesController {
             NoSuchMethodException, SecurityException {
 
         proxies.setActions(getActions());
-        proxies.addLink(
-                Link.linkTo(methodOn(AdminProxiesController.class).proxies()));
+        // proxies.addLink(
+        // Link.linkTo(methodOn(AdminProxiesController.class).proxies()));
         proxies.setTitle("Proxies");
         // TODO: move title to annotation
         HttpHeaders headers = new HttpHeaders();
@@ -98,7 +95,8 @@ public class AdminProxiesController {
     }
 
     @RequestMapping(method = RequestMethod.POST, produces = {
-            "application/vnd.siren+json", "application/json" })
+            "application/vnd.siren+json",
+            "application/json" }, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseBody
     @Name("createProxy")
     @Title("Create Proxy")
@@ -111,10 +109,12 @@ public class AdminProxiesController {
 
         boolean added = proxies.createProxy(proxyName, endpoint);
         if (added) {
-            URI location = Link.linkTo(
-                    methodOn(AdminProxyController.class).proxy(proxyName))
-                    .getHref();
-            return ResponseEntity.created(location).build();
+            // URI location = Link.linkTo(
+            // methodOn(AdminProxyController.class).proxy(proxyName))
+            // .getHref();
+            throw new HttpServerErrorException(HttpStatus.NOT_IMPLEMENTED,
+                    "TODO: return 201 with location of created proxy");
+            // return ResponseEntity.created(location).build();
         } else {
             throw new HttpServerErrorException(HttpStatus.NOT_IMPLEMENTED,
                     "TODO: Handle duplicate proxy create attempt. 409 or similar");

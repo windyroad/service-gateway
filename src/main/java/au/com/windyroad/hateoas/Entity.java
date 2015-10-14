@@ -40,7 +40,7 @@ public class Entity<T> {
     @Nullable
     private String title;
 
-    public Entity() {
+    protected Entity() {
     }
 
     public Entity(T properties) {
@@ -165,11 +165,12 @@ public class Entity<T> {
         this.entities = entities;
     }
 
-    public void addEmbeddedEntity(EmbeddedEntity<?> embeddedEntity) {
+    public void addEmbeddedEntity(EmbeddedEntity embeddedEntity) {
         entities.add(embeddedEntity);
     }
 
     public boolean addEmbeddedEntity(Entity<?> entity, String... rel) {
-        return entities.add(new EmbeddedEntityRepresentation<>(entity, rel));
+        return entities.add(new EmbeddedEntityJavaLink(entity, rel));
     }
+
 }

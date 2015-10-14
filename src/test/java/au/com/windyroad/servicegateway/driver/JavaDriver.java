@@ -77,7 +77,8 @@ public class JavaDriver implements Driver {
     @Override
     public void checkEndpointAvailable(TestContext context) {
         assertTrue(proxies.getProxy((String) context.get("proxyName"))
-                .getEndpoint((String) context.get("endpoint")));
+                .getEndpoint((String) context.get("endpoint")).getProperties()
+                .getAvailable());
     }
 
 }

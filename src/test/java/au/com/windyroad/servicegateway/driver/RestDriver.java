@@ -10,20 +10,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import au.com.windyroad.hateoas.Action;
-import au.com.windyroad.hateoas.Entity;
-import au.com.windyroad.hateoas.Field;
+import au.com.windyroad.hateoas.SirenTemplate;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.TestContext;
 import au.com.windyroad.servicegateway.model.Proxies;
@@ -44,6 +37,9 @@ public class RestDriver implements Driver {
     @Autowired
     RestTemplate restTemplate;
 
+    @Autowired
+    SirenTemplate sirenTemplate;
+
     @Override
     public void clearProxies() {
 
@@ -61,34 +57,21 @@ public class RestDriver implements Driver {
     @Override
     public void createProxy(TestContext context) throws Exception {
 
-        ParameterizedTypeReference<Entity<Proxies>> type = new ParameterizedTypeReference<Entity<Proxies>>() {
+        ParameterizedTypeReference<Proxies> type = new ParameterizedTypeReference<Proxies>() {
         };
-        ResponseEntity<Entity<Proxies>> response = restTemplate
+        ResponseEntity<Proxies> response = restTemplate
                 .exchange(
                         RequestEntity
                                 .get(new URI("https://localhost:"
                                         + config.getPort() + "/admin/proxies"))
                         .build(), type);
-        Entity<Proxies> proxy = response.getBody();
+        Proxies proxies = response.getBody();
 
-        Action createProxy = proxy.getAction("createProxy");
-        assertThat(createProxy, notNullValue());
-
-        MultiValueMap<String, Object> params = new LinkedMultiValueMap<String, Object>();
-        for (Field field : createProxy.getFields()) {
-            Object value = field.getValue();
-            if (field.getType() != "hidden") {
-                value = context.get(field.getName());
-            }
-            params.add(field.getName(), value);
-        }
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        HttpEntity<?> request = new HttpEntity<>(params, headers);
-        URI location = restTemplate.postForLocation(createProxy.getHref(),
-                request);
-        context.put("proxy.location", location);
+        ParameterizedTypeReference<Proxy> proxyType = new ParameterizedTypeReference<Proxy>() {
+        };
+        ResponseEntity<Proxy> createResponse = sirenTemplate
+                .executeForLocation(proxies, "createProxy", context, proxyType);
+        context.put("proxy", createResponse.getBody());
     }
 
     @Override
@@ -101,13 +84,7 @@ public class RestDriver implements Driver {
 
     @Override
     public void checkEndpointExists(TestContext context) {
-        ParameterizedTypeReference<Entity<Proxy>> type = new ParameterizedTypeReference<Entity<Proxy>>() {
-        };
-
-        ResponseEntity<Entity<Proxy>> response = restTemplate.exchange(
-                RequestEntity.get((URI) context.get("proxy.location")).build(),
-                type);
-        Proxy proxy = response.getBody().getProperties();
+        Proxy proxy = (Proxy) context.get("proxy");
         assertThat(proxy.getName(), equalTo(context.get("proxyName")));
         assertThat(proxy.getEndpoint((String) context.get("endpoint")),
                 notNullValue());
@@ -117,7 +94,8 @@ public class RestDriver implements Driver {
     @Override
     public void checkEndpointAvailable(TestContext context) {
         Proxy proxy = (Proxy) context.get("proxy");
-        Boolean available = proxy.getEndpoint((String) context.get("endpoint"));
+        Boolean available = proxy.getEndpoint((String) context.get("endpoint"))
+                .getProperties().getAvailable();
         assertTrue(available);
     }
 

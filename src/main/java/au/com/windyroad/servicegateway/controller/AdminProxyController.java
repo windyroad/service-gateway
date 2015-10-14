@@ -6,7 +6,6 @@ import java.net.URISyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.core.DummyInvocationUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import au.com.windyroad.hateoas.Entity;
-import au.com.windyroad.hateoas.Link;
 import au.com.windyroad.hateoas.annotations.Rel;
 import au.com.windyroad.hateoas.annotations.Title;
 import au.com.windyroad.servicegateway.model.Proxies;
@@ -46,8 +44,8 @@ public class AdminProxyController {
         entity.setTitle("Proxy `" + proxyName + "`");
         // TODO: move title to annotation
 
-        entity.addLink(Link.linkTo(DummyInvocationUtils
-                .methodOn(AdminProxyController.class).proxy(proxyName)));
+        // entity.addLink(HttpLink.linkTo(DummyInvocationUtils
+        // .methodOn(AdminProxyController.class).proxy(proxyName)));
         ResponseEntity<?> responseEntity = new ResponseEntity<>(entity,
                 HttpStatus.OK);
         return responseEntity;

@@ -31,130 +31,130 @@ import au.com.windyroad.servicegateway.model.Proxy;
 
 @Controller
 public class ProxyController {
-	public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+    public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
-	Proxies proxies;
+    @Autowired
+    Proxies proxies;
 
-	private static class CBack implements FutureCallback<HttpResponse> {
-		private CloseableHttpAsyncClient httpAsyncClient;
-		private DeferredResult<ResponseEntity<?>> deferredResult;
-		private String target;
+    private static class CBack implements FutureCallback<HttpResponse> {
+        private CloseableHttpAsyncClient httpAsyncClient;
+        private DeferredResult<ResponseEntity<?>> deferredResult;
+        private String target;
 
-		private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
-		private Proxy proxy;
+        private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+        private Proxy proxy;
 
-		public CBack(CloseableHttpAsyncClient httpAsyncClient,
-				DeferredResult<ResponseEntity<?>> deferredResult, Proxy proxy,
-				String target) {
-			this.httpAsyncClient = httpAsyncClient;
-			this.deferredResult = deferredResult;
-			this.target = target;
-			this.proxy = proxy;
-		}
+        public CBack(CloseableHttpAsyncClient httpAsyncClient,
+                DeferredResult<ResponseEntity<?>> deferredResult, Proxy proxy,
+                String target) {
+            this.httpAsyncClient = httpAsyncClient;
+            this.deferredResult = deferredResult;
+            this.target = target;
+            this.proxy = proxy;
+        }
 
-		@Override
-		public void failed(Exception ex) {
-			LOGGER.error("Failure while processing: ", ex);
-			proxy.addEndpoint(target, false);
-			deferredResult.setErrorResult(ex);
-			close();
-		}
+        @Override
+        public void failed(Exception ex) {
+            LOGGER.error("Failure while processing: ", ex);
+            proxy.setEndpoint(target, false);
+            deferredResult.setErrorResult(ex);
+            close();
+        }
 
-		@Override
-		public void completed(HttpResponse result) {
-			try {
-				HttpHeaders httpHeaders = getHeaders(result);
-				HttpStatus httpStatus = HttpStatus.valueOf(result
-						.getStatusLine().getStatusCode());
-				HttpEntity entity = result.getEntity();
-				ResponseEntity<InputStreamResource> responseEntity;
-				if (entity != null) {
-					InputStreamResource inputStreamResource = new InputStreamResource(
-							entity.getContent());
+        @Override
+        public void completed(HttpResponse result) {
+            try {
+                HttpHeaders httpHeaders = getHeaders(result);
+                HttpStatus httpStatus = HttpStatus
+                        .valueOf(result.getStatusLine().getStatusCode());
+                HttpEntity entity = result.getEntity();
+                ResponseEntity<InputStreamResource> responseEntity;
+                if (entity != null) {
+                    InputStreamResource inputStreamResource = new InputStreamResource(
+                            entity.getContent());
 
-					responseEntity = new ResponseEntity<InputStreamResource>(
-							inputStreamResource, httpHeaders, httpStatus);
-				} else {
-					responseEntity = new ResponseEntity<InputStreamResource>(
-							httpHeaders, httpStatus);
-				}
-				deferredResult.setResult(responseEntity);
-				proxy.addEndpoint(target, true);
+                    responseEntity = new ResponseEntity<InputStreamResource>(
+                            inputStreamResource, httpHeaders, httpStatus);
+                } else {
+                    responseEntity = new ResponseEntity<InputStreamResource>(
+                            httpHeaders, httpStatus);
+                }
+                deferredResult.setResult(responseEntity);
+                proxy.setEndpoint(target, true);
 
-			} catch (Exception e) {
-				LOGGER.error("Failure while processing response:", e);
-				deferredResult.setErrorResult(e);
-			} finally {
-				close();
-			}
-		}
+            } catch (Exception e) {
+                LOGGER.error("Failure while processing response:", e);
+                deferredResult.setErrorResult(e);
+            } finally {
+                close();
+            }
+        }
 
-		HttpHeaders getHeaders(HttpResponse result) {
-			HttpHeaders httpHeaders = new HttpHeaders();
-			HeaderIterator headerIterator = result.headerIterator();
-			while (headerIterator.hasNext()) {
-				Header header = headerIterator.nextHeader();
-				httpHeaders.add(header.getName(), header.getValue());
-			}
-			return httpHeaders;
-		}
+        HttpHeaders getHeaders(HttpResponse result) {
+            HttpHeaders httpHeaders = new HttpHeaders();
+            HeaderIterator headerIterator = result.headerIterator();
+            while (headerIterator.hasNext()) {
+                Header header = headerIterator.nextHeader();
+                httpHeaders.add(header.getName(), header.getValue());
+            }
+            return httpHeaders;
+        }
 
-		void close() {
-			try {
-				httpAsyncClient.close();
-			} catch (IOException e) {
-				LOGGER.error("Failure while closing:", e);
-			}
-		}
+        void close() {
+            try {
+                httpAsyncClient.close();
+            } catch (IOException e) {
+                LOGGER.error("Failure while closing:", e);
+            }
+        }
 
-		@Override
-		public void cancelled() {
-			close();
-		}
-	}
+        @Override
+        public void cancelled() {
+            close();
+        }
+    }
 
-	@Autowired
-	CloseableHttpAsyncClient httpAsyncClient;
+    @Autowired
+    CloseableHttpAsyncClient httpAsyncClient;
 
-	@RequestMapping("/proxy/{name}/**")
-	public DeferredResult<ResponseEntity<?>> get(
-			final HttpServletRequest request,
-			final HttpServletResponse response,
-			@PathVariable("name") String name) {
-		DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<ResponseEntity<?>>();
+    @RequestMapping("/proxy/{name}/**")
+    public DeferredResult<ResponseEntity<?>> get(
+            final HttpServletRequest request,
+            final HttpServletResponse response,
+            @PathVariable("name") String name) {
+        DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<ResponseEntity<?>>();
 
-		Proxy proxy = proxies.getProxy(name);
-		if (proxy != null) {
-			String url = (String) request
-					.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-			String restOfTheUrl = url.replace("/proxy/" + name + "/", "");
-			String target = proxy.getTarget() + "/" + restOfTheUrl;
-			proxy.addEndpoint(target, false);
+        Proxy proxy = proxies.getProxy(name);
+        if (proxy != null) {
+            String url = (String) request.getAttribute(
+                    HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+            String restOfTheUrl = url.replace("/proxy/" + name + "/", "");
+            String target = proxy.getTarget() + "/" + restOfTheUrl;
+            proxy.setEndpoint(target, false);
 
-			httpAsyncClient.start();
-			HttpGet newRequest = new HttpGet(target);
-			Enumeration<String> headerNames = request.getHeaderNames();
-			while (headerNames.hasMoreElements()) {
-				String headerName = headerNames.nextElement();
-				Enumeration<String> headerValues = request
-						.getHeaders(headerName);
-				while (headerValues.hasMoreElements()) {
-					newRequest
-							.addHeader(headerName, headerValues.nextElement());
-				}
-			}
-			LOGGER.debug("{ 'event': 'proxyReqeust', 'from': '" + url
-					+ "', 'to': '" + target + "' }");
-			httpAsyncClient.execute(newRequest, new CBack(httpAsyncClient,
-					deferredResult, proxy, target));
+            httpAsyncClient.start();
+            HttpGet newRequest = new HttpGet(target);
+            Enumeration<String> headerNames = request.getHeaderNames();
+            while (headerNames.hasMoreElements()) {
+                String headerName = headerNames.nextElement();
+                Enumeration<String> headerValues = request
+                        .getHeaders(headerName);
+                while (headerValues.hasMoreElements()) {
+                    newRequest.addHeader(headerName,
+                            headerValues.nextElement());
+                }
+            }
+            LOGGER.debug("{ 'event': 'proxyReqeust', 'from': '" + url
+                    + "', 'to': '" + target + "' }");
+            httpAsyncClient.execute(newRequest,
+                    new CBack(httpAsyncClient, deferredResult, proxy, target));
 
-		} else {
-			LOGGER.error("{ 'error': 'proxy not found', 'proxyName' : '" + name
-					+ "' }");
-			deferredResult.setResult(ResponseEntity.notFound().build());
-		}
-		return deferredResult;
-	}
+        } else {
+            LOGGER.error("{ 'error': 'proxy not found', 'proxyName' : '" + name
+                    + "' }");
+            deferredResult.setResult(ResponseEntity.notFound().build());
+        }
+        return deferredResult;
+    }
 
 }

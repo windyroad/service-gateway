@@ -5,15 +5,12 @@ import java.lang.reflect.Parameter;
 import java.net.URI;
 
 import org.eclipse.jdt.annotation.Nullable;
-import org.springframework.hateoas.core.DummyInvocationUtils.LastInvocationAware;
-import org.springframework.hateoas.core.DummyInvocationUtils.MethodInvocation;
-import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.MediaType;
-import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import au.com.windyroad.hateoas.annotations.Rel;
 import au.com.windyroad.hateoas.annotations.Title;
@@ -24,10 +21,11 @@ import au.com.windyroad.hateoas.annotations.Title;
  * represented as an array inside the entity, such as { "links": [{ "rel": [
  * "self" ], "href": "http://api.x.io/orders/42"}] }
  * 
- * Links may contain the following attributes:
+ * 
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Link {
+@JsonDeserialize(as = HttpLink.class)
+public abstract class Link {
 
     private String[] rel;
     @JsonProperty("class")
@@ -42,18 +40,16 @@ public class Link {
     private MediaType type;
 
     protected Link() {
+
     }
 
-    public Link(String[] rel, URI href) {
+    public Link(String[] rel) {
         this.rel = rel;
-        this.href = href;
     }
 
-    public Link(Method method, URI href, Object... args) {
+    public Link(Method method, Object... args) {
         this.rel = method.getAnnotation(Rel.class).value();
-        this.href = href;
         this.title = computeTitle(method, args);
-
     }
 
     private String computeTitle(Method method, Object... args) {
@@ -95,17 +91,7 @@ public class Link {
     /**
      * @return the href
      */
-    public URI getHref() {
-        return href;
-    }
-
-    /**
-     * @param href
-     *            the href to set
-     */
-    public void setHref(URI href) {
-        this.href = href;
-    }
+    public abstract URI getHref();
 
     /**
      * @return the title
@@ -145,15 +131,5 @@ public class Link {
         this.rel = rel;
     }
 
-    public static Link linkTo(Object invocationValue) {
-        URI location = ControllerLinkBuilder.linkTo(invocationValue).toUri();
-        Assert.isInstanceOf(LastInvocationAware.class, invocationValue);
-        LastInvocationAware invocations = (LastInvocationAware) invocationValue;
-
-        MethodInvocation invocation = invocations.getLastInvocation();
-        Method method = invocation.getMethod();
-
-        return new Link(method, location, invocation.getArguments());
-    }
-
+    public abstract Entity<?> follow();
 }
