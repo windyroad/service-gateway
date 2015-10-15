@@ -4,7 +4,6 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import java.net.URI;
-import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +22,7 @@ import au.com.windyroad.hateoas.SirenTemplate;
 import au.com.windyroad.hateoas.annotations.Rel;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.TestContext;
+import au.com.windyroad.servicegateway.model.Endpoint;
 import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
 
@@ -59,7 +59,7 @@ public class RestDriver implements Driver {
     }
 
     @Override
-    public void createProxy(TestContext context) throws Exception {
+    public Link createProxy(TestContext context) throws Exception {
 
         ParameterizedTypeReference<Proxies> type = new ParameterizedTypeReference<Proxies>() {
         };
@@ -75,7 +75,8 @@ public class RestDriver implements Driver {
         };
         ResponseEntity<Proxy> createResponse = sirenTemplate
                 .executeForLocation(proxies, "createProxy", context, proxyType);
-        context.put("proxy", createResponse.getBody());
+        return createResponse.getBody().getLink(Rel.SELF).stream().findFirst()
+                .get();
     }
 
     @Override
@@ -87,27 +88,20 @@ public class RestDriver implements Driver {
     }
 
     @Override
-    public void checkEndpointExists(TestContext context) {
-        Proxy proxy = (Proxy) context.get("proxy");
-        Collection<Link> selfLinks = proxy.getLink(Rel.SELF);
-        HttpLink link = (HttpLink) selfLinks.stream().findFirst().get();
-        link.setRestTemplate(restTemplate);
-        proxy = link.follow(Proxy.class);
-        context.put("proxy", proxy);
-
-        assertThat(proxy.getName(), equalTo(context.get("proxyName")));
+    public Link checkEndpointExists(Link proxyLink, String endpointName) {
+        ((HttpLink) proxyLink).setRestTemplate(restTemplate);
+        Proxy proxy = proxyLink.follow(Proxy.class);
         proxy.setRestTemplate(restTemplate);
-        assertThat(proxy.getEndpoint((String) context.get("endpoint")),
-                notNullValue());
-        context.put("proxy", proxy);
+        Endpoint endpoint = proxy.getEndpoint(endpointName);
+        assertThat(endpoint, notNullValue());
+        return endpoint.getLink(Rel.SELF).stream().findFirst().get();
     }
 
     @Override
-    public void checkEndpointAvailable(TestContext context) {
-        Proxy proxy = (Proxy) context.get("proxy");
-        Boolean available = proxy.getEndpoint((String) context.get("endpoint"))
-                .getProperties().getAvailable();
-        assertTrue(available);
+    public void checkEndpointAvailable(Link endpointLink) {
+        ((HttpLink) endpointLink).setRestTemplate(restTemplate);
+        assertTrue(endpointLink.follow(Endpoint.class).getProperties()
+                .getAvailable());
     }
 
     String normaliseUrl(String endpoint) {

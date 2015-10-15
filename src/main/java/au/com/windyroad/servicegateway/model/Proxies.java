@@ -14,7 +14,10 @@ import com.gs.collections.impl.block.factory.HashingStrategies;
 import com.gs.collections.impl.set.strategy.mutable.UnifiedSetWithHashingStrategy;
 
 import au.com.windyroad.hateoas.EmbeddedEntity;
+import au.com.windyroad.hateoas.EmbeddedEntityLink;
 import au.com.windyroad.hateoas.Entity;
+import au.com.windyroad.hateoas.JavaLink;
+import au.com.windyroad.servicegateway.controller.AdminProxiesController;
 import au.com.windyroad.servicegateway.controller.AdminProxyController;
 
 @Component
@@ -26,16 +29,25 @@ public class Proxies extends Entity<Map<String, String>> {
     private UnifiedSetWithHashingStrategy<Proxy> proxies = new UnifiedSetWithHashingStrategy<>(
             HashingStrategies.fromFunction(Proxy::getName));
 
-    public boolean createProxy(String proxyPath, String targetEndPoint)
-            throws NoSuchMethodException, SecurityException,
-            IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException, URISyntaxException {
+    protected Proxies() throws IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException, NoSuchMethodException,
+            SecurityException {
+        this.addLink(new JavaLink(this, DummyInvocationUtils
+                .methodOn(AdminProxiesController.class).self()));
+    }
+
+    public EmbeddedEntityLink createProxy(String proxyPath,
+            String targetEndPoint)
+                    throws NoSuchMethodException, SecurityException,
+                    IllegalAccessException, IllegalArgumentException,
+                    InvocationTargetException, URISyntaxException {
         Proxy proxy = new Proxy(proxyPath, targetEndPoint);
         return addProxy(proxy);
     }
 
-    public boolean addProxy(Proxy proxy) throws NoSuchMethodException,
-            SecurityException, IllegalAccessException, IllegalArgumentException,
+    public EmbeddedEntityLink addProxy(Proxy proxy)
+            throws NoSuchMethodException, SecurityException,
+            IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
         boolean added = proxies.add(proxy);
         if (added) {
@@ -44,7 +56,7 @@ public class Proxies extends Entity<Map<String, String>> {
                     DummyInvocationUtils.methodOn(AdminProxyController.class)
                             .self(proxy.getName()));
         }
-        return added;
+        return null;
     }
 
     public Proxy getProxy(String path) {

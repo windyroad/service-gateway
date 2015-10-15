@@ -14,7 +14,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import au.com.windyroad.hateoas.EmbeddedEntity;
 import au.com.windyroad.hateoas.EmbeddedEntityHttpLink;
 import au.com.windyroad.hateoas.Entity;
+import au.com.windyroad.hateoas.JavaLink;
 import au.com.windyroad.servicegateway.controller.AdminEndpointController;
+import au.com.windyroad.servicegateway.controller.AdminProxyController;
 
 public class Proxy extends Entity<Proxy.Properties> {
 
@@ -57,13 +59,16 @@ public class Proxy extends Entity<Proxy.Properties> {
     private RestTemplate restTemplate;
 
     protected Proxy() {
-        super(new Properties());
     }
 
-    public Proxy(String name, String target) {
+    public Proxy(String name, String target) throws NoSuchMethodException,
+            SecurityException, IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException, URISyntaxException {
         super(new Properties());
         getProperties().name = name;
         getProperties().target = target;
+        this.addLink(new JavaLink(this, DummyInvocationUtils
+                .methodOn(AdminProxyController.class).self(name)));
     }
 
     public Proxy(String name) {
@@ -87,7 +92,7 @@ public class Proxy extends Entity<Proxy.Properties> {
                 return;
             }
         }
-        super.addEmbeddedEntity(new Endpoint(target, available),
+        super.addEmbeddedEntity(new Endpoint(getName(), target, available),
                 DummyInvocationUtils.methodOn(AdminEndpointController.class)
                         .self(getName(), target));
     }

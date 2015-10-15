@@ -1,11 +1,8 @@
 package au.com.windyroad.servicegateway.controller;
 
-import static org.springframework.hateoas.core.DummyInvocationUtils.*;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -16,7 +13,6 @@ import javax.script.ScriptException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,6 +29,7 @@ import com.gs.collections.impl.block.factory.HashingStrategies;
 import com.gs.collections.impl.set.strategy.mutable.UnifiedSetWithHashingStrategy;
 
 import au.com.windyroad.hateoas.Action;
+import au.com.windyroad.hateoas.EmbeddedEntityLink;
 import au.com.windyroad.hateoas.annotations.Name;
 import au.com.windyroad.hateoas.annotations.PresentationType;
 import au.com.windyroad.hateoas.annotations.Rel;
@@ -54,13 +51,11 @@ public class AdminProxiesController {
     @ResponseBody
     @Rel("self")
     @Title("Proxies")
-    public ResponseEntity<?> proxies() throws IllegalAccessException,
+    public ResponseEntity<?> self() throws IllegalAccessException,
             IllegalArgumentException, InvocationTargetException,
             NoSuchMethodException, SecurityException {
 
         proxies.setActions(getActions());
-        // proxies.addLink(
-        // Link.linkTo(methodOn(AdminProxiesController.class).proxies()));
         proxies.setTitle("Proxies");
         // TODO: move title to annotation
         HttpHeaders headers = new HttpHeaders();
@@ -111,12 +106,9 @@ public class AdminProxiesController {
                     SecurityException, ScriptException, IllegalAccessException,
                     IllegalArgumentException, InvocationTargetException {
 
-        boolean added = proxies.createProxy(proxyName, endpoint);
-        if (added) {
-            URI location = ControllerLinkBuilder.linkTo(
-                    methodOn(AdminProxyController.class).self(proxyName))
-                    .toUri();
-            return ResponseEntity.created(location).build();
+        EmbeddedEntityLink added = proxies.createProxy(proxyName, endpoint);
+        if (added != null) {
+            return ResponseEntity.created(added.getHref()).build();
         } else {
             throw new HttpServerErrorException(HttpStatus.NOT_IMPLEMENTED,
                     "TODO: Handle duplicate proxy create attempt. 409 or similar");

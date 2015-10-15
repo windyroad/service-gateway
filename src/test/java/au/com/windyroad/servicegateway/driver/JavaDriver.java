@@ -19,9 +19,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import au.com.windyroad.hateoas.EmbeddedEntityLink;
+import au.com.windyroad.hateoas.Link;
+import au.com.windyroad.hateoas.annotations.Rel;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.TestContext;
+import au.com.windyroad.servicegateway.model.Endpoint;
 import au.com.windyroad.servicegateway.model.Proxies;
+import au.com.windyroad.servicegateway.model.Proxy;
 
 @Component
 @Profile(value = "default")
@@ -56,10 +61,11 @@ public class JavaDriver implements Driver {
     }
 
     @Override
-    public void createProxy(TestContext context) throws NoSuchMethodException,
-            SecurityException, IllegalAccessException, IllegalArgumentException,
+    public EmbeddedEntityLink createProxy(TestContext context)
+            throws NoSuchMethodException, SecurityException,
+            IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
-        proxies.createProxy((String) context.get("proxyName"),
+        return proxies.createProxy((String) context.get("proxyName"),
                 (String) context.get("endpoint"));
     }
 
@@ -72,16 +78,17 @@ public class JavaDriver implements Driver {
     }
 
     @Override
-    public void checkEndpointExists(TestContext context) {
-        assertThat(proxies.getProxy((String) context.get("proxyName"))
-                .getEndpoint((String) context.get("endpoint")), notNullValue());
+    public Link checkEndpointExists(Link proxyLink, String endpointName) {
+        Endpoint endpoint = proxyLink.follow(Proxy.class)
+                .getEndpoint(endpointName);
+        assertThat(endpoint, notNullValue());
+        return endpoint.getLink(Rel.SELF).stream().findFirst().get();
 
     }
 
     @Override
-    public void checkEndpointAvailable(TestContext context) {
-        assertTrue(proxies.getProxy((String) context.get("proxyName"))
-                .getEndpoint((String) context.get("endpoint")).getProperties()
+    public void checkEndpointAvailable(Link endpointLink) {
+        assertTrue(endpointLink.follow(Endpoint.class).getProperties()
                 .getAvailable());
     }
 

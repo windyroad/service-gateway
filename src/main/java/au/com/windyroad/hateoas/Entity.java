@@ -164,9 +164,15 @@ public class Entity<T> {
         this.entities = entities;
     }
 
-    public boolean addEmbeddedEntity(Entity<?> entity, Object invocationValue) {
-        return entities
-                .add(new EmbeddedEntityJavaLink<>(entity, invocationValue));
+    public EmbeddedEntityLink addEmbeddedEntity(Entity<?> entity,
+            Object invocationValue) {
+        EmbeddedEntityJavaLink<?> link = new EmbeddedEntityJavaLink<>(entity,
+                invocationValue);
+        if (entities.add(link)) {
+            return link;
+        } else {
+            return null;
+        }
     }
 
 }

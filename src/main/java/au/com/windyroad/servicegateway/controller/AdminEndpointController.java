@@ -4,7 +4,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.core.DummyInvocationUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import au.com.windyroad.hateoas.HttpLink;
 import au.com.windyroad.hateoas.annotations.Rel;
 import au.com.windyroad.hateoas.annotations.Title;
 import au.com.windyroad.servicegateway.model.Endpoint;
@@ -43,9 +41,6 @@ public class AdminEndpointController {
         }
         Endpoint endpoint = proxy.getEndpoint(target);
 
-        endpoint.addLink(new HttpLink(
-                DummyInvocationUtils.methodOn(AdminEndpointController.class)
-                        .self(proxyName, target)));
         ResponseEntity<?> responseEntity = new ResponseEntity<>(endpoint,
                 HttpStatus.OK);
         return responseEntity;

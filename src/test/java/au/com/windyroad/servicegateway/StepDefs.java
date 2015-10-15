@@ -1,5 +1,8 @@
 package au.com.windyroad.servicegateway;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +13,7 @@ import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 
+import au.com.windyroad.hateoas.Link;
 import au.com.windyroad.servicegateway.driver.Driver;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -29,10 +33,14 @@ public class StepDefs {
     @Autowired
     Driver driver;
 
+    Map<String, Link> proxies = new HashMap<>();
+
     @Autowired
     ServiceGatewayTestConfiguration config;
 
     private TestContext context = new TestContext();
+
+    private Link currentEndpoint;
 
     @PostConstruct
     private void initConfig() {
@@ -53,7 +61,7 @@ public class StepDefs {
     public void is_proxied_at(String endpoint, String proxy) throws Throwable {
         context.put("proxyName", proxy);
         context.put("endpoint", normaliseUrl(endpoint));
-        driver.createProxy(context);
+        proxies.put(proxy, driver.createProxy(context));
     }
 
     String normaliseUrl(String endpoint) {
@@ -72,14 +80,13 @@ public class StepDefs {
     @Then("^\"(.*?)\" will be listed in the endpoints proxied by \"/proxy/(.*?)\"$")
     public void will_be_listed_in_the_endpoints_proxied_by(String endpoint,
             String proxy) throws Throwable {
-        context.put("proxyName", proxy);
-        context.put("endpoint", endpoint);
-        driver.checkEndpointExists(context);
+        currentEndpoint = driver.checkEndpointExists(proxies.get(proxy),
+                endpoint);
     }
 
     @Then("^the endpoint will be shown as available$")
     public void the_endpoint_will_be_shown_as_available() throws Throwable {
-        driver.checkEndpointAvailable(context);
+        driver.checkEndpointAvailable(currentEndpoint);
     }
 
 }

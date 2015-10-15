@@ -9,7 +9,7 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class EmbeddedEntityHttpLink extends Link implements EmbeddedEntity {
+public class EmbeddedEntityHttpLink extends EmbeddedEntityLink {
 
     private RestTemplate restTemplate;
     private URI href;

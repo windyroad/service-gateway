@@ -1,14 +1,29 @@
 package au.com.windyroad.servicegateway.model;
 
+import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
+
+import org.springframework.hateoas.core.DummyInvocationUtils;
+
 import au.com.windyroad.hateoas.Entity;
+import au.com.windyroad.hateoas.JavaLink;
+import au.com.windyroad.servicegateway.controller.AdminEndpointController;
 
 public class Endpoint extends Entity<Endpoint.Properties> {
 
     protected Endpoint() {
     }
 
-    public Endpoint(String target, boolean available) {
+    public Endpoint(String proxyName, String target, boolean available)
+            throws NoSuchMethodException, SecurityException,
+            IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException, URISyntaxException {
         this.setProperties(new Properties(target, available));
+        this.addLink(
+                new JavaLink(this,
+                        DummyInvocationUtils
+                                .methodOn(AdminEndpointController.class)
+                                .self(proxyName, target)));
     }
 
     public static class Properties {

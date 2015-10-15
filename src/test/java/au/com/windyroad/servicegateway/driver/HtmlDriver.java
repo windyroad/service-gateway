@@ -1,8 +1,5 @@
 package au.com.windyroad.servicegateway.driver;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-
 import java.util.List;
 
 import org.openqa.selenium.By;
@@ -15,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import au.com.windyroad.hateoas.Link;
 import au.com.windyroad.servicegateway.TestContext;
 import cucumber.api.PendingException;
 
@@ -32,7 +30,7 @@ public class HtmlDriver extends RestDriver {
     String password;
 
     @Override
-    public void createProxy(TestContext context) throws Exception {
+    public Link createProxy(TestContext context) throws Exception {
         webDriver.get(
                 "https://localhost:" + config.getPort() + "/admin/proxies");
         WebElement form = (new WebDriverWait(webDriver, 5))
@@ -49,6 +47,10 @@ public class HtmlDriver extends RestDriver {
             }
         }
         form.findElement(By.cssSelector("button[type='submit']")).click();
+        WebElement newPage = (new WebDriverWait(webDriver, 5))
+                .until(ExpectedConditions
+                        .presenceOfElementLocated(By.className("Proxy")));
+        return null;
     }
 
     @Override
@@ -58,17 +60,13 @@ public class HtmlDriver extends RestDriver {
     }
 
     @Override
-    public void checkEndpointAvailable(TestContext context) {
+    public void checkEndpointAvailable(Link endpointLink) {
         throw new PendingException();
     }
 
     @Override
-    public void checkEndpointExists(TestContext context) {
-        WebElement properties = (new WebDriverWait(webDriver, 5))
-                .until(ExpectedConditions
-                        .presenceOfElementLocated(By.id("properties")));
-        assertThat(properties.findElement(By.id("property:name")).getText(),
-                equalTo((String) context.get("proxyName")));
+    public Link checkEndpointExists(Link proxyLink, String endpoint) {
+        WebElement properties = webDriver.findElement(By.id("properties"));
 
         String location = properties.findElement(By.id("property:target"))
                 .getText();
