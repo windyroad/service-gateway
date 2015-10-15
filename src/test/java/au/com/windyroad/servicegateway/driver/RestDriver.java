@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import java.net.URI;
+import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +17,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import au.com.windyroad.hateoas.HttpLink;
+import au.com.windyroad.hateoas.Link;
 import au.com.windyroad.hateoas.SirenTemplate;
+import au.com.windyroad.hateoas.annotations.Rel;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.TestContext;
 import au.com.windyroad.servicegateway.model.Proxies;
@@ -85,7 +89,14 @@ public class RestDriver implements Driver {
     @Override
     public void checkEndpointExists(TestContext context) {
         Proxy proxy = (Proxy) context.get("proxy");
+        Collection<Link> selfLinks = proxy.getLink(Rel.SELF);
+        HttpLink link = (HttpLink) selfLinks.stream().findFirst().get();
+        link.setRestTemplate(restTemplate);
+        proxy = link.follow(Proxy.class);
+        context.put("proxy", proxy);
+
         assertThat(proxy.getName(), equalTo(context.get("proxyName")));
+        proxy.setRestTemplate(restTemplate);
         assertThat(proxy.getEndpoint((String) context.get("endpoint")),
                 notNullValue());
         context.put("proxy", proxy);

@@ -73,7 +73,7 @@ public class StepDefs {
     public void will_be_listed_in_the_endpoints_proxied_by(String endpoint,
             String proxy) throws Throwable {
         context.put("proxyName", proxy);
-        context.put("endpoint", normaliseUrl(endpoint));
+        context.put("endpoint", endpoint);
         driver.checkEndpointExists(context);
     }
 

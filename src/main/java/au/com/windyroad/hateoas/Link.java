@@ -5,7 +5,11 @@ import java.lang.reflect.Parameter;
 import java.net.URI;
 
 import org.eclipse.jdt.annotation.Nullable;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.hateoas.core.DummyInvocationUtils.LastInvocationAware;
+import org.springframework.hateoas.core.DummyInvocationUtils.MethodInvocation;
 import org.springframework.http.MediaType;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -32,7 +36,6 @@ public abstract class Link {
     @Nullable
     private String[] classes;
 
-    private URI href;
     @Nullable
     private String title;
 
@@ -47,9 +50,15 @@ public abstract class Link {
         this.rel = rel;
     }
 
-    public Link(Method method, Object... args) {
+    public Link(Object invocationValue) {
+        Assert.isInstanceOf(LastInvocationAware.class, invocationValue);
+        LastInvocationAware invocations = (LastInvocationAware) invocationValue;
+
+        MethodInvocation invocation = invocations.getLastInvocation();
+        Method method = invocation.getMethod();
+
         this.rel = method.getAnnotation(Rel.class).value();
-        this.title = computeTitle(method, args);
+        this.title = computeTitle(method, invocation.getArguments());
     }
 
     private String computeTitle(Method method, Object... args) {
@@ -62,7 +71,7 @@ public abstract class Link {
                         .getAnnotation(PathVariable.class);
                 if (pathVariable != null) {
                     title = title.replace("{" + pathVariable.value() + "}",
-                            args[0].toString());
+                            args[i].toString());
                 }
             }
         }
@@ -131,5 +140,8 @@ public abstract class Link {
         this.rel = rel;
     }
 
-    public abstract Entity<?> follow();
+    public abstract <T extends Entity<?>> T follow(Class<T> type);
+
+    public abstract <T extends Entity<?>> T follow(
+            ParameterizedTypeReference<T> type);
 }

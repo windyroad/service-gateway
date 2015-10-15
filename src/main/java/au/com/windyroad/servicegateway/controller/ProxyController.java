@@ -1,6 +1,8 @@
 package au.com.windyroad.servicegateway.controller;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
 import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.servlet.HandlerMapping;
 
@@ -56,7 +59,14 @@ public class ProxyController {
         @Override
         public void failed(Exception ex) {
             LOGGER.error("Failure while processing: ", ex);
-            proxy.setEndpoint(target, false);
+            try {
+                proxy.setEndpoint(target, false);
+            } catch (NoSuchMethodException | SecurityException
+                    | IllegalAccessException | IllegalArgumentException
+                    | InvocationTargetException | URISyntaxException e) {
+                throw new HttpServerErrorException(HttpStatus.NOT_IMPLEMENTED,
+                        "TODO");
+            }
             deferredResult.setErrorResult(ex);
             close();
         }
@@ -121,7 +131,10 @@ public class ProxyController {
     public DeferredResult<ResponseEntity<?>> get(
             final HttpServletRequest request,
             final HttpServletResponse response,
-            @PathVariable("name") String name) {
+            @PathVariable("name") String name)
+                    throws NoSuchMethodException, SecurityException,
+                    IllegalAccessException, IllegalArgumentException,
+                    InvocationTargetException, URISyntaxException {
         DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<ResponseEntity<?>>();
 
         Proxy proxy = proxies.getProxy(name);
@@ -130,7 +143,7 @@ public class ProxyController {
                     HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
             String restOfTheUrl = url.replace("/proxy/" + name + "/", "");
             String target = proxy.getTarget() + "/" + restOfTheUrl;
-            proxy.setEndpoint(target, false);
+            proxy.setEndpoint(restOfTheUrl, false);
 
             httpAsyncClient.start();
             HttpGet newRequest = new HttpGet(target);
@@ -146,8 +159,8 @@ public class ProxyController {
             }
             LOGGER.debug("{ 'event': 'proxyReqeust', 'from': '" + url
                     + "', 'to': '" + target + "' }");
-            httpAsyncClient.execute(newRequest,
-                    new CBack(httpAsyncClient, deferredResult, proxy, target));
+            httpAsyncClient.execute(newRequest, new CBack(httpAsyncClient,
+                    deferredResult, proxy, restOfTheUrl));
 
         } else {
             LOGGER.error("{ 'error': 'proxy not found', 'proxyName' : '" + name

@@ -2,8 +2,8 @@ package au.com.windyroad.hateoas;
 
 import java.net.URI;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -14,21 +14,32 @@ public class EmbeddedEntityJavaLink<K extends Entity<?>>
         extends EmbeddedEntityLink {
 
     private K entity;
+    private Object invocationValue;
 
-    public EmbeddedEntityJavaLink(K entity, String[] rel) {
-        super(rel);
+    protected EmbeddedEntityJavaLink() {
+    }
+
+    public EmbeddedEntityJavaLink(K entity, Object invocationValue) {
+        super(invocationValue);
         this.entity = entity;
+        this.invocationValue = invocationValue;
     }
 
     @Override
     public URI getHref() {
-        throw new HttpServerErrorException(HttpStatus.NOT_IMPLEMENTED,
-                "TODO: convert to html link");
+        URI uri = invocationValue == null ? null
+                : ControllerLinkBuilder.linkTo(invocationValue).toUri();
+        return uri;
     }
 
     @Override
-    public Entity<?> follow() {
-        return entity;
+    public <T extends Entity<?>> T follow(Class<T> type) {
+        return (T) entity;
+    }
+
+    @Override
+    public <T extends Entity<?>> T follow(ParameterizedTypeReference<T> type) {
+        return (T) entity;
     }
 
 }

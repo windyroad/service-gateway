@@ -1,8 +1,11 @@
 package au.com.windyroad.servicegateway.controller;
 
+import static org.springframework.hateoas.core.DummyInvocationUtils.*;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -13,6 +16,7 @@ import javax.script.ScriptException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -109,12 +113,10 @@ public class AdminProxiesController {
 
         boolean added = proxies.createProxy(proxyName, endpoint);
         if (added) {
-            // URI location = Link.linkTo(
-            // methodOn(AdminProxyController.class).proxy(proxyName))
-            // .getHref();
-            throw new HttpServerErrorException(HttpStatus.NOT_IMPLEMENTED,
-                    "TODO: return 201 with location of created proxy");
-            // return ResponseEntity.created(location).build();
+            URI location = ControllerLinkBuilder.linkTo(
+                    methodOn(AdminProxyController.class).self(proxyName))
+                    .toUri();
+            return ResponseEntity.created(location).build();
         } else {
             throw new HttpServerErrorException(HttpStatus.NOT_IMPLEMENTED,
                     "TODO: Handle duplicate proxy create attempt. 409 or similar");

@@ -153,7 +153,10 @@ public class ServiceGatewayTestConfiguration {
     @Bean
     public HttpComponentsClientHttpRequestFactory httpClientFactory()
             throws Exception {
-        return new HttpComponentsClientHttpRequestFactory(httpClient());
+        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory(
+                httpClient());
+        factory.setReadTimeout(200000);
+        return factory;
     }
 
     @Value("${security.user.name:user}")

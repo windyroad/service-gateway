@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.Nullable;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.google.common.collect.HashMultimap;
@@ -17,7 +16,7 @@ import com.gs.collections.impl.set.strategy.mutable.UnifiedSetWithHashingStrateg
 
 @JsonPropertyOrder({ "class", "properties", "entities", "actions", "links",
         "title" })
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+// @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Entity<T> {
 
     @Nullable
@@ -44,12 +43,12 @@ public class Entity<T> {
     }
 
     public Entity(T properties) {
-        this.classes = new String[] { properties.getClass().getSimpleName() };
+        this.classes = new String[] { this.getClass().getSimpleName() };
         this.properties = properties;
     }
 
     public Entity(T properties, Collection<Action> actions) {
-        this.classes = new String[] { properties.getClass().getSimpleName() };
+        this.classes = new String[] { this.getClass().getSimpleName() };
         this.properties = properties;
         setActions(actions);
     }
@@ -165,12 +164,9 @@ public class Entity<T> {
         this.entities = entities;
     }
 
-    public void addEmbeddedEntity(EmbeddedEntity embeddedEntity) {
-        entities.add(embeddedEntity);
-    }
-
-    public boolean addEmbeddedEntity(Entity<?> entity, String... rel) {
-        return entities.add(new EmbeddedEntityJavaLink(entity, rel));
+    public boolean addEmbeddedEntity(Entity<?> entity, Object invocationValue) {
+        return entities
+                .add(new EmbeddedEntityJavaLink<>(entity, invocationValue));
     }
 
 }

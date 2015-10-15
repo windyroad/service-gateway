@@ -1,15 +1,20 @@
 package au.com.windyroad.servicegateway.model;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
 
+import org.springframework.hateoas.core.DummyInvocationUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import au.com.windyroad.hateoas.EmbeddedEntity;
+import au.com.windyroad.hateoas.EmbeddedEntityHttpLink;
 import au.com.windyroad.hateoas.Entity;
-import au.com.windyroad.hateoas.annotations.Rel;
+import au.com.windyroad.servicegateway.controller.AdminEndpointController;
 
 public class Proxy extends Entity<Proxy.Properties> {
 
@@ -49,6 +54,8 @@ public class Proxy extends Entity<Proxy.Properties> {
         }
     }
 
+    private RestTemplate restTemplate;
+
     protected Proxy() {
         super(new Properties());
     }
@@ -68,7 +75,10 @@ public class Proxy extends Entity<Proxy.Properties> {
         return this.getProperties().target;
     }
 
-    public void setEndpoint(String target, boolean available) {
+    public void setEndpoint(String target, boolean available)
+            throws NoSuchMethodException, SecurityException,
+            IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException, URISyntaxException {
         for (EmbeddedEntity entity : super.getEntities()) {
             Endpoint endpoint = entity.toEntity(Endpoint.class);
             if (target != null
@@ -77,11 +87,17 @@ public class Proxy extends Entity<Proxy.Properties> {
                 return;
             }
         }
-        super.addEmbeddedEntity(new Endpoint(target, available), Rel.ITEM);
+        super.addEmbeddedEntity(new Endpoint(target, available),
+                DummyInvocationUtils.methodOn(AdminEndpointController.class)
+                        .self(getName(), target));
     }
 
     public Endpoint getEndpoint(String target) {
         for (EmbeddedEntity entity : super.getEntities()) {
+            if (entity instanceof EmbeddedEntityHttpLink) {
+                EmbeddedEntityHttpLink entityLink = (EmbeddedEntityHttpLink) entity;
+                entityLink.setRestTemplate(restTemplate);
+            }
             Endpoint endpoint = entity.toEntity(Endpoint.class);
             if (target != null
                     && target.equals(endpoint.getProperties().getTarget())) {
@@ -104,6 +120,10 @@ public class Proxy extends Entity<Proxy.Properties> {
      */
     public void setName(String name) {
         this.getProperties().name = name;
+    }
+
+    public void setRestTemplate(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
     }
 
 }

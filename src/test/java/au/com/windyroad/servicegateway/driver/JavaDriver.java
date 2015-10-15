@@ -3,7 +3,9 @@ package au.com.windyroad.servicegateway.driver;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -54,7 +56,9 @@ public class JavaDriver implements Driver {
     }
 
     @Override
-    public void createProxy(TestContext context) {
+    public void createProxy(TestContext context) throws NoSuchMethodException,
+            SecurityException, IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException, URISyntaxException {
         proxies.createProxy((String) context.get("proxyName"),
                 (String) context.get("endpoint"));
     }

@@ -4,6 +4,9 @@ import au.com.windyroad.hateoas.Entity;
 
 public class Endpoint extends Entity<Endpoint.Properties> {
 
+    protected Endpoint() {
+    }
+
     public Endpoint(String target, boolean available) {
         this.setProperties(new Properties(target, available));
     }
