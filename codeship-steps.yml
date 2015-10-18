@@ -1,0 +1,3 @@
+- name: ci
+  service: service-gateway
+  command: ./gradlew build test --info
