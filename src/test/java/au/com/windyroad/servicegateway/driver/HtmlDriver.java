@@ -26,7 +26,6 @@ import au.com.windyroad.hateoas.JavaLink;
 import au.com.windyroad.hateoas.Link;
 import au.com.windyroad.hateoas.client.LinkVisitor;
 import au.com.windyroad.servicegateway.TestContext;
-import cucumber.api.PendingException;
 
 @Component
 @Profile(value = "ui-integration")
@@ -73,7 +72,39 @@ public class HtmlDriver extends RestDriver {
 
     @Override
     public void checkEndpointAvailable(Link endpointLink) {
-        throw new PendingException();
+        endpointLink.accept(new LinkVisitor() {
+            @Override
+            public void visit(HttpLink link) {
+                webDriver.get(link.getHref().toString());
+            }
+
+            @Override
+            public void visit(
+                    EmbeddedEntityJavaLink<?> embeddedEntityJavaLink) {
+                throw new HttpServerErrorException(
+                        HttpStatus.INTERNAL_SERVER_ERROR,
+                        "expected HttpLink, got EmbeddedEntityJavaLink");
+            }
+
+            @Override
+            public void visit(JavaLink javaLink) {
+                throw new HttpServerErrorException(
+                        HttpStatus.INTERNAL_SERVER_ERROR,
+                        "expected HttpLink, got JavaLink");
+            }
+
+            @Override
+            public void visit(EmbeddedEntityHttpLink embeddedEntityHttpLink) {
+                throw new HttpServerErrorException(
+                        HttpStatus.INTERNAL_SERVER_ERROR,
+                        "expected HttpLink, got EmbeddedEntityHttpLink");
+            }
+        });
+
+        WebElement available = (new WebDriverWait(webDriver, 5))
+                .until(ExpectedConditions
+                        .presenceOfElementLocated(By.id("property:available")));
+        assertThat(available.getText(), equalTo("true"));
     }
 
     @Override
