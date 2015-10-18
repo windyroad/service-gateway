@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import au.com.windyroad.hateoas.annotations.Rel;
 import au.com.windyroad.hateoas.annotations.Title;
+import au.com.windyroad.hateoas.client.LinkVisitor;
 
 /**
  *
@@ -50,7 +51,14 @@ public abstract class Link {
         this.rel = rel;
     }
 
-    public Link(Object invocationValue) {
+    public Link(MethodInvocation invocation) {
+        Method method = invocation.getMethod();
+
+        this.rel = method.getAnnotation(Rel.class).value();
+        this.title = computeTitle(method, invocation.getArguments());
+    }
+
+    public Link(Object invocationValue, String notused) {
         Assert.isInstanceOf(LastInvocationAware.class, invocationValue);
         LastInvocationAware invocations = (LastInvocationAware) invocationValue;
 
@@ -144,4 +152,7 @@ public abstract class Link {
 
     public abstract <T extends Entity<?>> T follow(
             ParameterizedTypeReference<T> type);
+
+    public abstract void accept(LinkVisitor linkVisitor);
+
 }

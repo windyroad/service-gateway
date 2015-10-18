@@ -55,4 +55,10 @@ public class AdminProxyController {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
+    @RequestMapping(value = "/{proxyName}", method = RequestMethod.GET, produces = {
+            "text/html", "application/xhtml+xml" })
+    public String proxiesView() {
+        return "/index.html";
+    }
+
 }

@@ -1,6 +1,7 @@
 package au.com.windyroad.hateoas;
 
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.hateoas.core.DummyInvocationUtils.MethodInvocation;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -15,8 +16,8 @@ public abstract class EmbeddedEntityLink extends Link
         super(rel);
     }
 
-    public EmbeddedEntityLink(Object invocationValue) {
-        super(invocationValue);
+    public EmbeddedEntityLink(MethodInvocation invocation) {
+        super(invocation);
     }
 
     @Override

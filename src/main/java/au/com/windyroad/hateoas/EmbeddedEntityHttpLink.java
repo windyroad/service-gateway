@@ -8,6 +8,8 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import au.com.windyroad.hateoas.client.LinkVisitor;
+
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class EmbeddedEntityHttpLink extends EmbeddedEntityLink {
 
@@ -48,4 +50,10 @@ public class EmbeddedEntityHttpLink extends EmbeddedEntityLink {
     public void setRestTemplate(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
+
+    @Override
+    public void accept(LinkVisitor linkVisitor) {
+        linkVisitor.visit(this);
+    }
+
 }

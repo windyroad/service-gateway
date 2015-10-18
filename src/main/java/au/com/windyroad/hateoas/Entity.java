@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.annotation.Nullable;
+import org.springframework.hateoas.core.DummyInvocationUtils.LastInvocationAware;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -165,9 +166,9 @@ public class Entity<T> {
     }
 
     public EmbeddedEntityLink addEmbeddedEntity(Entity<?> entity,
-            Object invocationValue) {
+            Object invocation) {
         EmbeddedEntityJavaLink<?> link = new EmbeddedEntityJavaLink<>(entity,
-                invocationValue);
+                ((LastInvocationAware) invocation).getLastInvocation());
         if (entities.add(link)) {
             return link;
         } else {

@@ -3,9 +3,12 @@ package au.com.windyroad.hateoas;
 import java.net.URI;
 
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.hateoas.core.DummyInvocationUtils.MethodInvocation;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.RequestEntity;
 import org.springframework.web.client.RestTemplate;
+
+import au.com.windyroad.hateoas.client.LinkVisitor;
 
 public class HttpLink extends Link {
     URI href;
@@ -15,9 +18,14 @@ public class HttpLink extends Link {
     protected HttpLink() {
     }
 
-    public HttpLink(Object invocationValue) {
-        super(invocationValue);
-        this.href = ControllerLinkBuilder.linkTo(invocationValue).toUri();
+    public HttpLink(URI href) {
+        this.href = href;
+    }
+
+    public HttpLink(MethodInvocation invocation) {
+        super(invocation);
+        this.href = ControllerLinkBuilder.linkTo(invocation.getTargetType(),
+                invocation.getMethod(), invocation.getArguments()).toUri();
     }
 
     @Override
@@ -39,6 +47,11 @@ public class HttpLink extends Link {
     public <T extends Entity<?>> T follow(ParameterizedTypeReference<T> type) {
         RequestEntity<?> requestEntity = RequestEntity.get(href).build();
         return restTemplate.exchange(requestEntity, type).getBody();
+    }
+
+    @Override
+    public void accept(LinkVisitor linkVisitor) {
+        linkVisitor.visit(this);
     }
 
 }
