@@ -112,7 +112,8 @@ public class HtmlDriver extends RestDriver {
         List<WebElement> entities = entitiesContainer
                 .findElements(By.className("entity"));
         assertThat(entities.size(), equalTo(1));
-        assertThat(entities.get(0).getText(), equalTo("test/" + endpoint));
+        assertThat(entities.get(0).getText(),
+                equalTo("Endpoint `test/" + endpoint + '`'));
 
         try {
             return new HttpLink(new URI(entities.get(0).getAttribute("href")));

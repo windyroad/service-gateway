@@ -37,7 +37,7 @@ app.controller('EntityController', function($scope, $http, $location, $window) {
 	
 	
 	
-	$http.get('/admin/proxies', {
+	$http.get($window.location.pathname, {
 		cache: false
 	}).success(function(data) {
 		controller.entity = data;
