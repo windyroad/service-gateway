@@ -1,4 +1,4 @@
-FROM dockerfile/java:oracle-java7
+FROM dockerfile/java:oracle-java8
 MAINTAINER tom@windyroad.com.au
 EXPOSE 80
 ADD build/libs/service-gateway.jar /data/service-gateway.jar
