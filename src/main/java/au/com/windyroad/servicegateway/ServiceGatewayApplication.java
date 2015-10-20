@@ -156,9 +156,11 @@ public class ServiceGatewayApplication {
                 .setDefaultRequestConfig(httpClientRequestConfig());
     }
 
-    @Bean
+    @Bean(destroyMethod = "close")
     public CloseableHttpAsyncClient httpAsyncClient() throws Exception {
-        return httpAsyncClientBuilder().build();
+        CloseableHttpAsyncClient client = httpAsyncClientBuilder().build();
+        client.start();
+        return client;
     }
 
     public String getTrustStorePassword() {

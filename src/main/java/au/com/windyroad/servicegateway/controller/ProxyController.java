@@ -1,6 +1,5 @@
 package au.com.windyroad.servicegateway.controller;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
@@ -40,17 +39,14 @@ public class ProxyController {
     Proxies proxies;
 
     private static class CBack implements FutureCallback<HttpResponse> {
-        private CloseableHttpAsyncClient httpAsyncClient;
         private DeferredResult<ResponseEntity<?>> deferredResult;
         private String target;
 
         private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
         private Proxy proxy;
 
-        public CBack(CloseableHttpAsyncClient httpAsyncClient,
-                DeferredResult<ResponseEntity<?>> deferredResult, Proxy proxy,
-                String target) {
-            this.httpAsyncClient = httpAsyncClient;
+        public CBack(DeferredResult<ResponseEntity<?>> deferredResult,
+                Proxy proxy, String target) {
             this.deferredResult = deferredResult;
             this.target = target;
             this.proxy = proxy;
@@ -68,7 +64,6 @@ public class ProxyController {
                         "TODO");
             }
             deferredResult.setErrorResult(ex);
-            close();
         }
 
         @Override
@@ -95,8 +90,6 @@ public class ProxyController {
             } catch (Exception e) {
                 LOGGER.error("Failure while processing response:", e);
                 deferredResult.setErrorResult(e);
-            } finally {
-                close();
             }
         }
 
@@ -110,17 +103,9 @@ public class ProxyController {
             return httpHeaders;
         }
 
-        void close() {
-            try {
-                httpAsyncClient.close();
-            } catch (IOException e) {
-                LOGGER.error("Failure while closing:", e);
-            }
-        }
-
         @Override
         public void cancelled() {
-            close();
+            // do nothing
         }
     }
 
@@ -159,8 +144,8 @@ public class ProxyController {
             }
             LOGGER.debug("{ 'event': 'proxyReqeust', 'from': '" + url
                     + "', 'to': '" + target + "' }");
-            httpAsyncClient.execute(newRequest, new CBack(httpAsyncClient,
-                    deferredResult, proxy, restOfTheUrl));
+            httpAsyncClient.execute(newRequest,
+                    new CBack(deferredResult, proxy, restOfTheUrl));
 
         } else {
             LOGGER.error("{ 'error': 'proxy not found', 'proxyName' : '" + name
