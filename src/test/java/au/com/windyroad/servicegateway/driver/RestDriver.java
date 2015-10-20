@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import java.net.URI;
+import java.util.concurrent.Future;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -20,7 +21,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.async.DeferredResult;
-import org.springframework.web.context.request.async.DeferredResult.DeferredResultHandler;
 
 import au.com.windyroad.hateoas.HttpLink;
 import au.com.windyroad.hateoas.Link;
@@ -84,20 +84,13 @@ public class RestDriver implements Driver {
 
         URI url = new URI("https://localhost:" + config.getPort() + path);
         DeferredResult<HttpResponse> deferredResult = new DeferredResult<HttpResponse>();
-        httpAsyncClient.start();
         HttpGet newRequest = new HttpGet(url);
         CBack callback = new CBack(deferredResult);
-        httpAsyncClient.execute(newRequest, callback);
-        deferredResult.setResultHandler(new DeferredResultHandler() {
-
-            @Override
-            public void handleResult(Object result) {
-                HttpResponse response = (HttpResponse) result;
-                assertThat(response.getStatusLine().getStatusCode(),
-                        equalTo(HttpStatus.NO_CONTENT.value()));
-                LOGGER.info("PING SERVICE CHECKED");
-            }
-        });
+        Future<HttpResponse> future = httpAsyncClient.execute(newRequest,
+                callback);
+        HttpResponse response = future.get();
+        assertTrue(HttpStatus.valueOf(response.getStatusLine().getStatusCode())
+                .is2xxSuccessful());
     }
 
     @Override
@@ -122,10 +115,7 @@ public class RestDriver implements Driver {
 
     @Override
     public void get(String path) throws Exception {
-        ResponseEntity<String> response = restTemplate.getForEntity(
-                new URI("https://localhost:" + config.getPort() + path),
-                String.class);
-        assertTrue(response.getStatusCode().is2xxSuccessful());
+        checkPingService(path);
     }
 
     @Override

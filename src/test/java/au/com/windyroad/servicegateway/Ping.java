@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @RequestMapping("/test/ping")
 public class Ping {
 
-	public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+    public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-	@RequestMapping(method = RequestMethod.GET)
-	public ResponseEntity<?> get(final HttpServletRequest request,
-			final HttpServletResponse response) {
-		LOGGER.info("PING!");
-		return ResponseEntity.noContent().build();
-	}
+    @RequestMapping(method = RequestMethod.GET)
+    public ResponseEntity<?> get(final HttpServletRequest request,
+            final HttpServletResponse response) throws InterruptedException {
+        LOGGER.info("PING!");
+        return ResponseEntity.noContent().build();
+    }
 
 }
