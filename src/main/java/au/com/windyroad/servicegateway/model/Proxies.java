@@ -17,10 +17,12 @@ import au.com.windyroad.hateoas.EmbeddedEntity;
 import au.com.windyroad.hateoas.EmbeddedEntityLink;
 import au.com.windyroad.hateoas.Entity;
 import au.com.windyroad.hateoas.JavaLink;
+import au.com.windyroad.hateoas.annotations.Title;
 import au.com.windyroad.servicegateway.controller.AdminProxiesController;
 import au.com.windyroad.servicegateway.controller.AdminProxyController;
 
 @Component
+@Title("Proxies")
 public class Proxies extends Entity<Map<String, String>> {
     @JsonIgnore
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());

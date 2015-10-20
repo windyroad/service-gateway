@@ -15,6 +15,8 @@ import com.google.common.collect.Multimap;
 import com.gs.collections.impl.block.factory.HashingStrategies;
 import com.gs.collections.impl.set.strategy.mutable.UnifiedSetWithHashingStrategy;
 
+import au.com.windyroad.hateoas.annotations.Title;
+
 @JsonPropertyOrder({ "class", "properties", "entities", "actions", "links",
         "title" })
 // @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -41,16 +43,20 @@ public class Entity<T> {
     private String title;
 
     protected Entity() {
+        this.classes = new String[] { this.getClass().getSimpleName() };
+        Title titleAnnotation = this.getClass().getAnnotation(Title.class);
+        if (titleAnnotation != null) {
+            title = titleAnnotation.value();
+        }
     }
 
     public Entity(T properties) {
-        this.classes = new String[] { this.getClass().getSimpleName() };
+        this();
         this.properties = properties;
     }
 
     public Entity(T properties, Collection<Action> actions) {
-        this.classes = new String[] { this.getClass().getSimpleName() };
-        this.properties = properties;
+        this(properties);
         setActions(actions);
     }
 

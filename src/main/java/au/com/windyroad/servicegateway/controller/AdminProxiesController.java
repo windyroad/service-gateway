@@ -55,8 +55,7 @@ public class AdminProxiesController {
             NoSuchMethodException, SecurityException {
 
         proxies.setActions(getActions());
-        proxies.setTitle("Proxies");
-        // TODO: move title to annotation
+
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.VARY, "Accept");
         headers.add("CustomHeader", "Accept");
