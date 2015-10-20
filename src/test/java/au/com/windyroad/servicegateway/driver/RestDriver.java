@@ -33,9 +33,6 @@ public class RestDriver implements Driver {
     public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    Proxies proxy;
-
-    @Autowired
     ServiceGatewayTestConfiguration config;
 
     @Autowired
