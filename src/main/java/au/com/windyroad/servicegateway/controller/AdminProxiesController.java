@@ -29,6 +29,7 @@ import com.gs.collections.impl.set.strategy.mutable.UnifiedSetWithHashingStrateg
 
 import au.com.windyroad.hateoas.Action;
 import au.com.windyroad.hateoas.EmbeddedEntityLink;
+import au.com.windyroad.hateoas.MediaTypes;
 import au.com.windyroad.hateoas.annotations.Name;
 import au.com.windyroad.hateoas.annotations.PresentationType;
 import au.com.windyroad.hateoas.annotations.Rel;
@@ -46,16 +47,17 @@ public class AdminProxiesController {
     private Set<Action> actions = null;
 
     @RequestMapping(method = RequestMethod.GET, produces = {
-            "application/vnd.siren+json", "application/json" })
+            MediaTypes.SIREN_JSON_VALUE, MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
     @Rel("self")
-    @Title("Proxies")
+    @Title("{au.com.windyroad.service-gateway.messages.proxies}")
     public ResponseEntity<?> self() throws IllegalAccessException,
             IllegalArgumentException, InvocationTargetException,
             NoSuchMethodException, SecurityException {
 
         proxies.setActions(getActions());
-
+        // proxies.setTitle("Proxies");
+        // TODO: move title to annotation
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.VARY, "Accept");
         headers.add("CustomHeader", "Accept");

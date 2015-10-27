@@ -10,12 +10,14 @@ import org.springframework.hateoas.core.DummyInvocationUtils.LastInvocationAware
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.gs.collections.impl.block.factory.HashingStrategies;
 import com.gs.collections.impl.set.strategy.mutable.UnifiedSetWithHashingStrategy;
 
 import au.com.windyroad.hateoas.annotations.Title;
+import au.com.windyroad.hateoas.serialization.MessageSourceAwareSerializer;
 
 @JsonPropertyOrder({ "class", "properties", "entities", "actions", "links",
         "title" })
@@ -152,6 +154,8 @@ public class Entity<T> {
     /**
      * @return the title
      */
+
+    @JsonSerialize(using = MessageSourceAwareSerializer.class)
     public String getTitle() {
         return title;
     }

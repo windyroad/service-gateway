@@ -22,7 +22,7 @@ import au.com.windyroad.servicegateway.controller.AdminProxiesController;
 import au.com.windyroad.servicegateway.controller.AdminProxyController;
 
 @Component
-@Title("Proxies")
+@Title("{au.com.windyroad.service-gateway.messages.proxies}")
 public class Proxies extends Entity<Map<String, String>> {
     @JsonIgnore
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());

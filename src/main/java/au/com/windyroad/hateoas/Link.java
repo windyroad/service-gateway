@@ -15,10 +15,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import au.com.windyroad.hateoas.annotations.Rel;
 import au.com.windyroad.hateoas.annotations.Title;
 import au.com.windyroad.hateoas.client.LinkVisitor;
+import au.com.windyroad.hateoas.serialization.MessageSourceAwareSerializer;
 
 /**
  *
@@ -113,6 +115,7 @@ public abstract class Link {
     /**
      * @return the title
      */
+    @JsonSerialize(using = MessageSourceAwareSerializer.class)
     public String getTitle() {
         return title;
     }

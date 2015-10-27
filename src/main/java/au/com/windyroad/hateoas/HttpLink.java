@@ -2,6 +2,7 @@ package au.com.windyroad.hateoas;
 
 import java.net.URI;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.core.DummyInvocationUtils.MethodInvocation;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
@@ -33,6 +34,7 @@ public class HttpLink extends Link {
         return href;
     }
 
+    @Autowired
     public void setRestTemplate(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }

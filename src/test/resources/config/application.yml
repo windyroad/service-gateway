@@ -7,4 +7,5 @@ au.com.windyroad.service-gateway:
         
 javax.net.ssl.trustStore: build/truststore.jks
 javax.net.ssl.trustStorePassword: changeit
-        
+
+spring.jackson.serialization.indent_output: true

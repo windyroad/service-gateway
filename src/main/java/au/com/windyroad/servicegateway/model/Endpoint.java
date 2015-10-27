@@ -9,6 +9,7 @@ import au.com.windyroad.hateoas.Entity;
 import au.com.windyroad.hateoas.JavaLink;
 import au.com.windyroad.servicegateway.controller.AdminEndpointController;
 
+//@JsonSerialize(converter=ToEntityConverter.class)
 public class Endpoint extends Entity<Endpoint.Properties> {
 
     protected Endpoint() {

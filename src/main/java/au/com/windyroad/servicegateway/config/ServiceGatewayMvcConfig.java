@@ -1,5 +1,6 @@
-package au.com.windyroad.servicegateway;
+package au.com.windyroad.servicegateway.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
@@ -9,11 +10,14 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
+import au.com.windyroad.hateoas.MediaTypes;
+import au.com.windyroad.servicegateway.ResponseHeaderInterceptor;
+
 @Configuration
 public class ServiceGatewayMvcConfig extends WebMvcConfigurerAdapter {
 
-    private static final MediaType SIREN_MEDIA_TYPE = new MediaType(
-            "application", "vnd.siren+json");
+    @Autowired
+    ServiceGatewaySerializationConfig serviceGatewaySerializationConfig;
 
     @Override
     public void configureContentNegotiation(
@@ -23,7 +27,7 @@ public class ServiceGatewayMvcConfig extends WebMvcConfigurerAdapter {
                 .useJaf(false).defaultContentType(MediaType.TEXT_HTML)
                 .mediaType("json", MediaType.APPLICATION_JSON)
                 .mediaType("html", MediaType.TEXT_HTML)
-                .mediaType("siren", SIREN_MEDIA_TYPE);
+                .mediaType("siren", MediaTypes.SIREN_JSON);
     }
 
     @Override
@@ -68,16 +72,4 @@ public class ServiceGatewayMvcConfig extends WebMvcConfigurerAdapter {
         SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
     }
 
-    // @Override
-    // public void addViewControllers(ViewControllerRegistry registry) {
-    // registry.addViewController("/").setViewName("redirect:/index.html");
-    // }
-
-    // @Bean
-    // public RequestMappingHandlerMapping requestMappingHandlerMapping() {
-    // RequestMappingHandlerMapping handlerMapping =
-    // super.requestMappingHandlerMapping();
-    // handlerMapping.setUrlDecode(false);
-    // return handlerMapping;
-    // }
 }
