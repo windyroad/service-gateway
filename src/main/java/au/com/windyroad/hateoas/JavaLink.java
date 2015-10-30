@@ -11,15 +11,15 @@ import au.com.windyroad.hateoas.client.LinkVisitor;
 
 public class JavaLink extends Link {
 
-    private Entity<?> entity;
+    private Object entity;
     private MethodInvocation invocation;
 
     protected JavaLink() {
 
     }
 
-    public JavaLink(Entity<?> entity, Object invocationValue) {
-        super(((LastInvocationAware) invocationValue).getLastInvocation());
+    public JavaLink(Object entity, Object invocationValue, String... rel) {
+        super(((LastInvocationAware) invocationValue).getLastInvocation(), rel);
         this.invocation = ((LastInvocationAware) invocationValue)
                 .getLastInvocation();
         this.entity = entity;

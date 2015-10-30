@@ -55,11 +55,18 @@ public class Action {
             SecurityException {
         this.href = ControllerLinkBuilder
                 .linkTo(method.getDeclaringClass(), method, pathParams).toUri();
-        this.name = method.getAnnotation(Name.class).value();
+        Name nameAnnotation = method.getAnnotation(Name.class);
+        this.name = nameAnnotation == null ? method.getName()
+                : nameAnnotation.value();
         Title titleAnnotation = method.getAnnotation(Title.class);
         this.title = titleAnnotation == null ? null : titleAnnotation.value();
         Parameter[] methodParams = method.getParameters();
-        this.method = method.getAnnotation(RequestMapping.class).method()[0];
+        RequestMapping requestMappingAnnotation = method
+                .getAnnotation(RequestMapping.class);
+        // trying to look up HTTP method.
+        if (requestMappingAnnotation != null) {
+            this.method = requestMappingAnnotation.method()[0];
+        }
         for (Parameter param : methodParams) {
             RequestParam requestParam = param.getAnnotation(RequestParam.class);
             if (requestParam != null) {

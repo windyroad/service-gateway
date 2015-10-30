@@ -3,6 +3,7 @@ package au.com.windyroad.servicegateway.model;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
+import java.util.Collections;
 
 import org.springframework.hateoas.core.DummyInvocationUtils;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import au.com.windyroad.hateoas.EmbeddedEntity;
 import au.com.windyroad.hateoas.EmbeddedEntityHttpLink;
 import au.com.windyroad.hateoas.Entity;
 import au.com.windyroad.hateoas.JavaLink;
+import au.com.windyroad.hateoas.annotations.Rel;
 import au.com.windyroad.servicegateway.controller.AdminEndpointController;
 import au.com.windyroad.servicegateway.controller.AdminProxyController;
 
@@ -64,16 +66,21 @@ public class Proxy extends Entity<Proxy.Properties> {
     public Proxy(String name, String target) throws NoSuchMethodException,
             SecurityException, IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
-        super(new Properties());
-        getProperties().name = name;
+        this(name);
         getProperties().target = target;
-        this.addLink(new JavaLink(this, DummyInvocationUtils
-                .methodOn(AdminProxyController.class).self(name)));
     }
 
-    public Proxy(String name) {
+    public Proxy(String name) throws NoSuchMethodException, SecurityException,
+            IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException, URISyntaxException {
         super(new Properties());
         this.getProperties().name = name;
+        this.setLinks(
+                Collections.singletonList(new JavaLink(this,
+                        DummyInvocationUtils
+                                .methodOn(AdminProxyController.class)
+                                .self(name),
+                        Rel.SELF)));
     }
 
     public String getTarget() {

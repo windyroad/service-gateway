@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -55,7 +56,7 @@ public class AdminProxiesController {
             IllegalArgumentException, InvocationTargetException,
             NoSuchMethodException, SecurityException {
 
-        proxies.setActions(getActions());
+        // proxies.setActions(getActions());
         // proxies.setTitle("Proxies");
         // TODO: move title to annotation
         HttpHeaders headers = new HttpHeaders();
@@ -113,6 +114,12 @@ public class AdminProxiesController {
             throw new HttpServerErrorException(HttpStatus.NOT_IMPLEMENTED,
                     "TODO: Handle duplicate proxy create attempt. 409 or similar");
         }
+    }
+
+    @ExceptionHandler(value = Exception.class)
+    public ResponseEntity<?> onException(Exception e) {
+        LOGGER.error(e.getLocalizedMessage(), e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
 }

@@ -7,9 +7,9 @@ import org.springframework.hateoas.core.DummyInvocationUtils;
 
 import au.com.windyroad.hateoas.Entity;
 import au.com.windyroad.hateoas.JavaLink;
+import au.com.windyroad.hateoas.annotations.Rel;
 import au.com.windyroad.servicegateway.controller.AdminEndpointController;
 
-//@JsonSerialize(converter=ToEntityConverter.class)
 public class Endpoint extends Entity<Endpoint.Properties> {
 
     protected Endpoint() {
@@ -24,7 +24,8 @@ public class Endpoint extends Entity<Endpoint.Properties> {
                 new JavaLink(this,
                         DummyInvocationUtils
                                 .methodOn(AdminEndpointController.class)
-                                .self(proxyName, target)));
+                                .self(proxyName, target),
+                        Rel.SELF));
     }
 
     public static class Properties {

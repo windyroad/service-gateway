@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import java.net.URI;
+import java.util.Map;
 import java.util.concurrent.Future;
 
 import org.apache.http.HttpResponse;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.async.DeferredResult;
 
+import au.com.windyroad.hateoas.Entity;
 import au.com.windyroad.hateoas.HttpLink;
 import au.com.windyroad.hateoas.Link;
 import au.com.windyroad.hateoas.SirenTemplate;
@@ -29,7 +31,6 @@ import au.com.windyroad.hateoas.annotations.Rel;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.TestContext;
 import au.com.windyroad.servicegateway.model.Endpoint;
-import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
 
 @Component
@@ -96,15 +97,15 @@ public class RestDriver implements Driver {
     @Override
     public Link createProxy(TestContext context) throws Exception {
 
-        ParameterizedTypeReference<Proxies> type = new ParameterizedTypeReference<Proxies>() {
+        ParameterizedTypeReference<Entity<Map<String, Object>>> type = new ParameterizedTypeReference<Entity<Map<String, Object>>>() {
         };
-        ResponseEntity<Proxies> response = restTemplate
+        ResponseEntity<Entity<Map<String, Object>>> response = restTemplate
                 .exchange(
                         RequestEntity
                                 .get(new URI("https://localhost:"
                                         + config.getPort() + "/admin/proxies"))
                         .build(), type);
-        Proxies proxies = response.getBody();
+        Entity<Map<String, Object>> proxies = response.getBody();
         ParameterizedTypeReference<Proxy> proxyType = new ParameterizedTypeReference<Proxy>() {
         };
         ResponseEntity<Proxy> createResponse = sirenTemplate

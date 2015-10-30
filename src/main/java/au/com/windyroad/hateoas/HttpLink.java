@@ -1,5 +1,6 @@
 package au.com.windyroad.hateoas;
 
+import java.lang.reflect.Method;
 import java.net.URI;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,8 @@ public class HttpLink extends Link {
     protected HttpLink() {
     }
 
-    public HttpLink(URI href) {
+    public HttpLink(URI href, String... rel) {
+        super(rel);
         this.href = href;
     }
 
@@ -27,6 +29,11 @@ public class HttpLink extends Link {
         super(invocation);
         this.href = ControllerLinkBuilder.linkTo(invocation.getTargetType(),
                 invocation.getMethod(), invocation.getArguments()).toUri();
+    }
+
+    public HttpLink(Method method, Object... pathParams) {
+        this.href = ControllerLinkBuilder
+                .linkTo(method.getDeclaringClass(), method, pathParams).toUri();
     }
 
     @Override

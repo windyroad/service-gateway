@@ -6,10 +6,8 @@ import java.net.URI;
 
 import org.eclipse.jdt.annotation.Nullable;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.hateoas.core.DummyInvocationUtils.LastInvocationAware;
 import org.springframework.hateoas.core.DummyInvocationUtils.MethodInvocation;
 import org.springframework.http.MediaType;
-import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -17,7 +15,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import au.com.windyroad.hateoas.annotations.Rel;
 import au.com.windyroad.hateoas.annotations.Title;
 import au.com.windyroad.hateoas.client.LinkVisitor;
 import au.com.windyroad.hateoas.serialization.MessageSourceAwareSerializer;
@@ -53,23 +50,23 @@ public abstract class Link {
         this.rel = rel;
     }
 
-    public Link(MethodInvocation invocation) {
+    public Link(MethodInvocation invocation, String... rel) {
         Method method = invocation.getMethod();
 
-        this.rel = method.getAnnotation(Rel.class).value();
+        this.rel = rel;
         this.title = computeTitle(method, invocation.getArguments());
     }
 
-    public Link(Object invocationValue, String notused) {
-        Assert.isInstanceOf(LastInvocationAware.class, invocationValue);
-        LastInvocationAware invocations = (LastInvocationAware) invocationValue;
-
-        MethodInvocation invocation = invocations.getLastInvocation();
-        Method method = invocation.getMethod();
-
-        this.rel = method.getAnnotation(Rel.class).value();
-        this.title = computeTitle(method, invocation.getArguments());
-    }
+    // public Link(Object invocationValue, String notused) {
+    // Assert.isInstanceOf(LastInvocationAware.class, invocationValue);
+    // LastInvocationAware invocations = (LastInvocationAware) invocationValue;
+    //
+    // MethodInvocation invocation = invocations.getLastInvocation();
+    // Method method = invocation.getMethod();
+    //
+    // this.rel = method.getAnnotation(Rel.class).value();
+    // this.title = computeTitle(method, invocation.getArguments());
+    // }
 
     private String computeTitle(Method method, Object... args) {
         Title titleAnnotation = method.getAnnotation(Title.class);

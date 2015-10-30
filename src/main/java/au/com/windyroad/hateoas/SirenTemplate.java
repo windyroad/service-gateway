@@ -43,8 +43,7 @@ public class SirenTemplate {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.setAccept(Collections
-                .singletonList(new MediaType("application", "vnd.siren+json")));
+        headers.setAccept(Collections.singletonList(MediaTypes.SIREN_JSON));
         HttpEntity<?> request = new HttpEntity<>(params, headers);
         URI location = restTemplate.postForLocation(action.getHref(), request);
 

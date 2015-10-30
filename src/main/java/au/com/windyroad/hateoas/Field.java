@@ -51,8 +51,10 @@ public class Field {
         RequestParam requestParam = param.getAnnotation(RequestParam.class);
         this.name = requestParam.value();
 
-        PresentationType type = param.getAnnotation(PresentationType.class);
-        this.type = type == null ? null : type.value();
+        PresentationType typeAnnotation = param
+                .getAnnotation(PresentationType.class);
+        this.type = typeAnnotation == null ? PresentationType.TEXT
+                : typeAnnotation.value();
 
         Title titleAnnotation = param.getAnnotation(Title.class);
         this.title = titleAnnotation == null ? null : titleAnnotation.value();
