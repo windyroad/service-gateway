@@ -1,64 +1,26 @@
 package au.com.windyroad.servicegateway.model;
 
-import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
-import java.util.Collections;
+import java.util.Optional;
 
-import org.springframework.hateoas.core.DummyInvocationUtils;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
-import au.com.windyroad.hateoas.EmbeddedEntity;
-import au.com.windyroad.hateoas.EmbeddedEntityHttpLink;
-import au.com.windyroad.hateoas.Entity;
-import au.com.windyroad.hateoas.JavaLink;
 import au.com.windyroad.hateoas.annotations.Rel;
-import au.com.windyroad.servicegateway.controller.AdminEndpointController;
+import au.com.windyroad.hateoas2.Entity;
+import au.com.windyroad.hateoas2.EntityRelationship;
+import au.com.windyroad.hateoas2.HateoasController;
+import au.com.windyroad.hateoas2.JavaLink;
+import au.com.windyroad.hateoas2.NavigationalRelationship;
+import au.com.windyroad.hateoas2.Relationship;
+import au.com.windyroad.hateoas2.ResolvedEntity;
 import au.com.windyroad.servicegateway.controller.AdminProxyController;
 
-public class Proxy extends Entity<Proxy.Properties> {
+@HateoasController(AdminProxyController.class)
+public class Proxy extends ResolvedEntity {
 
-    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    static class Properties implements Serializable {
-        private String name;
-        private String target;
-
-        /**
-         * @return the name
-         */
-        public String getName() {
-            return name;
-        }
-
-        /**
-         * @param name
-         *            the name to set
-         */
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        /**
-         * @return the target
-         */
-        public String getTarget() {
-            return target;
-        }
-
-        /**
-         * @param target
-         *            the target to set
-         */
-        public void setTarget(String target) {
-            this.target = target;
-        }
-    }
-
-    private RestTemplate restTemplate;
+    private static final String TARGET = "target";
+    private static final String NAME = "name";
 
     protected Proxy() {
     }
@@ -66,64 +28,58 @@ public class Proxy extends Entity<Proxy.Properties> {
     public Proxy(String name, String target) throws NoSuchMethodException,
             SecurityException, IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
-        this(name);
-        getProperties().target = target;
+        super.add(new NavigationalRelationship(new JavaLink(this, name),
+                Rel.SELF));
+        getProperties().setProperty(NAME, name);
+        getProperties().setProperty(TARGET, target);
     }
 
-    public Proxy(String name) throws NoSuchMethodException, SecurityException,
-            IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException, URISyntaxException {
-        super(new Properties());
-        this.getProperties().name = name;
-        this.setLinks(
-                Collections.singletonList(new JavaLink(this,
-                        DummyInvocationUtils
-                                .methodOn(AdminProxyController.class)
-                                .self(name),
-                        Rel.SELF)));
-    }
-
+    @JsonIgnore
     public String getTarget() {
-        return this.getProperties().target;
+        return this.getProperties().getProperty(TARGET);
     }
 
     public void setEndpoint(String target, boolean available)
             throws NoSuchMethodException, SecurityException,
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
-        for (EmbeddedEntity entity : super.getEntities()) {
-            Endpoint endpoint = entity.toEntity(Endpoint.class);
-            if (target != null
-                    && target.equals(endpoint.getProperties().getTarget())) {
-                endpoint.getProperties().setAvailable(available);
-                return;
+        Optional<EntityRelationship> relatedEntity = super.getEntities()
+                .stream().filter(e -> e.hasNature(Rel.ITEM))
+                .filter(e -> e.getEntity().getProperties()
+                        .getProperty("target") != null
+                        && e.getEntity().getProperties().getProperty("target")
+                                .equals(target))
+                .findAny();
+        if (!relatedEntity.isPresent()) {
+            super.addEntity(new EntityRelationship(
+                    new Endpoint(getName(), target, available),
+                    Relationship.ITEM));
+        } else {
+            Entity entity = relatedEntity.get().getEntity();
+            if (entity instanceof Endpoint) {
+                Endpoint endpoint = (Endpoint) entity;
+                endpoint.setAvailable(available);
             }
         }
-        super.addEmbeddedEntity(new Endpoint(getName(), target, available),
-                DummyInvocationUtils.methodOn(AdminEndpointController.class)
-                        .self(getName(), target));
     }
 
     public Endpoint getEndpoint(String target) {
-        for (EmbeddedEntity entity : super.getEntities()) {
-            if (entity instanceof EmbeddedEntityHttpLink) {
-                EmbeddedEntityHttpLink entityLink = (EmbeddedEntityHttpLink) entity;
-                entityLink.setRestTemplate(restTemplate);
-            }
-            Endpoint endpoint = entity.toEntity(Endpoint.class);
-            if (target != null
-                    && target.equals(endpoint.getProperties().getTarget())) {
-                return endpoint;
-            }
-        }
-        throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        return (Endpoint) super.getEntities().stream()
+                .filter(e -> e.hasNature(Rel.ITEM))
+                .filter(e -> e.getEntity().getProperties()
+                        .getProperty("target") != null
+                        && e.getEntity().getProperties().getProperty("target")
+                                .equals(target))
+                .findAny().get().getEntity();
+
     }
 
     /**
      * @return the name
      */
+    @JsonIgnore
     public String getName() {
-        return getProperties().name;
+        return getProperties().getProperty("name");
     }
 
     /**
@@ -131,11 +87,7 @@ public class Proxy extends Entity<Proxy.Properties> {
      *            the name to set
      */
     public void setName(String name) {
-        this.getProperties().name = name;
-    }
-
-    public void setRestTemplate(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+        getProperties().setProperty("name", name);
     }
 
 }

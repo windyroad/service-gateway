@@ -6,7 +6,7 @@ import org.springframework.hateoas.core.DummyInvocationUtils.MethodInvocation;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public abstract class EmbeddedEntityLink extends Link
+public abstract class EmbeddedEntityLink extends OldLink
         implements EmbeddedEntity {
 
     protected EmbeddedEntityLink() {

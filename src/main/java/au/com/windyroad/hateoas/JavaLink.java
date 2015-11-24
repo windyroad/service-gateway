@@ -9,7 +9,7 @@ import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 
 import au.com.windyroad.hateoas.client.LinkVisitor;
 
-public class JavaLink extends Link {
+public class JavaLink extends OldLink {
 
     private Object entity;
     private MethodInvocation invocation;

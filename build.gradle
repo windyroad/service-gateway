@@ -46,7 +46,6 @@ dependencies {
 	compile("org.springframework.boot:spring-boot-starter-web")
 	compile("org.springframework.boot:spring-boot-starter-actuator")
     compile 'org.springframework.hateoas:spring-hateoas:0.19.0.RELEASE'
-	compile 'com.goldmansachs:gs-collections:6.2.0'
 	compile("org.eclipse.jdt:org.eclipse.jdt.annotation:2.0.0")
 	compile('com.google.guava:guava:18.0')
 	

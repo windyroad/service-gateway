@@ -29,7 +29,7 @@ import au.com.windyroad.hateoas.serialization.MessageSourceAwareSerializer;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonDeserialize(as = HttpLink.class)
-public abstract class Link {
+public abstract class OldLink {
 
     private String[] rel;
     @JsonProperty("class")
@@ -42,15 +42,15 @@ public abstract class Link {
     @Nullable
     private MediaType type;
 
-    protected Link() {
+    protected OldLink() {
 
     }
 
-    public Link(String[] rel) {
+    public OldLink(String[] rel) {
         this.rel = rel;
     }
 
-    public Link(MethodInvocation invocation, String... rel) {
+    public OldLink(MethodInvocation invocation, String... rel) {
         Method method = invocation.getMethod();
 
         this.rel = rel;

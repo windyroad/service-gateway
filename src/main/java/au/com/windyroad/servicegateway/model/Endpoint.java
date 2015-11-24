@@ -3,14 +3,17 @@ package au.com.windyroad.servicegateway.model;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 
-import org.springframework.hateoas.core.DummyInvocationUtils;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import au.com.windyroad.hateoas.Entity;
-import au.com.windyroad.hateoas.JavaLink;
 import au.com.windyroad.hateoas.annotations.Rel;
+import au.com.windyroad.hateoas2.HateoasController;
+import au.com.windyroad.hateoas2.JavaLink;
+import au.com.windyroad.hateoas2.NavigationalRelationship;
+import au.com.windyroad.hateoas2.ResolvedEntity;
 import au.com.windyroad.servicegateway.controller.AdminEndpointController;
 
-public class Endpoint extends Entity<Endpoint.Properties> {
+@HateoasController(AdminEndpointController.class)
+public class Endpoint extends ResolvedEntity {
 
     protected Endpoint() {
     }
@@ -19,53 +22,22 @@ public class Endpoint extends Entity<Endpoint.Properties> {
             throws NoSuchMethodException, SecurityException,
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
-        this.setProperties(new Properties(target, available));
-        this.addLink(
-                new JavaLink(this,
-                        DummyInvocationUtils
-                                .methodOn(AdminEndpointController.class)
-                                .self(proxyName, target),
-                        Rel.SELF));
-    }
+        super.add(new NavigationalRelationship(
+                new JavaLink(this, proxyName, target), Rel.SELF));
 
-    public static class Properties {
-        private boolean available;
-        private String target;
-
-        @SuppressWarnings("unused")
-        private Properties() {
-        }
-
-        public Properties(String target, boolean available) {
-            this.target = target;
-            this.available = available;
-        }
-
-        public boolean getAvailable() {
-            return available;
-        }
-
-        public void setAvailable(boolean available) {
-            this.available = available;
-        }
-
-        /**
-         * @return the target
-         */
-        public String getTarget() {
-            return target;
-        }
-
-        /**
-         * @param target
-         *            the target to set
-         */
-        public void setTarget(String target) {
-            this.target = target;
-        }
+        this.getProperties().setProperty("target", target);
+        this.getProperties().setProperty("available",
+                Boolean.toString(available));
     }
 
     public void setAvailable(boolean available) {
-        this.getProperties().available = available;
+        this.getProperties().setProperty("available",
+                Boolean.toString(available));
+    }
+
+    @JsonIgnore
+    public boolean isAvailable() {
+        return Boolean
+                .parseBoolean(this.getProperties().getProperty("available"));
     }
 }

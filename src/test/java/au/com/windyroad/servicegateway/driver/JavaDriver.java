@@ -19,11 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import au.com.windyroad.hateoas.EmbeddedEntityLink;
-import au.com.windyroad.hateoas.Link;
-import au.com.windyroad.hateoas.annotations.Rel;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
-import au.com.windyroad.servicegateway.TestContext;
 import au.com.windyroad.servicegateway.model.Endpoint;
 import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
@@ -43,6 +39,10 @@ public class JavaDriver implements Driver {
     @Autowired
     RestTemplate restTemplate;
 
+    private Proxy currentProxy;
+
+    private Endpoint currentEndpoint;
+
     @Override
     public void clearProxies() {
 
@@ -61,12 +61,11 @@ public class JavaDriver implements Driver {
     }
 
     @Override
-    public EmbeddedEntityLink createProxy(TestContext context)
+    public void createProxy(String proxyName, String endpoint)
             throws NoSuchMethodException, SecurityException,
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
-        return proxies.createProxy((String) context.get("proxyName"),
-                (String) context.get("endpoint"));
+        this.currentProxy = (Proxy) proxies.createProxy(proxyName, endpoint);
     }
 
     @Override
@@ -78,18 +77,16 @@ public class JavaDriver implements Driver {
     }
 
     @Override
-    public Link checkEndpointExists(Link proxyLink, String endpointName) {
-        Endpoint endpoint = proxyLink.follow(Proxy.class)
-                .getEndpoint(endpointName);
-        assertThat(endpoint, notNullValue());
-        return endpoint.getLink(Rel.SELF).stream().findFirst().get();
+    public void checkEndpointExists(String path, String endpointName) {
+        Endpoint endpoint = currentProxy.getEndpoint(endpointName);
+        currentEndpoint = endpoint;
 
     }
 
     @Override
-    public void checkEndpointAvailable(Link endpointLink) {
-        assertTrue(endpointLink.follow(Endpoint.class).getProperties()
-                .getAvailable());
+    public void checkCurrentEndpointAvailable() {
+        assertTrue(currentEndpoint.isAvailable());
+
     }
 
 }

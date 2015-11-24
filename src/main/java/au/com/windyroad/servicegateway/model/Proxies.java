@@ -1,96 +1,96 @@
 package au.com.windyroad.servicegateway.model;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URISyntaxException;
-import java.util.Collection;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.hateoas.core.DummyInvocationUtils;
-import org.springframework.hateoas.core.DummyInvocationUtils.LastInvocationAware;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.gs.collections.impl.block.factory.HashingStrategies;
-import com.gs.collections.impl.set.strategy.mutable.UnifiedSetWithHashingStrategy;
 
-import au.com.windyroad.hateoas.EmbeddedEntityJavaLink;
-import au.com.windyroad.hateoas.EmbeddedEntityLink;
 import au.com.windyroad.hateoas.annotations.Rel;
-import au.com.windyroad.hateoas.annotations.SirenAction;
-import au.com.windyroad.hateoas.annotations.SirenEntity;
-import au.com.windyroad.hateoas.annotations.SirenLink;
-import au.com.windyroad.hateoas.annotations.SirenProperty;
-import au.com.windyroad.hateoas.annotations.Title;
-import au.com.windyroad.hateoas.serialization.SirenConverter;
+import au.com.windyroad.hateoas2.Entity;
+import au.com.windyroad.hateoas2.EntityRelationship;
+import au.com.windyroad.hateoas2.HateoasAction;
+import au.com.windyroad.hateoas2.HateoasController;
+import au.com.windyroad.hateoas2.JavaAction;
+import au.com.windyroad.hateoas2.Relationship;
+import au.com.windyroad.hateoas2.ResolvedEntity;
 import au.com.windyroad.servicegateway.controller.AdminProxiesController;
-import au.com.windyroad.servicegateway.controller.AdminProxyController;
 
 @Component
-@Title("{au.com.windyroad.service-gateway.messages.proxies}")
-@JsonSerialize(converter = SirenConverter.class)
-public class Proxies {
+@JsonSerialize(as = ResolvedEntity.class)
+@HateoasController(AdminProxiesController.class)
+public class Proxies extends ResolvedEntity {
 
     @JsonIgnore
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-    @JsonIgnore
-    private UnifiedSetWithHashingStrategy<Proxy> proxies = new UnifiedSetWithHashingStrategy<>(
-            HashingStrategies.fromFunction(Proxy::getName));
-
     protected Proxies() throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, NoSuchMethodException,
             SecurityException {
+        // Properties context = null;
+        // JavaAction action = JavaAction.fromFunction("createProxy",
+        // ProxiesActionArgument::createProxy2);
+
+        for (Method method : this.getClass().getMethods()) {
+            if (method.getAnnotation(HateoasAction.class) != null) {
+                super.add(new JavaAction(method));
+            }
+        }
     }
 
-    @SirenLink(controller = AdminProxiesController.class, method = "self")
-    @Rel(Rel.SELF)
-    public Proxies self() {
-        return this;
-    }
+    // class ProxiesActionArgument extends ActionArgument<Proxies, Proxies> {
+    // public ProxiesActionArgument(Proxies entity, Properties context) {
+    // super(entity, context);
+    // }
+    //
+    // public Proxies createProxy2() {
+    // return getEntity().createProxy(proxyPath, targetEndPoint)
+    // }
+    //
+    // }
 
-    @SirenProperty
-    public int getCount() {
-        return proxies.size();
-    }
-
-    @SirenAction(controller = AdminProxiesController.class, method = "createProxy")
-    public EmbeddedEntityLink createProxy(String proxyPath,
-            String targetEndPoint)
+    @HateoasAction(nature = HttpMethod.POST, controller = AdminProxiesController.class)
+    public Entity createProxy(@RequestParam("proxyName") String proxyPath,
+            @RequestParam("endpoint") String targetEndPoint)
                     throws NoSuchMethodException, SecurityException,
                     IllegalAccessException, IllegalArgumentException,
                     InvocationTargetException, URISyntaxException {
-        Proxy proxy = new Proxy(proxyPath, targetEndPoint);
-        return addProxy(proxy);
-    }
+        Stream<EntityRelationship> items = super.getEntities().stream()
+                .filter(e -> e.hasNature(Rel.ITEM));
+        Optional<EntityRelationship> existingProxy = items.filter(
+                e -> e.getEntity().getProperties().getProperty("name") != null
+                        && e.getEntity().getProperties().getProperty("name")
+                                .equals(proxyPath))
+                .findAny();
 
-    private EmbeddedEntityLink addProxy(Proxy proxy)
-            throws NoSuchMethodException, SecurityException,
-            IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException, URISyntaxException {
-        boolean added = proxies.add(proxy);
-
-        if (added) {
-            Object invocation = DummyInvocationUtils
-                    .methodOn(AdminProxyController.class).self(proxy.getName());
-            EmbeddedEntityJavaLink<?> link = new EmbeddedEntityJavaLink<>(proxy,
-                    ((LastInvocationAware) invocation).getLastInvocation());
-            return link;
+        if (existingProxy.isPresent()) {
+            return existingProxy.get().getEntity();
+        } else {
+            Proxy proxy = new Proxy(proxyPath, targetEndPoint);
+            super.addEntity(new EntityRelationship(proxy, Relationship.ITEM));
+            return proxy;
         }
-        return null;
     }
 
     public Proxy getProxy(String path) throws NoSuchMethodException,
             SecurityException, IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
-        Proxy proxy1 = this.proxies.get(new Proxy(path));
-        return proxy1;
-    }
-
-    @SirenEntity
-    public Collection<Proxy> getProxies() {
-        return this.proxies.toSet();
+        return (Proxy) super.getEntities().stream()
+                .filter(e -> e.hasNature(Rel.ITEM))
+                .filter(e -> e.getEntity().getProperties()
+                        .getProperty("name") != null
+                        && e.getEntity().getProperties().getProperty("name")
+                                .equals(path))
+                .findAny().get().getEntity();
     }
 
 }

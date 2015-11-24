@@ -35,7 +35,7 @@ public class Entity<T> {
     private List<EmbeddedEntity> entities = new ArrayList<>();
 
     @Nullable
-    private Multimap<String, Link> links = HashMultimap.create();
+    private Multimap<String, OldLink> links = HashMultimap.create();
 
     @Nullable
     private UnifiedSetWithHashingStrategy<Action> actions = new UnifiedSetWithHashingStrategy<>(
@@ -100,7 +100,7 @@ public class Entity<T> {
     /**
      * @return the links
      */
-    public Collection<Link> getLinks() {
+    public Collection<OldLink> getLinks() {
         return links.values().stream().collect(Collectors.toSet());
     }
 
@@ -108,9 +108,9 @@ public class Entity<T> {
      * @param links
      *            the links to set
      */
-    public void setLinks(Collection<Link> links) {
+    public void setLinks(Collection<OldLink> links) {
         this.links.clear();
-        for (Link link : links) {
+        for (OldLink link : links) {
             addLink(link);
         }
     }
@@ -135,7 +135,7 @@ public class Entity<T> {
         return this.actions.get(new Action(name));
     }
 
-    public void addLink(Link link) {
+    public void addLink(OldLink link) {
         // TODO: have multiple rels for a single link rather than creating
         // multiple links for each rel.
         for (String rel : link.getRel()) {
@@ -143,7 +143,7 @@ public class Entity<T> {
         }
     }
 
-    public Collection<Link> getLink(String rel) {
+    public Collection<OldLink> getLink(String rel) {
         return this.links.get(rel);
     }
 

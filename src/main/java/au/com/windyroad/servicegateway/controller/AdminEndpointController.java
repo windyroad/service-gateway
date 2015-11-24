@@ -19,13 +19,13 @@ import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
 
 @Controller
-@RequestMapping(value = "/admin/proxies")
+@RequestMapping(value = "/admin/proxies/{proxyName}/{target}")
 public class AdminEndpointController {
 
     @Autowired
     Proxies proxies;
 
-    @RequestMapping(value = "/{proxyName}/{target}", method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
     @Rel("self")
     @Title("Endpoint `{proxyName}/{target}`")

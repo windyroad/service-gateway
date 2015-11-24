@@ -12,7 +12,7 @@ import org.springframework.web.client.RestTemplate;
 
 import au.com.windyroad.hateoas.client.LinkVisitor;
 
-public class HttpLink extends Link {
+public class HttpLink extends OldLink {
     URI href;
 
     RestTemplate restTemplate;

@@ -1,7 +1,7 @@
 package au.com.windyroad.servicegateway.driver;
 
-import au.com.windyroad.hateoas.Link;
-import au.com.windyroad.servicegateway.TestContext;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
 
 public interface Driver {
 
@@ -9,12 +9,15 @@ public interface Driver {
 
     void checkPingService(String path) throws Exception;
 
-    Link createProxy(TestContext context) throws Exception;
-
     void get(String path) throws Exception;
 
-    void checkEndpointAvailable(Link endpoint);
+    void checkCurrentEndpointAvailable();
 
-    Link checkEndpointExists(Link proxyLink, String endpoint);
+    void checkEndpointExists(String proxyName, String endpoint);
+
+    void createProxy(String proxyName, String endpoint)
+            throws NoSuchMethodException, SecurityException,
+            IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException, URISyntaxException;
 
 }

@@ -23,7 +23,7 @@ import au.com.windyroad.hateoas.EmbeddedEntityHttpLink;
 import au.com.windyroad.hateoas.EmbeddedEntityJavaLink;
 import au.com.windyroad.hateoas.HttpLink;
 import au.com.windyroad.hateoas.JavaLink;
-import au.com.windyroad.hateoas.Link;
+import au.com.windyroad.hateoas.OldLink;
 import au.com.windyroad.hateoas.client.LinkVisitor;
 import au.com.windyroad.servicegateway.TestContext;
 
@@ -41,7 +41,7 @@ public class HtmlDriver extends RestDriver {
     String password;
 
     @Override
-    public Link createProxy(TestContext context) throws Exception {
+    public OldLink createProxy(TestContext context) throws Exception {
         webDriver.get(
                 "https://localhost:" + config.getPort() + "/admin/proxies");
         WebElement form = (new WebDriverWait(webDriver, 5))
@@ -71,7 +71,7 @@ public class HtmlDriver extends RestDriver {
     }
 
     @Override
-    public void checkEndpointAvailable(Link endpointLink) {
+    public void checkCurrentEndpointAvailable(OldLink endpointLink) {
         endpointLink.accept(new LinkVisitor() {
             @Override
             public void visit(HttpLink link) {
@@ -108,7 +108,7 @@ public class HtmlDriver extends RestDriver {
     }
 
     @Override
-    public Link checkEndpointExists(Link proxyLink, String endpoint) {
+    public OldLink checkEndpointExists(OldLink proxyLink, String endpoint) {
         proxyLink.accept(new LinkVisitor() {
             @Override
             public void visit(HttpLink link) {

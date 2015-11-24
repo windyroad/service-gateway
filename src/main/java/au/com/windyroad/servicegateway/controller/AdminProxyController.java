@@ -21,14 +21,14 @@ import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
 
 @Controller
-@RequestMapping(value = "/admin/proxies")
+@RequestMapping(value = "/admin/proxies/{proxyName}")
 public class AdminProxyController {
     public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     Proxies proxies;
 
-    @RequestMapping(value = "/{proxyName}", method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
     @Rel("self")
     @Title("Proxy `{proxyName}`")
@@ -40,7 +40,7 @@ public class AdminProxyController {
         if (proxy == null) {
             return ResponseEntity.notFound().build();
         }
-        proxy.setTitle("Proxy `" + proxyName + "`");
+        // proxy.setTitle("Proxy `" + proxyName + "`");
         // TODO: move title to annotation
 
         ResponseEntity<?> responseEntity = new ResponseEntity<>(proxy,

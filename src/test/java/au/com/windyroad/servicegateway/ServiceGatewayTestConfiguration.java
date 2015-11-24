@@ -1,7 +1,9 @@
 package au.com.windyroad.servicegateway;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.catalina.startup.Tomcat;
 import org.apache.http.client.HttpClient;
@@ -17,7 +19,9 @@ import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainer;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.context.annotation.Bean;
@@ -25,7 +29,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.http.converter.support.AllEncompassingFormHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import au.com.windyroad.hateoas.SirenTemplate;
 import au.com.windyroad.servicegateway.driver.WebDriverFactory;
@@ -170,9 +180,37 @@ public class ServiceGatewayTestConfiguration {
         return new BasicAuthHttpRequestIntercepter(name, password);
     }
 
+    @Autowired
+    ObjectMapper objectMapper;
+
+    @Autowired
+    List<ObjectMapper> objectMappers;
+
+    @Autowired
+    @Qualifier("customObjectMapperBuilder")
+    Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder;
+
+    @Bean
+    public HttpMessageConverters messageConverters() {
+        List<HttpMessageConverter<?>> converters = new ArrayList<>();
+        converters.add(mappingJacksonHttpMessageConverter());
+        converters.add(new AllEncompassingFormHttpMessageConverter());
+        return new HttpMessageConverters(false, converters);
+    }
+
+    @Bean
+    public MappingJackson2HttpMessageConverter mappingJacksonHttpMessageConverter() {
+        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter(
+                objectMapper);
+        return converter;
+    }
+
     @Bean
     public RestTemplate restTemplate() throws Exception {
-        RestTemplate restTemplate = new RestTemplate(httpClientFactory());
+        RestTemplate restTemplate = new RestTemplate(
+                messageConverters().getConverters());
+        restTemplate.setRequestFactory(httpClientFactory());
+
         restTemplate.setInterceptors(
                 Arrays.asList(new ClientHttpRequestInterceptor[] {
                         basicAuthHttpRequestIntercepter() }));

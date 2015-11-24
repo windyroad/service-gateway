@@ -1,10 +1,13 @@
 package au.com.windyroad.servicegateway.driver;
 
-import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Future;
 
 import org.apache.http.HttpResponse;
@@ -15,23 +18,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import au.com.windyroad.hateoas.Entity;
-import au.com.windyroad.hateoas.HttpLink;
-import au.com.windyroad.hateoas.Link;
 import au.com.windyroad.hateoas.SirenTemplate;
 import au.com.windyroad.hateoas.annotations.Rel;
+import au.com.windyroad.hateoas2.Entity;
+import au.com.windyroad.hateoas2.EntityRelationship;
+import au.com.windyroad.hateoas2.NavigationalRelationship;
+import au.com.windyroad.hateoas2.ResolvedEntity;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
-import au.com.windyroad.servicegateway.TestContext;
-import au.com.windyroad.servicegateway.model.Endpoint;
-import au.com.windyroad.servicegateway.model.Proxy;
+import au.com.windyroad.servicegateway.model.Proxies;
 
 @Component
 @Profile(value = "integration")
@@ -75,6 +77,10 @@ public class RestDriver implements Driver {
     @Autowired
     SirenTemplate sirenTemplate;
 
+    private Entity currentProxy;
+
+    private Entity currentEndpoint;
+
     @Override
     public void clearProxies() {
 
@@ -95,23 +101,22 @@ public class RestDriver implements Driver {
     }
 
     @Override
-    public Link createProxy(TestContext context) throws Exception {
+    public void createProxy(String proxyName, String endpoint)
+            throws RestClientException, URISyntaxException,
+            IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException {
 
-        ParameterizedTypeReference<Entity<Map<String, Object>>> type = new ParameterizedTypeReference<Entity<Map<String, Object>>>() {
-        };
-        ResponseEntity<Entity<Map<String, Object>>> response = restTemplate
-                .exchange(
-                        RequestEntity
-                                .get(new URI("https://localhost:"
-                                        + config.getPort() + "/admin/proxies"))
-                        .build(), type);
-        Entity<Map<String, Object>> proxies = response.getBody();
-        ParameterizedTypeReference<Proxy> proxyType = new ParameterizedTypeReference<Proxy>() {
-        };
-        ResponseEntity<Proxy> createResponse = sirenTemplate
-                .executeForLocation(proxies, "createProxy", context, proxyType);
-        return createResponse.getBody().getLink(Rel.SELF).stream().findFirst()
-                .get();
+        ResponseEntity<Proxies> response = restTemplate.exchange(
+                RequestEntity.get(new URI("https://localhost:"
+                        + config.getPort() + "/admin/proxies")).build(),
+                Proxies.class);
+        Proxies proxies = response.getBody();
+        Map<String, String> context = new HashMap<>();
+        context.put("proxyName", proxyName);
+        context.put("endpoint", endpoint);
+        Entity createResponse = proxies.getAction("createProxy").invoke(proxies,
+                context);
+        currentProxy = createResponse;
     }
 
     @Override
@@ -120,20 +125,23 @@ public class RestDriver implements Driver {
     }
 
     @Override
-    public Link checkEndpointExists(Link proxyLink, String endpointName) {
-        ((HttpLink) proxyLink).setRestTemplate(restTemplate);
-        Proxy proxy = proxyLink.follow(Proxy.class);
-        proxy.setRestTemplate(restTemplate);
-        Endpoint endpoint = proxy.getEndpoint(endpointName);
-        assertThat(endpoint, notNullValue());
-        return endpoint.getLink(Rel.SELF).stream().findFirst().get();
+    public void checkEndpointExists(String proxyName, String endpointPath) {
+        Optional<NavigationalRelationship> selfLink = currentProxy.getLinks()
+                .stream().filter(l -> l.hasNature(Rel.SELF)).findAny();
+        assertTrue(selfLink.isPresent());
+        currentProxy = selfLink.get().getLink().resolve(ResolvedEntity.class);
+        Optional<EntityRelationship> endpoint = currentProxy.getEntities()
+                .stream().filter(e -> e.getEntity().getProperties()
+                        .getProperty("target").equals(endpointPath))
+                .findAny();
+        assertTrue(endpoint.isPresent());
+        currentEndpoint = endpoint.get().getEntity();
     }
 
     @Override
-    public void checkEndpointAvailable(Link endpointLink) {
-        ((HttpLink) endpointLink).setRestTemplate(restTemplate);
-        assertTrue(endpointLink.follow(Endpoint.class).getProperties()
-                .getAvailable());
+    public void checkCurrentEndpointAvailable() {
+        assertTrue(Boolean.parseBoolean(
+                currentEndpoint.getProperties().getProperty("available")));
     }
 
     String normaliseUrl(String endpoint) {
