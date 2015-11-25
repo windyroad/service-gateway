@@ -34,7 +34,7 @@ public class EntityRelationship extends Relationship {
     public EntityRelationship(@JsonProperty("href") URI address,
             @JsonProperty("rel") String... natures) {
         super(natures);
-        this.entity = new LinkedEntity(address);
+        this.entity = new LinkedEntity(address, null, null);
     }
 
     /**

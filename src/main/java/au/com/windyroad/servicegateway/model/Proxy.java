@@ -4,11 +4,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.util.Optional;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import au.com.windyroad.hateoas.annotations.Rel;
 import au.com.windyroad.hateoas2.Entity;
 import au.com.windyroad.hateoas2.EntityRelationship;
+import au.com.windyroad.hateoas2.HateoasAction;
 import au.com.windyroad.hateoas2.HateoasController;
 import au.com.windyroad.hateoas2.JavaLink;
 import au.com.windyroad.hateoas2.NavigationalRelationship;
@@ -34,9 +36,12 @@ public class Proxy extends ResolvedEntity {
         getProperties().setProperty(TARGET, target);
     }
 
-    @JsonIgnore
     public String getTarget() {
         return this.getProperties().getProperty(TARGET);
+    }
+
+    public void setTarget(String target) {
+        this.getProperties().setProperty(TARGET, target);
     }
 
     public void setEndpoint(String target, boolean available)
@@ -77,7 +82,6 @@ public class Proxy extends ResolvedEntity {
     /**
      * @return the name
      */
-    @JsonIgnore
     public String getName() {
         return getProperties().getProperty("name");
     }
@@ -88,6 +92,12 @@ public class Proxy extends ResolvedEntity {
      */
     public void setName(String name) {
         getProperties().setProperty("name", name);
+    }
+
+    @HateoasAction(nature = HttpMethod.PUT, controller = AdminProxyController.class)
+    public Entity update(@RequestParam("endpoint") String targetEndPoint) {
+        this.setTarget(targetEndPoint);
+        return this;
     }
 
 }

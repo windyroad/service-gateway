@@ -35,7 +35,7 @@ public class JavaLink extends Link {
 
     @Override
     @JsonProperty("href")
-    public URI getAddress() throws NoSuchMethodException, SecurityException {
+    public URI getAddress() {
         if (entity != null) {
             Class<?> controller = entity.getClass()
                     .getAnnotation(HateoasController.class).value();

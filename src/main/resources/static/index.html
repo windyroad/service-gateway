@@ -50,15 +50,16 @@
     <div id="properties">
       <div class="row" ng-repeat="(key, value) in controller.entity.properties">
         <div class="{{key}}">
-            <label for="property:{{key}}">{{key}}</label>
-            <div id="property:{{key}}">{{value}}</div>
+          <label for="property:{{key}}">{{key}}</label>
+          <div id="property:{{key}}">{{value}}</div>
         </div>
       </div>
     </div>
 
     <div id="entities">
       <div class="row" ng-repeat="entity in controller.entity.entities">
-        <a ng-if="entity.href" href="{{entity.href}}" rel="{{entity.rel.join(' ')}}" class="col-sm-12 entity {{field.class.join(' ')}}">{{entity.title || 'entity'}}</a>
+        <a ng-if="entity.href" href="{{entity.href}}" rel="{{entity.rel.join(' ')}}"
+          class="col-sm-12 entity {{field.class.join(' ')}}">{{entity.title || 'entity'}}</a>
       </div>
     </div>
 
@@ -67,20 +68,23 @@
       <form ng-submit="controller.processForm()" class="{{action.class}}" name="{{action.name}}">
         <div class="row">
           <div ng-repeat="field in action.fields" class="{{field.class.join(' ')}} form-group col-sm-4">
-            <label for="{{action.name}}:{{field.name}}">{{field.title || field.name}}</label> <input
-              type="{{field.type || 'text'}}" ng-model="field.value" name="{{field.name}}"
-              id="{{action.name}}:{{field.name}}" class="form-control" />
-            <p class="help-block"></p>
+            <div ng-if="field.type != 'submit'">
+              <label for="{{action.name}}:{{field.name}}">{{field.title || field.name}}</label> <input
+                type="{{field.type || 'text'}}" ng-model="field.value" name="{{field.name}}"
+                id="{{action.name}}:{{field.name}}" class="form-control" />
+              <p class="help-block"></p>
+            </div>
           </div>
         </div>
         <div class="row">
-          <div class="col-sm-4">
-            <button type="submit" class="btn btn-success">{{action.title || 'Submit'}}</button>
+          <div ng-repeat="field in action.fields" ng-if="field.type == 'submit'"
+            class="{{field.class.join(' ')}} form-group col-sm-4">
+            <button type="submit" class="btn btn-success">{{field.title || field.value || 'Submit'}}</button>
           </div>
         </div>
       </form>
-      <pre>{{action}}</pre>
     </div>
+    <pre>{{controller.entity}}</pre>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="/webjars/jquery/2.0.3/jquery.min.js" type="text/javascript"></script>

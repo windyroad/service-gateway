@@ -33,7 +33,7 @@ public class NavigationalRelationship extends Relationship {
     public NavigationalRelationship(@JsonProperty("href") URI address,
             @JsonProperty("rel") String... natures) {
         super(natures);
-        this.link = new RestLink(address);
+        this.link = new RestLink(address, null, null);
     }
 
     @JsonUnwrapped

@@ -9,11 +9,15 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableSet;
+
+import au.com.windyroad.hateoas.annotations.Rel;
 
 @JsonPropertyOrder({ "class", "properties", "entities", "actions", "links",
         "title" })
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@JsonSerialize(as = ResolvedEntity.class)
 public class ResolvedEntity extends Entity {
 
     Properties properties = new Properties();
@@ -25,6 +29,15 @@ public class ResolvedEntity extends Entity {
     private Set<EntityRelationship> entityRelationships = new HashSet<>();
 
     private Map<String, Action> actions = new HashMap<>();
+
+    public ResolvedEntity() {
+    }
+
+    public ResolvedEntity(String... args) {
+        super(args);
+        add(new NavigationalRelationship(new JavaLink(this, (Object[]) args),
+                Rel.SELF));
+    }
 
     @Override
     public Action getAction(String identifier) {
@@ -69,5 +82,10 @@ public class ResolvedEntity extends Entity {
 
     public void add(NavigationalRelationship navigationalRelationship) {
         navigationalRelationships.add(navigationalRelationship);
+    }
+
+    @Override
+    public ResolvedEntity resolve(Class<? extends ResolvedEntity> type) {
+        return this;
     }
 }

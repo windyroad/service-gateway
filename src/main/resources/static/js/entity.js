@@ -81,7 +81,8 @@ app.controller('EntityController', function($scope, $http, $location, $window) {
 					});
 				}
 				else {
-					$window.location.href=location
+					$window.location.href=location;
+					controller.entity = response.data;
 				}
 			}
 		}, function errorCallback(response) {

@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import au.com.windyroad.hateoas.Action;
 import au.com.windyroad.hateoas.MediaTypes;
 import au.com.windyroad.hateoas2.Entity;
+import au.com.windyroad.hateoas2.Relationship;
 import au.com.windyroad.servicegateway.model.Proxies;
 
 @Controller
@@ -90,15 +91,9 @@ public class AdminProxiesController {
         au.com.windyroad.hateoas2.Action action = proxies
                 .getAction(allRequestParams.get("trigger"));
         Entity result = action.invoke(proxies, allRequestParams);
-        return ResponseEntity.ok(result);
-        // // EmbeddedEntityLink added = proxies.createProxy(proxyName,
-        // endpoint);
-        // if (added != null) {
-        // return ResponseEntity.created(added.getHref()).build();
-        // } else {
-        // throw new HttpServerErrorException(HttpStatus.NOT_IMPLEMENTED,
-        // "TODO: Handle duplicate proxy create attempt. 409 or similar");
-        // }
+        return ResponseEntity
+                .created(result.getLink(Relationship.SELF).getAddress())
+                .build();
     }
 
     @ExceptionHandler(value = Exception.class)

@@ -4,7 +4,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.net.URI;
-import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.jdt.annotation.Nullable;
@@ -19,8 +18,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.gs.collections.impl.block.factory.HashingStrategies;
-import com.gs.collections.impl.set.strategy.mutable.UnifiedSetWithHashingStrategy;
 
 import au.com.windyroad.hateoas.annotations.Name;
 import au.com.windyroad.hateoas.annotations.Title;
@@ -45,9 +42,10 @@ public class Action {
     @JsonSerialize(using = MediaTypeSerializer.class)
     private MediaType type = MediaType.APPLICATION_FORM_URLENCODED;
 
-    @Nullable
-    private UnifiedSetWithHashingStrategy<Field> fields = new UnifiedSetWithHashingStrategy<>(
-            HashingStrategies.fromFunction(Field::getName));
+    // @Nullable
+    // private UnifiedSetWithHashingStrategy<Field> fields = new
+    // UnifiedSetWithHashingStrategy<>(
+    // HashingStrategies.fromFunction(Field::getName));
 
     public Action(Method method, Object... pathParams)
             throws IllegalAccessException, IllegalArgumentException,
@@ -70,7 +68,7 @@ public class Action {
         for (Parameter param : methodParams) {
             RequestParam requestParam = param.getAnnotation(RequestParam.class);
             if (requestParam != null) {
-                addField(new Field(method, param));
+                // addField(new Field(method, param));
             }
         }
     }
@@ -170,20 +168,20 @@ public class Action {
         this.href = href;
     }
 
-    public Collection<Field> getFields() {
-        return fields;
-    }
-
-    public void setFields(Collection<Field> fields) {
-        this.fields = new UnifiedSetWithHashingStrategy<>(
-                HashingStrategies.fromFunction(Field::getName), fields);
-    }
-
-    public void addField(Field field) {
-        this.fields.add(field);
-    }
-
-    public Field getField(String name) {
-        return this.fields.get(new Field(name));
-    }
+    // public Collection<Field> getFields() {
+    // return fields;
+    // }
+    //
+    // public void setFields(Collection<Field> fields) {
+    // this.fields = new UnifiedSetWithHashingStrategy<>(
+    // HashingStrategies.fromFunction(Field::getName), fields);
+    // }
+    //
+    // public void addField(Field field) {
+    // this.fields.add(field);
+    // }
+    //
+    // public Field getField(String name) {
+    // return this.fields.get(new Field(name));
+    // }
 }

@@ -1,6 +1,7 @@
 package au.com.windyroad.hateoas2;
 
 import java.net.URI;
+import java.util.Set;
 
 import org.eclipse.jdt.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,11 @@ public class RestLink extends Link {
 
     private RestTemplate restTemplate;
 
-    public RestLink(URI address) {
+    public RestLink() {
+    }
+
+    public RestLink(URI address, Set<String> natures, String label) {
+        super(natures, label);
         this.address = address;
     }
 
@@ -49,7 +54,7 @@ public class RestLink extends Link {
 
     @Override
     @JsonProperty("href")
-    public URI getAddress() throws NoSuchMethodException, SecurityException {
+    public URI getAddress() {
         return address;
     }
 

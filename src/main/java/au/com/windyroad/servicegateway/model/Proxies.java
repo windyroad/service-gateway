@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import au.com.windyroad.hateoas.annotations.Rel;
 import au.com.windyroad.hateoas2.Entity;
@@ -26,7 +25,6 @@ import au.com.windyroad.hateoas2.ResolvedEntity;
 import au.com.windyroad.servicegateway.controller.AdminProxiesController;
 
 @Component
-@JsonSerialize(as = ResolvedEntity.class)
 @HateoasController(AdminProxiesController.class)
 public class Proxies extends ResolvedEntity {
 
@@ -81,9 +79,7 @@ public class Proxies extends ResolvedEntity {
         }
     }
 
-    public Proxy getProxy(String path) throws NoSuchMethodException,
-            SecurityException, IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException, URISyntaxException {
+    public Proxy getProxy(String path) {
         return (Proxy) super.getEntities().stream()
                 .filter(e -> e.hasNature(Rel.ITEM))
                 .filter(e -> e.getEntity().getProperties()

@@ -84,6 +84,7 @@ public class ProxyController {
                     responseEntity = new ResponseEntity<InputStreamResource>(
                             httpHeaders, httpStatus);
                 }
+                responseEntity.getHeaders().set("Server", "ServiceGateway");
                 deferredResult.setResult(responseEntity);
                 proxy.setEndpoint(target, true);
 
@@ -132,16 +133,13 @@ public class ProxyController {
 
             httpAsyncClient.start();
             HttpGet newRequest = new HttpGet(target);
-            Enumeration<String> headerNames = request.getHeaderNames();
-            while (headerNames.hasMoreElements()) {
-                String headerName = headerNames.nextElement();
-                Enumeration<String> headerValues = request
-                        .getHeaders(headerName);
-                while (headerValues.hasMoreElements()) {
-                    newRequest.addHeader(headerName,
-                            headerValues.nextElement());
-                }
-            }
+            copyHeaders(request, newRequest);
+
+            addOrAppendToHeader(newRequest, "X-Forwarded-For",
+                    request.getRemoteAddr());
+
+            newRequest.addHeader("X-Forwarded-Proto", request.getScheme());
+
             LOGGER.debug("{ 'event': 'proxyReqeust', 'from': '" + url
                     + "', 'to': '" + target + "' }");
             httpAsyncClient.execute(newRequest,
@@ -153,6 +151,39 @@ public class ProxyController {
             deferredResult.setResult(ResponseEntity.notFound().build());
         }
         return deferredResult;
+    }
+
+    void addOrAppendToHeader(HttpGet newRequest, String headerName,
+            String headerValue) {
+        Header originalHeader = newRequest.getFirstHeader(headerName);
+        if (originalHeader == null) {
+            newRequest.addHeader(headerName, headerValue);
+        } else {
+            newRequest.setHeader(headerName,
+                    originalHeader.getValue() + ", " + headerValue);
+        }
+    }
+
+    void copyHeaders(final HttpServletRequest request, HttpGet newRequest) {
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            if ("host".equals(headerName.toLowerCase())) {
+                Enumeration<String> headerValues = request
+                        .getHeaders(headerName);
+                while (headerValues.hasMoreElements()) {
+                    newRequest.addHeader("X-Forwarded-Host",
+                            headerValues.nextElement());
+                }
+            } else {
+                Enumeration<String> headerValues = request
+                        .getHeaders(headerName);
+                while (headerValues.hasMoreElements()) {
+                    newRequest.addHeader(headerName,
+                            headerValues.nextElement());
+                }
+            }
+        }
     }
 
 }

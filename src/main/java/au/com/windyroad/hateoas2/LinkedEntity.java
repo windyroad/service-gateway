@@ -2,6 +2,7 @@ package au.com.windyroad.hateoas2;
 
 import java.net.URI;
 import java.util.Properties;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
@@ -25,14 +26,17 @@ public class LinkedEntity extends Entity {
     public LinkedEntity() {
     }
 
-    public LinkedEntity(@JsonProperty("href") URI address) {
-        this.link = new RestLink(address);
+    public LinkedEntity(@JsonProperty("href") URI address,
+            @JsonProperty("class") Set<String> natures,
+            @JsonProperty("title") String label) {
+        this.link = new RestLink(address, natures, label);
     }
 
     public LinkedEntity(Link link) {
         this.link = link;
     }
 
+    @Override
     public ResolvedEntity resolve(Class<? extends ResolvedEntity> type) {
         return link.resolve(type);
     }

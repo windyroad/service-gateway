@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import au.com.windyroad.hateoas.annotations.Rel;
-import au.com.windyroad.hateoas.annotations.Title;
 import au.com.windyroad.servicegateway.model.Endpoint;
 import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
@@ -28,7 +27,6 @@ public class AdminEndpointController {
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
     @Rel("self")
-    @Title("Endpoint `{proxyName}/{target}`")
     public ResponseEntity<?> self(@PathVariable("proxyName") String proxyName,
             @PathVariable("target") String target)
                     throws URISyntaxException, NoSuchMethodException,
@@ -46,8 +44,8 @@ public class AdminEndpointController {
         return responseEntity;
     }
 
-    @RequestMapping(value = "/{proxyName}/{target}", method = RequestMethod.GET, produces = {
-            "text/html", "application/xhtml+xml" })
+    @RequestMapping(method = RequestMethod.GET, produces = { "text/html",
+            "application/xhtml+xml" })
     public String proxiesView() {
         return "/index.html";
     }

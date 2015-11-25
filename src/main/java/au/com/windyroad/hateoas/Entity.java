@@ -13,8 +13,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import com.gs.collections.impl.block.factory.HashingStrategies;
-import com.gs.collections.impl.set.strategy.mutable.UnifiedSetWithHashingStrategy;
 
 import au.com.windyroad.hateoas.annotations.Title;
 import au.com.windyroad.hateoas.serialization.MessageSourceAwareSerializer;
@@ -37,9 +35,10 @@ public class Entity<T> {
     @Nullable
     private Multimap<String, OldLink> links = HashMultimap.create();
 
-    @Nullable
-    private UnifiedSetWithHashingStrategy<Action> actions = new UnifiedSetWithHashingStrategy<>(
-            HashingStrategies.fromFunction(Action::getName));
+    // @Nullable
+    // private UnifiedSetWithHashingStrategy<Action> actions = new
+    // UnifiedSetWithHashingStrategy<>(
+    // HashingStrategies.fromFunction(Action::getName));
 
     @Nullable
     private String title;
@@ -59,7 +58,6 @@ public class Entity<T> {
 
     public Entity(T properties, Collection<Action> actions) {
         this(properties);
-        setActions(actions);
     }
 
     /**
@@ -119,21 +117,13 @@ public class Entity<T> {
      * @return the actions
      */
     public Collection<Action> getActions() {
-        return actions;
+        return null;
     }
 
-    public void setActions(Collection<Action> actions) {
-        this.actions = new UnifiedSetWithHashingStrategy<>(
-                HashingStrategies.fromFunction(Action::getName), actions);
-    }
-
-    public void addAction(Action action) {
-        this.actions.add(action);
-    }
-
-    public Action getAction(String name) {
-        return this.actions.get(new Action(name));
-    }
+    // public void setActions(Collection<Action> actions) {
+    // this.actions = new UnifiedSetWithHashingStrategy<>(
+    // HashingStrategies.fromFunction(Action::getName), actions);
+    // }
 
     public void addLink(OldLink link) {
         // TODO: have multiple rels for a single link rather than creating

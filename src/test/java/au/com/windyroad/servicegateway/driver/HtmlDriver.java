@@ -3,8 +3,7 @@ package au.com.windyroad.servicegateway.driver;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.List;
 
 import org.openqa.selenium.By;
@@ -25,7 +24,6 @@ import au.com.windyroad.hateoas.HttpLink;
 import au.com.windyroad.hateoas.JavaLink;
 import au.com.windyroad.hateoas.OldLink;
 import au.com.windyroad.hateoas.client.LinkVisitor;
-import au.com.windyroad.servicegateway.TestContext;
 
 @Component
 @Profile(value = "ui-integration")
@@ -41,13 +39,16 @@ public class HtmlDriver extends RestDriver {
     String password;
 
     @Override
-    public OldLink createProxy(TestContext context) throws Exception {
+    public void createProxy(String proxyName, String endpoint) {
         webDriver.get(
                 "https://localhost:" + config.getPort() + "/admin/proxies");
         WebElement form = (new WebDriverWait(webDriver, 5))
                 .until(ExpectedConditions
                         .presenceOfElementLocated(By.name("createProxy")));
         List<WebElement> inputs = form.findElements(By.tagName("input"));
+        HashMap<String, String> context = new HashMap<>();
+        context.put("proxyName", proxyName);
+        context.put("endpoint", endpoint);
         for (WebElement input : inputs) {
             String inputName = input.getAttribute("name");
             if (inputName != null) {
@@ -61,7 +62,6 @@ public class HtmlDriver extends RestDriver {
         WebElement newPage = (new WebDriverWait(webDriver, 5))
                 .until(ExpectedConditions
                         .presenceOfElementLocated(By.className("Proxy")));
-        return new HttpLink(new URI(webDriver.getCurrentUrl()));
     }
 
     @Override
@@ -70,7 +70,6 @@ public class HtmlDriver extends RestDriver {
         super.get(path);
     }
 
-    @Override
     public void checkCurrentEndpointAvailable(OldLink endpointLink) {
         endpointLink.accept(new LinkVisitor() {
             @Override
@@ -108,35 +107,8 @@ public class HtmlDriver extends RestDriver {
     }
 
     @Override
-    public OldLink checkEndpointExists(OldLink proxyLink, String endpoint) {
-        proxyLink.accept(new LinkVisitor() {
-            @Override
-            public void visit(HttpLink link) {
-                webDriver.get(link.getHref().toString());
-            }
-
-            @Override
-            public void visit(
-                    EmbeddedEntityJavaLink<?> embeddedEntityJavaLink) {
-                throw new HttpServerErrorException(
-                        HttpStatus.INTERNAL_SERVER_ERROR,
-                        "expected HttpLink, got EmbeddedEntityJavaLink");
-            }
-
-            @Override
-            public void visit(JavaLink javaLink) {
-                throw new HttpServerErrorException(
-                        HttpStatus.INTERNAL_SERVER_ERROR,
-                        "expected HttpLink, got JavaLink");
-            }
-
-            @Override
-            public void visit(EmbeddedEntityHttpLink embeddedEntityHttpLink) {
-                throw new HttpServerErrorException(
-                        HttpStatus.INTERNAL_SERVER_ERROR,
-                        "expected HttpLink, got EmbeddedEntityHttpLink");
-            }
-        });
+    public void checkEndpointExists(String proxyName, String endpointPath) {
+        webDriver.get(webDriver.getCurrentUrl());
         // need to find the linked entities on the page.
         WebElement entitiesContainer = webDriver.findElement(By.id("entities"));
 
@@ -144,12 +116,16 @@ public class HtmlDriver extends RestDriver {
                 .findElements(By.className("entity"));
         assertThat(entities.size(), equalTo(1));
         assertThat(entities.get(0).getText(),
-                equalTo("Endpoint `test/" + endpoint + '`'));
-
-        try {
-            return new HttpLink(new URI(entities.get(0).getAttribute("href")));
-        } catch (URISyntaxException e) {
-            throw new AssertionError("unexpected exception", e);
-        }
+                equalTo("Endpoint `test/" + endpointPath + '`'));
+        entities.get(0).click();
     }
+
+    @Override
+    public void checkCurrentEndpointAvailable() {
+        webDriver.get(webDriver.getCurrentUrl());
+        WebElement available = webDriver
+                .findElement(By.id("property:available"));
+        assertThat(available.getText(), equalTo("true"));
+    }
+
 }

@@ -26,7 +26,6 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import au.com.windyroad.hateoas.SirenTemplate;
 import au.com.windyroad.hateoas.annotations.Rel;
 import au.com.windyroad.hateoas2.Entity;
 import au.com.windyroad.hateoas2.EntityRelationship;
@@ -74,10 +73,7 @@ public class RestDriver implements Driver {
     @Autowired
     CloseableHttpAsyncClient httpAsyncClient;
 
-    @Autowired
-    SirenTemplate sirenTemplate;
-
-    private Entity currentProxy;
+    private ResolvedEntity currentProxy;
 
     private Entity currentEndpoint;
 
@@ -116,7 +112,7 @@ public class RestDriver implements Driver {
         context.put("endpoint", endpoint);
         Entity createResponse = proxies.getAction("createProxy").invoke(proxies,
                 context);
-        currentProxy = createResponse;
+        currentProxy = createResponse.resolve(ResolvedEntity.class);
     }
 
     @Override

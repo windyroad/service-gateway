@@ -1,6 +1,7 @@
 package au.com.windyroad.hateoas2;
 
 import java.net.URI;
+import java.util.Set;
 
 import org.springframework.http.MediaType;
 
@@ -12,12 +13,18 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 abstract public class Link extends Resolvable {
 
+    public Link() {
+    }
+
+    public Link(Set<String> natures, String label) {
+        super(natures, label);
+    }
+
     public abstract <T> T resolve(Class<T> type);
 
     @JsonProperty("type")
     public abstract MediaType getRepresentationFormat();
 
     @JsonProperty("href")
-    public abstract URI getAddress()
-            throws NoSuchMethodException, SecurityException;
+    public abstract URI getAddress();
 }

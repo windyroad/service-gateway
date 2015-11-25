@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -32,6 +33,7 @@ public class RestAction extends Action {
 
     @Autowired
     private RestTemplate restTemplate;
+    private ApplicationContext applicationContext;
 
     public RestAction(@JsonProperty("name") String identifier) {
         super(identifier);
@@ -40,6 +42,11 @@ public class RestAction extends Action {
     @Autowired
     public void setRestTemplate(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
+    }
+
+    @Autowired
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 
     @Override
@@ -61,8 +68,10 @@ public class RestAction extends Action {
                     .accept(MediaTypes.SIREN_JSON)
                     .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                     .body(body);
-            return restTemplate.exchange(request, ResolvedEntity.class)
-                    .getBody();
+            URI location = restTemplate.postForLocation(address, request);
+            LinkedEntity linkedEntity = new LinkedEntity(location, null, null);
+            linkedEntity.setApplicationContext(applicationContext);
+            return linkedEntity;
         default:
             throw new HttpServerErrorException(HttpStatus.NOT_IMPLEMENTED);
         }

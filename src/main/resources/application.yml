@@ -21,3 +21,4 @@ logging:
     level.org.apache.http.wire: 'DEBUG'
     level.au.com.windyroad.servicegateway: 'DEBUG'
     
+server.tomcat.access-log-enabled: true
