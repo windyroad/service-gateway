@@ -7,7 +7,6 @@ import java.util.Optional;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import au.com.windyroad.hateoas.annotations.Rel;
 import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.EntityRelationship;
 import au.com.windyroad.hateoas.core.JavaLink;
@@ -31,7 +30,7 @@ public class Proxy extends ResolvedEntity {
             SecurityException, IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
         super.add(new NavigationalRelationship(new JavaLink(this, name),
-                Rel.SELF));
+                Relationship.SELF));
         getProperties().setProperty(NAME, name);
         getProperties().setProperty(TARGET, target);
     }
@@ -49,7 +48,7 @@ public class Proxy extends ResolvedEntity {
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
         Optional<EntityRelationship> relatedEntity = super.getEntities()
-                .stream().filter(e -> e.hasNature(Rel.ITEM))
+                .stream().filter(e -> e.hasNature(Relationship.ITEM))
                 .filter(e -> e.getEntity().getProperties()
                         .getProperty("target") != null
                         && e.getEntity().getProperties().getProperty("target")
@@ -70,7 +69,7 @@ public class Proxy extends ResolvedEntity {
 
     public Endpoint getEndpoint(String target) {
         return (Endpoint) super.getEntities().stream()
-                .filter(e -> e.hasNature(Rel.ITEM))
+                .filter(e -> e.hasNature(Relationship.ITEM))
                 .filter(e -> e.getEntity().getProperties()
                         .getProperty("target") != null
                         && e.getEntity().getProperties().getProperty("target")

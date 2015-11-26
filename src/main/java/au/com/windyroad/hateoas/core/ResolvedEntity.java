@@ -12,8 +12,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableSet;
 
-import au.com.windyroad.hateoas.annotations.Rel;
-
 @JsonPropertyOrder({ "class", "properties", "entities", "actions", "links",
         "title" })
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -36,7 +34,7 @@ public class ResolvedEntity extends Entity {
     public ResolvedEntity(String... args) {
         super(args);
         add(new NavigationalRelationship(new JavaLink(this, (Object[]) args),
-                Rel.SELF));
+                Relationship.SELF));
     }
 
     @Override

@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import au.com.windyroad.hateoas.annotations.Rel;
 import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.EntityRelationship;
 import au.com.windyroad.hateoas.core.JavaAction;
@@ -63,7 +62,7 @@ public class Proxies extends ResolvedEntity {
                     IllegalAccessException, IllegalArgumentException,
                     InvocationTargetException, URISyntaxException {
         Stream<EntityRelationship> items = super.getEntities().stream()
-                .filter(e -> e.hasNature(Rel.ITEM));
+                .filter(e -> e.hasNature(Relationship.ITEM));
         Optional<EntityRelationship> existingProxy = items.filter(
                 e -> e.getEntity().getProperties().getProperty("name") != null
                         && e.getEntity().getProperties().getProperty("name")
@@ -81,7 +80,7 @@ public class Proxies extends ResolvedEntity {
 
     public Proxy getProxy(String path) {
         return (Proxy) super.getEntities().stream()
-                .filter(e -> e.hasNature(Rel.ITEM))
+                .filter(e -> e.hasNature(Relationship.ITEM))
                 .filter(e -> e.getEntity().getProperties()
                         .getProperty("name") != null
                         && e.getEntity().getProperties().getProperty("name")

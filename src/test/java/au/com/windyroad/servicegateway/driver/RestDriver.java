@@ -26,10 +26,10 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import au.com.windyroad.hateoas.annotations.Rel;
 import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.EntityRelationship;
 import au.com.windyroad.hateoas.core.NavigationalRelationship;
+import au.com.windyroad.hateoas.core.Relationship;
 import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.model.Proxies;
@@ -123,7 +123,7 @@ public class RestDriver implements Driver {
     @Override
     public void checkEndpointExists(String proxyName, String endpointPath) {
         Optional<NavigationalRelationship> selfLink = currentProxy.getLinks()
-                .stream().filter(l -> l.hasNature(Rel.SELF)).findAny();
+                .stream().filter(l -> l.hasNature(Relationship.SELF)).findAny();
         assertTrue(selfLink.isPresent());
         currentProxy = selfLink.get().getLink().resolve(ResolvedEntity.class);
         Optional<EntityRelationship> endpoint = currentProxy.getEntities()

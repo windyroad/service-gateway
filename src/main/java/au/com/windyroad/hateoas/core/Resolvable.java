@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import au.com.windyroad.hateoas.annotations.Nature;
-import au.com.windyroad.hateoas.annotations.Title;
+import au.com.windyroad.hateoas.annotations.Label;
 import au.com.windyroad.hateoas.server.serialization.MessageSourceAwareSerializer;
 
 abstract public class Resolvable {
@@ -30,7 +30,7 @@ abstract public class Resolvable {
         }
         natures.add(this.getClass().getSimpleName());
 
-        Title titleAnnotation = this.getClass().getAnnotation(Title.class);
+        Label titleAnnotation = this.getClass().getAnnotation(Label.class);
         if (titleAnnotation != null) {
             label = interpolate(titleAnnotation.value(), args);
         }
