@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import au.com.windyroad.hateoas.Entity;
-import au.com.windyroad.hateoas.Relationship;
 import au.com.windyroad.hateoas.annotations.Rel;
 import au.com.windyroad.hateoas.annotations.Title;
+import au.com.windyroad.hateoas.core.Entity;
+import au.com.windyroad.hateoas.core.Relationship;
 import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
 
@@ -65,7 +65,7 @@ public class AdminProxyController {
         if (proxy == null) {
             return ResponseEntity.notFound().build();
         }
-        au.com.windyroad.hateoas.Action action = proxy
+        au.com.windyroad.hateoas.core.Action action = proxy
                 .getAction(allRequestParams.get("trigger"));
         Entity result = action.invoke(proxy, allRequestParams);
         return ResponseEntity.noContent()

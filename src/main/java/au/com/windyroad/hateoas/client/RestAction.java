@@ -1,4 +1,4 @@
-package au.com.windyroad.hateoas;
+package au.com.windyroad.hateoas.client;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
@@ -21,6 +21,12 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Maps;
+
+import au.com.windyroad.hateoas.core.Action;
+import au.com.windyroad.hateoas.core.Entity;
+import au.com.windyroad.hateoas.core.LinkedEntity;
+import au.com.windyroad.hateoas.core.MediaTypes;
+import au.com.windyroad.hateoas.core.Parameter;
 
 public class RestAction extends Action {
 

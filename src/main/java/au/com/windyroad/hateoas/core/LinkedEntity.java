@@ -1,4 +1,4 @@
-package au.com.windyroad.hateoas;
+package au.com.windyroad.hateoas.core;
 
 import java.net.URI;
 import java.util.Properties;
@@ -21,9 +21,6 @@ public class LinkedEntity extends Entity {
         AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
         bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
         bpp.processInjection(this.link);
-    }
-
-    public LinkedEntity() {
     }
 
     public LinkedEntity(@JsonProperty("href") URI address,
@@ -68,5 +65,10 @@ public class LinkedEntity extends Entity {
     @JsonIgnore
     public ImmutableSet<NavigationalRelationship> getLinks() {
         return resolve(ResolvedEntity.class).getLinks();
+    }
+
+    @Override
+    public LinkedEntity toLinkedEntity() {
+        return this;
     }
 }

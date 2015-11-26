@@ -1,4 +1,4 @@
-package au.com.windyroad.hateoas.serialization;
+package au.com.windyroad.hateoas.client;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;

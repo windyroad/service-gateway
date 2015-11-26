@@ -1,4 +1,4 @@
-package au.com.windyroad.hateoas;
+package au.com.windyroad.hateoas.core;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -87,5 +87,11 @@ public class ResolvedEntity extends Entity {
     @Override
     public ResolvedEntity resolve(Class<? extends ResolvedEntity> type) {
         return this;
+    }
+
+    @Override
+    public LinkedEntity toLinkedEntity() {
+        return new LinkedEntity(getLink(Relationship.SELF).getAddress(),
+                getNatures(), getLabel());
     }
 }

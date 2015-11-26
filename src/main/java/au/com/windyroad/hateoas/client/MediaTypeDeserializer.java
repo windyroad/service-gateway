@@ -1,4 +1,4 @@
-package au.com.windyroad.hateoas.serialization;
+package au.com.windyroad.hateoas.client;
 
 import java.io.IOException;
 

@@ -1,10 +1,9 @@
-package au.com.windyroad.hateoas.serialization;
+package au.com.windyroad.hateoas.client;
 
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -12,7 +11,6 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.std.DelegatingDeserializer;
 
-@Component
 public class AutowiringDeserializer extends DelegatingDeserializer {
 
     /**

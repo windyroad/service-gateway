@@ -1,4 +1,4 @@
-package au.com.windyroad.hateoas.serialization;
+package au.com.windyroad.hateoas.server.serialization;
 
 import java.io.IOException;
 import java.util.regex.Matcher;

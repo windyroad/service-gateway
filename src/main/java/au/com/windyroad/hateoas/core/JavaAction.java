@@ -1,4 +1,4 @@
-package au.com.windyroad.hateoas;
+package au.com.windyroad.hateoas.core;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -13,6 +13,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import au.com.windyroad.hateoas.annotations.PresentationType;
+import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 
 public class JavaAction extends Action {
 
@@ -26,16 +27,16 @@ public class JavaAction extends Action {
         this.method = method;
     }
 
-    private static au.com.windyroad.hateoas.Parameter[] extractParameters(
+    private static au.com.windyroad.hateoas.core.Parameter[] extractParameters(
             Method method) {
         Parameter[] params = method.getParameters();
-        au.com.windyroad.hateoas.Parameter[] rval = new au.com.windyroad.hateoas.Parameter[params.length
+        au.com.windyroad.hateoas.core.Parameter[] rval = new au.com.windyroad.hateoas.core.Parameter[params.length
                 + 1];
         for (int i = 0; i < params.length; ++i) {
-            rval[i] = new au.com.windyroad.hateoas.Parameter(
+            rval[i] = new au.com.windyroad.hateoas.core.Parameter(
                     params[i].getAnnotation(RequestParam.class).value());
         }
-        rval[params.length] = new au.com.windyroad.hateoas.Parameter("trigger",
+        rval[params.length] = new au.com.windyroad.hateoas.core.Parameter("trigger",
                 PresentationType.SUBMIT, method.getName());
         return rval;
     }
@@ -45,7 +46,7 @@ public class JavaAction extends Action {
             Map<String, String> context) throws IllegalAccessException,
                     IllegalArgumentException, InvocationTargetException {
         List<Object> args = new ArrayList<>(getParameters().size());
-        for (au.com.windyroad.hateoas.Parameter param : getParameters()) {
+        for (au.com.windyroad.hateoas.core.Parameter param : getParameters()) {
             if (!PresentationType.SUBMIT.equals(param.getType())) {
                 args.add(context.get(param.getIdentifier()));
             }

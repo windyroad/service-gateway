@@ -1,4 +1,4 @@
-package au.com.windyroad.hateoas;
+package au.com.windyroad.hateoas.core;
 
 import java.net.URI;
 
@@ -45,10 +45,8 @@ public class EntityRelationship extends Relationship {
         return entity;
     }
 
-    private static EntityLinkConverter entityLinkConverter = new EntityLinkConverter();
-
     @JsonUnwrapped
     public LinkedEntity getEntityLink() {
-        return entityLinkConverter.convert(entity);
+        return entity.toLinkedEntity();
     }
 }

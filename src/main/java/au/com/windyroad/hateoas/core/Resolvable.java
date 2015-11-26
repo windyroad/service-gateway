@@ -1,4 +1,4 @@
-package au.com.windyroad.hateoas;
+package au.com.windyroad.hateoas.core;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import au.com.windyroad.hateoas.annotations.Nature;
 import au.com.windyroad.hateoas.annotations.Title;
-import au.com.windyroad.hateoas.serialization.MessageSourceAwareSerializer;
+import au.com.windyroad.hateoas.server.serialization.MessageSourceAwareSerializer;
 
 abstract public class Resolvable {
 

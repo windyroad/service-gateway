@@ -19,13 +19,14 @@ import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainer;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -35,8 +36,16 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.http.converter.support.AllEncompassingFormHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.BeanDescription;
+import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
+import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
+import au.com.windyroad.hateoas.client.AutowiringDeserializer;
+import au.com.windyroad.hateoas.client.SpringBeanHandlerInstantiator;
 import au.com.windyroad.servicegateway.driver.WebDriverFactory;
 
 @Configuration
@@ -185,10 +194,6 @@ public class ServiceGatewayTestConfiguration {
     @Autowired
     List<ObjectMapper> objectMappers;
 
-    @Autowired
-    @Qualifier("customObjectMapperBuilder")
-    Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder;
-
     @Bean
     public HttpMessageConverters messageConverters() {
         List<HttpMessageConverter<?>> converters = new ArrayList<>();
@@ -226,6 +231,34 @@ public class ServiceGatewayTestConfiguration {
             SecurityException, InstantiationException, IllegalAccessException,
             IllegalArgumentException, InvocationTargetException {
         return webDriverFactory.createWebDriver();
+    }
+
+    @Autowired
+    private ApplicationContext context;
+
+    @Bean(name = "customObjectMapperBuilder")
+    @Primary
+    @Profile({ "integration", "ui-integration" })
+    Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder() {
+        Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
+        builder.applicationContext(context);
+        HandlerInstantiator handlerInstantiator = new SpringBeanHandlerInstantiator(
+                context);
+        // context.getAutowireCapableBeanFactory());
+        builder.handlerInstantiator(handlerInstantiator);
+
+        SimpleModule module = new SimpleModule();
+        module.setDeserializerModifier(new BeanDeserializerModifier() {
+            @Override
+            public JsonDeserializer<?> modifyDeserializer(
+                    DeserializationConfig config, BeanDescription beanDesc,
+                    JsonDeserializer<?> deserializer) {
+                return new AutowiringDeserializer(context, deserializer);
+            }
+        });
+
+        builder.modules(module);
+        return builder;
     }
 
 }

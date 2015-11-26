@@ -7,15 +7,15 @@ import java.util.Optional;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import au.com.windyroad.hateoas.Entity;
-import au.com.windyroad.hateoas.EntityRelationship;
-import au.com.windyroad.hateoas.HateoasAction;
-import au.com.windyroad.hateoas.HateoasController;
-import au.com.windyroad.hateoas.JavaLink;
-import au.com.windyroad.hateoas.NavigationalRelationship;
-import au.com.windyroad.hateoas.Relationship;
-import au.com.windyroad.hateoas.ResolvedEntity;
 import au.com.windyroad.hateoas.annotations.Rel;
+import au.com.windyroad.hateoas.core.Entity;
+import au.com.windyroad.hateoas.core.EntityRelationship;
+import au.com.windyroad.hateoas.core.JavaLink;
+import au.com.windyroad.hateoas.core.NavigationalRelationship;
+import au.com.windyroad.hateoas.core.Relationship;
+import au.com.windyroad.hateoas.core.ResolvedEntity;
+import au.com.windyroad.hateoas.server.annotations.HateoasAction;
+import au.com.windyroad.hateoas.server.annotations.HateoasController;
 import au.com.windyroad.servicegateway.controller.AdminProxyController;
 
 @HateoasController(AdminProxyController.class)

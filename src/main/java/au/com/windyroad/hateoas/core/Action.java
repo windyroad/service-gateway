@@ -1,4 +1,4 @@
-package au.com.windyroad.hateoas;
+package au.com.windyroad.hateoas.core;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
@@ -12,6 +12,8 @@ import org.springframework.http.HttpMethod;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import au.com.windyroad.hateoas.client.RestAction;
 
 @JsonDeserialize(as = RestAction.class)
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)

@@ -31,6 +31,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.util.StringUtils;
@@ -39,6 +40,7 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 @SpringBootApplication
 @EnableAutoConfiguration
+@ComponentScan("au.com.windyroad")
 public class ServiceGatewayApplication {
 
     @Value("${au.com.windyroad.service-gateway.proxy.max.connections.total:100}")

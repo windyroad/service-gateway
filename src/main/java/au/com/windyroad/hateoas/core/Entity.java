@@ -1,4 +1,4 @@
-package au.com.windyroad.hateoas;
+package au.com.windyroad.hateoas.core;
 
 import java.util.Properties;
 
@@ -25,5 +25,7 @@ public abstract class Entity extends Resolvable {
 
     public abstract ResolvedEntity resolve(
             Class<? extends ResolvedEntity> type);
+
+    public abstract LinkedEntity toLinkedEntity();
 
 }
