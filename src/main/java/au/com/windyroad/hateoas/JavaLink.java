@@ -1,4 +1,4 @@
-package au.com.windyroad.hateoas2;
+package au.com.windyroad.hateoas;
 
 import java.net.URI;
 
@@ -6,8 +6,6 @@ import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.MediaType;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import au.com.windyroad.hateoas.MediaTypes;
 
 public class JavaLink extends Link {
 

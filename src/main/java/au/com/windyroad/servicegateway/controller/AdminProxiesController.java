@@ -19,9 +19,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import au.com.windyroad.hateoas.Entity;
 import au.com.windyroad.hateoas.MediaTypes;
-import au.com.windyroad.hateoas2.Entity;
-import au.com.windyroad.hateoas2.Relationship;
+import au.com.windyroad.hateoas.Relationship;
 import au.com.windyroad.servicegateway.model.Proxies;
 
 @Controller
@@ -58,7 +58,7 @@ public class AdminProxiesController {
                     throws URISyntaxException, NoSuchMethodException,
                     SecurityException, ScriptException, IllegalAccessException,
                     IllegalArgumentException, InvocationTargetException {
-        au.com.windyroad.hateoas2.Action action = proxies
+        au.com.windyroad.hateoas.Action action = proxies
                 .getAction(allRequestParams.get("trigger"));
         Entity result = action.invoke(proxies, allRequestParams);
         return ResponseEntity

@@ -1,4 +1,4 @@
-package au.com.windyroad.hateoas2;
+package au.com.windyroad.hateoas;
 
 import java.net.URI;
 import java.util.Properties;

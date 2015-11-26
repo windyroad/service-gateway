@@ -1,4 +1,4 @@
-package au.com.windyroad.hateoas2;
+package au.com.windyroad.hateoas;
 
 import java.util.HashMap;
 import java.util.HashSet;

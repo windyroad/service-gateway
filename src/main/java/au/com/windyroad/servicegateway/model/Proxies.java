@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import au.com.windyroad.hateoas.Entity;
+import au.com.windyroad.hateoas.EntityRelationship;
+import au.com.windyroad.hateoas.HateoasAction;
+import au.com.windyroad.hateoas.HateoasController;
+import au.com.windyroad.hateoas.JavaAction;
+import au.com.windyroad.hateoas.Relationship;
+import au.com.windyroad.hateoas.ResolvedEntity;
 import au.com.windyroad.hateoas.annotations.Rel;
-import au.com.windyroad.hateoas2.Entity;
-import au.com.windyroad.hateoas2.EntityRelationship;
-import au.com.windyroad.hateoas2.HateoasAction;
-import au.com.windyroad.hateoas2.HateoasController;
-import au.com.windyroad.hateoas2.JavaAction;
-import au.com.windyroad.hateoas2.Relationship;
-import au.com.windyroad.hateoas2.ResolvedEntity;
 import au.com.windyroad.servicegateway.controller.AdminProxiesController;
 
 @Component

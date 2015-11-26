@@ -1,4 +1,4 @@
-package au.com.windyroad.hateoas2;
+package au.com.windyroad.hateoas;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -26,16 +26,16 @@ public class JavaAction extends Action {
         this.method = method;
     }
 
-    private static au.com.windyroad.hateoas2.Parameter[] extractParameters(
+    private static au.com.windyroad.hateoas.Parameter[] extractParameters(
             Method method) {
         Parameter[] params = method.getParameters();
-        au.com.windyroad.hateoas2.Parameter[] rval = new au.com.windyroad.hateoas2.Parameter[params.length
+        au.com.windyroad.hateoas.Parameter[] rval = new au.com.windyroad.hateoas.Parameter[params.length
                 + 1];
         for (int i = 0; i < params.length; ++i) {
-            rval[i] = new au.com.windyroad.hateoas2.Parameter(
+            rval[i] = new au.com.windyroad.hateoas.Parameter(
                     params[i].getAnnotation(RequestParam.class).value());
         }
-        rval[params.length] = new au.com.windyroad.hateoas2.Parameter("trigger",
+        rval[params.length] = new au.com.windyroad.hateoas.Parameter("trigger",
                 PresentationType.SUBMIT, method.getName());
         return rval;
     }
@@ -45,7 +45,7 @@ public class JavaAction extends Action {
             Map<String, String> context) throws IllegalAccessException,
                     IllegalArgumentException, InvocationTargetException {
         List<Object> args = new ArrayList<>(getParameters().size());
-        for (au.com.windyroad.hateoas2.Parameter param : getParameters()) {
+        for (au.com.windyroad.hateoas.Parameter param : getParameters()) {
             if (!PresentationType.SUBMIT.equals(param.getType())) {
                 args.add(context.get(param.getIdentifier()));
             }

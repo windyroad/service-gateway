@@ -1,4 +1,4 @@
-package au.com.windyroad.hateoas2;
+package au.com.windyroad.hateoas;
 
 import com.fasterxml.jackson.databind.util.StdConverter;
 
