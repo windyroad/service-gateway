@@ -14,16 +14,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpServerErrorException;
-
-import au.com.windyroad.hateoas.EmbeddedEntityHttpLink;
-import au.com.windyroad.hateoas.EmbeddedEntityJavaLink;
-import au.com.windyroad.hateoas.HttpLink;
-import au.com.windyroad.hateoas.JavaLink;
-import au.com.windyroad.hateoas.OldLink;
-import au.com.windyroad.hateoas.client.LinkVisitor;
 
 @Component
 @Profile(value = "ui-integration")
@@ -68,42 +59,6 @@ public class HtmlDriver extends RestDriver {
     public void get(String path) throws Exception {
         // just being explicit about calling the rest driver's get
         super.get(path);
-    }
-
-    public void checkCurrentEndpointAvailable(OldLink endpointLink) {
-        endpointLink.accept(new LinkVisitor() {
-            @Override
-            public void visit(HttpLink link) {
-                webDriver.get(link.getHref().toString());
-            }
-
-            @Override
-            public void visit(
-                    EmbeddedEntityJavaLink<?> embeddedEntityJavaLink) {
-                throw new HttpServerErrorException(
-                        HttpStatus.INTERNAL_SERVER_ERROR,
-                        "expected HttpLink, got EmbeddedEntityJavaLink");
-            }
-
-            @Override
-            public void visit(JavaLink javaLink) {
-                throw new HttpServerErrorException(
-                        HttpStatus.INTERNAL_SERVER_ERROR,
-                        "expected HttpLink, got JavaLink");
-            }
-
-            @Override
-            public void visit(EmbeddedEntityHttpLink embeddedEntityHttpLink) {
-                throw new HttpServerErrorException(
-                        HttpStatus.INTERNAL_SERVER_ERROR,
-                        "expected HttpLink, got EmbeddedEntityHttpLink");
-            }
-        });
-
-        WebElement available = (new WebDriverWait(webDriver, 5))
-                .until(ExpectedConditions
-                        .presenceOfElementLocated(By.id("property:available")));
-        assertThat(available.getText(), equalTo("true"));
     }
 
     @Override

@@ -70,6 +70,7 @@ public class ProxyController {
         public void completed(HttpResponse result) {
             try {
                 HttpHeaders httpHeaders = getHeaders(result);
+                httpHeaders.set("Server", "ServiceGateway");
                 HttpStatus httpStatus = HttpStatus
                         .valueOf(result.getStatusLine().getStatusCode());
                 HttpEntity entity = result.getEntity();
@@ -84,7 +85,6 @@ public class ProxyController {
                     responseEntity = new ResponseEntity<InputStreamResource>(
                             httpHeaders, httpStatus);
                 }
-                responseEntity.getHeaders().set("Server", "ServiceGateway");
                 deferredResult.setResult(responseEntity);
                 proxy.setEndpoint(target, true);
 
