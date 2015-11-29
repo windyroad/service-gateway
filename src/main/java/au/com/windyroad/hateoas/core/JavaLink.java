@@ -12,21 +12,21 @@ import au.com.windyroad.hateoas.server.annotations.HateoasController;
 
 public class JavaLink extends Link {
 
-    private ResolvedEntity<?> entity;
+    private Object entityOrProperties;
     private Object[] parameters;
 
     protected JavaLink() {
     }
 
-    public JavaLink(ResolvedEntity<?> entity, Object... parameters) {
-        this.entity = entity;
+    public JavaLink(Object entityOrProperties, Object... parameters) {
+        this.entityOrProperties = entityOrProperties;
         this.parameters = parameters;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <T> T resolve(Class<T> type) {
-        return (T) entity;
+        return (T) entityOrProperties;
     }
 
     @Override
@@ -37,8 +37,8 @@ public class JavaLink extends Link {
     @Override
     @JsonProperty("href")
     public URI getAddress() {
-        if (entity != null) {
-            Class<?> controller = entity.getClass()
+        if (entityOrProperties != null) {
+            Class<?> controller = entityOrProperties.getClass()
                     .getAnnotation(HateoasController.class).value();
             URI uri = ControllerLinkBuilder.linkTo(controller, parameters)
                     .toUri();
@@ -50,6 +50,6 @@ public class JavaLink extends Link {
 
     @Override
     public <T> T resolve(ParameterizedTypeReference<T> type) {
-        return (T) entity;
+        return (T) entityOrProperties;
     }
 }

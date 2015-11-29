@@ -31,7 +31,7 @@ public class AdminEndpointController {
                     SecurityException, IllegalAccessException,
                     IllegalArgumentException, InvocationTargetException {
         // TODO: get the proxy using http.
-        Proxy proxy = proxies.getProxy(proxyName);
+        Proxy proxy = proxies.getProperties().getProxy(proxies, proxyName);
         if (proxy == null) {
             return ResponseEntity.notFound().build();
         }

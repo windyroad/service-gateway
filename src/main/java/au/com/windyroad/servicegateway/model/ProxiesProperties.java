@@ -24,36 +24,25 @@ import au.com.windyroad.servicegateway.controller.AdminProxiesController;
 
 @Component
 @HateoasController(AdminProxiesController.class)
-public class Proxies extends ResolvedEntity<Properties> {
+public class ProxiesProperties extends Properties {
 
     @JsonIgnore
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-    protected Proxies() throws IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException, NoSuchMethodException,
-            SecurityException {
-        super(new Properties());
-
+    protected ProxiesProperties() throws IllegalAccessException,
+            IllegalArgumentException, InvocationTargetException,
+            NoSuchMethodException, SecurityException {
     }
 
-    // class ProxiesActionArgument extends ActionArgument<Proxies, Proxies> {
-    // public ProxiesActionArgument(Proxies entity, Properties context) {
-    // super(entity, context);
-    // }
-    //
-    // public Proxies createProxy2() {
-    // return getEntity().createProxy(proxyPath, targetEndPoint)
-    // }
-    //
-    // }
-
     @HateoasAction(nature = HttpMethod.POST, controller = AdminProxiesController.class)
-    public Entity createProxy(@RequestParam("proxyName") String proxyPath,
+    public Entity createProxy(ResolvedEntity<ProxiesProperties> entity,
+            @RequestParam("proxyName") String proxyPath,
             @RequestParam("endpoint") String targetEndPoint)
                     throws NoSuchMethodException, SecurityException,
                     IllegalAccessException, IllegalArgumentException,
                     InvocationTargetException, URISyntaxException {
-        Stream<EntityRelationship<?>> items = super.getEntities().stream()
+
+        Stream<EntityRelationship<?>> items = entity.getEntities().stream()
                 .filter(e -> e.hasNature(Relationship.ITEM));
         Optional<EntityRelationship<?>> existingProxy = items
                 .filter(e -> ((Proxy) (e.getEntity())).getProperties()
@@ -66,13 +55,15 @@ public class Proxies extends ResolvedEntity<Properties> {
             return existingProxy.get().getEntity();
         } else {
             Proxy proxy = new Proxy(proxyPath, targetEndPoint);
-            super.addEntity(new EntityRelationship<>(proxy, Relationship.ITEM));
+            entity.addEntity(
+                    new EntityRelationship<>(proxy, Relationship.ITEM));
             return proxy;
         }
     }
 
-    public Proxy getProxy(String path) {
-        return (Proxy) super.getEntities().stream()
+    public Proxy getProxy(ResolvedEntity<ProxiesProperties> entity,
+            String path) {
+        return (Proxy) entity.getEntities().stream()
                 .filter(e -> e.hasNature(Relationship.ITEM))
                 .filter(e -> ((Proxy) (e.getEntity())).getProperties()
                         .getProperty("name") != null

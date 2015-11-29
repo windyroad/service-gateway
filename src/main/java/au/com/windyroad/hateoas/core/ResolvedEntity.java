@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableSet;
 
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
+import au.com.windyroad.servicegateway.model.ProxiesProperties;
 
 @JsonPropertyOrder({ "class", "properties", "entities", "actions", "links",
         "title" })
@@ -38,11 +39,23 @@ public class ResolvedEntity<T> extends Entity<T> {
     public ResolvedEntity(T properties, String... args) {
         super(args);
         this.properties = properties;
-        add(new NavigationalRelationship(new JavaLink(this, (Object[]) args),
-                Relationship.SELF));
-        for (Method method : this.getClass().getMethods()) {
-            if (method.getAnnotation(HateoasAction.class) != null) {
-                add(new JavaAction(method, (Object[]) args));
+        if (properties instanceof ProxiesProperties) {
+            add(new NavigationalRelationship(
+                    new JavaLink(properties, (Object[]) args),
+                    Relationship.SELF));
+            for (Method method : properties.getClass().getMethods()) {
+                if (method.getAnnotation(HateoasAction.class) != null) {
+                    add(new JavaAction(method, (Object[]) args));
+                }
+            }
+
+        } else {
+            add(new NavigationalRelationship(
+                    new JavaLink(this, (Object[]) args), Relationship.SELF));
+            for (Method method : this.getClass().getMethods()) {
+                if (method.getAnnotation(HateoasAction.class) != null) {
+                    add(new JavaAction(method, (Object[]) args));
+                }
             }
         }
 

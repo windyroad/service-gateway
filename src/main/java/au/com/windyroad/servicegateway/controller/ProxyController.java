@@ -123,7 +123,7 @@ public class ProxyController {
                     InvocationTargetException, URISyntaxException {
         DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<ResponseEntity<?>>();
 
-        Proxy proxy = proxies.getProxy(name);
+        Proxy proxy = proxies.getProperties().getProxy(proxies, name);
         if (proxy != null) {
             String url = (String) request.getAttribute(
                     HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);

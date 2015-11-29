@@ -5,8 +5,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpMethod;
@@ -31,30 +33,36 @@ public class JavaAction extends Action {
 
     private static au.com.windyroad.hateoas.core.Parameter[] extractParameters(
             Method method) {
-        Parameter[] params = method.getParameters();
-        au.com.windyroad.hateoas.core.Parameter[] rval = new au.com.windyroad.hateoas.core.Parameter[params.length
-                + 1];
-        for (int i = 0; i < params.length; ++i) {
+        List<Parameter> params = Arrays.asList(method.getParameters()).stream()
+                .filter(p -> p.getAnnotation(RequestParam.class) != null)
+                .collect(Collectors.toList());
+
+        au.com.windyroad.hateoas.core.Parameter[] rval = new au.com.windyroad.hateoas.core.Parameter[params
+                .size() + 1];
+        for (int i = 0; i < params.size(); ++i) {
+            RequestParam requestParamAnnotation = params.get(i)
+                    .getAnnotation(RequestParam.class);
             rval[i] = new au.com.windyroad.hateoas.core.Parameter(
-                    params[i].getAnnotation(RequestParam.class).value());
+                    requestParamAnnotation.value());
         }
-        rval[params.length] = new au.com.windyroad.hateoas.core.Parameter(
+        rval[params.size()] = new au.com.windyroad.hateoas.core.Parameter(
                 "trigger", PresentationType.SUBMIT, method.getName());
         return rval;
     }
 
     @Override
-    public <T extends Entity> Entity invoke(T entity,
+    public <T extends Entity<?>> Entity<?> invoke(T entity,
             Map<String, String> context) throws IllegalAccessException,
                     IllegalArgumentException, InvocationTargetException {
-        List<Object> args = new ArrayList<>(getParameters().size());
+        List<Object> args = new ArrayList<>(getParameters().size() + 1);
+        args.add(entity);
         for (au.com.windyroad.hateoas.core.Parameter param : getParameters()) {
             if (!PresentationType.SUBMIT.equals(param.getType())) {
                 args.add(context.get(param.getIdentifier()));
             }
         }
 
-        return (Entity) method.invoke(entity, args.toArray());
+        return (Entity) method.invoke(entity.getProperties(), args.toArray());
 
     }
 
