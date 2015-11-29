@@ -1,7 +1,6 @@
 package au.com.windyroad.servicegateway.model;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.util.Optional;
 import java.util.Properties;
@@ -17,7 +16,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.EntityRelationship;
-import au.com.windyroad.hateoas.core.JavaAction;
 import au.com.windyroad.hateoas.core.Relationship;
 import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
@@ -36,11 +34,6 @@ public class Proxies extends ResolvedEntity<Properties> {
             SecurityException {
         super(new Properties());
 
-        for (Method method : this.getClass().getMethods()) {
-            if (method.getAnnotation(HateoasAction.class) != null) {
-                super.add(new JavaAction(method));
-            }
-        }
     }
 
     // class ProxiesActionArgument extends ActionArgument<Proxies, Proxies> {

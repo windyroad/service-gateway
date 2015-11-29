@@ -1,5 +1,6 @@
 package au.com.windyroad.hateoas.core;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -12,6 +13,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableSet;
+
+import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 
 @JsonPropertyOrder({ "class", "properties", "entities", "actions", "links",
         "title" })
@@ -37,6 +40,12 @@ public class ResolvedEntity<T> extends Entity<T> {
         this.properties = properties;
         add(new NavigationalRelationship(new JavaLink(this, (Object[]) args),
                 Relationship.SELF));
+        for (Method method : this.getClass().getMethods()) {
+            if (method.getAnnotation(HateoasAction.class) != null) {
+                add(new JavaAction(method, (Object[]) args));
+            }
+        }
+
     }
 
     @Override

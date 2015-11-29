@@ -18,13 +18,15 @@ import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 public class JavaAction extends Action {
 
     private Method method;
+    private Object[] pathParameters;
 
     protected JavaAction() {
     }
 
-    public JavaAction(Method method) {
+    public JavaAction(Method method, Object... pathParameters) {
         super(method.getName(), extractParameters(method));
         this.method = method;
+        this.pathParameters = pathParameters;
     }
 
     private static au.com.windyroad.hateoas.core.Parameter[] extractParameters(
@@ -36,8 +38,8 @@ public class JavaAction extends Action {
             rval[i] = new au.com.windyroad.hateoas.core.Parameter(
                     params[i].getAnnotation(RequestParam.class).value());
         }
-        rval[params.length] = new au.com.windyroad.hateoas.core.Parameter("trigger",
-                PresentationType.SUBMIT, method.getName());
+        rval[params.length] = new au.com.windyroad.hateoas.core.Parameter(
+                "trigger", PresentationType.SUBMIT, method.getName());
         return rval;
     }
 
@@ -70,7 +72,8 @@ public class JavaAction extends Action {
         if (method != null) {
             Class<?> controller = method.getAnnotation(HateoasAction.class)
                     .controller();
-            URI uri = ControllerLinkBuilder.linkTo(controller).toUri();
+            URI uri = ControllerLinkBuilder.linkTo(controller, pathParameters)
+                    .toUri();
             return uri;
         } else {
             return null;
