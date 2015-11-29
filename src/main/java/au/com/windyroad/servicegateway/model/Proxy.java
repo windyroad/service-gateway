@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.EntityRelationship;
-import au.com.windyroad.hateoas.core.JavaLink;
-import au.com.windyroad.hateoas.core.NavigationalRelationship;
 import au.com.windyroad.hateoas.core.Relationship;
 import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
@@ -31,9 +29,7 @@ public class Proxy extends ResolvedEntity<Properties> {
     public Proxy(String name, String target) throws NoSuchMethodException,
             SecurityException, IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
-        super(new Properties());
-        super.add(new NavigationalRelationship(new JavaLink(this, name),
-                Relationship.SELF));
+        super(new Properties(), name);
         getProperties().setProperty(NAME, name);
         getProperties().setProperty(TARGET, target);
     }
