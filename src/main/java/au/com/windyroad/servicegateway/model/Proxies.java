@@ -40,29 +40,33 @@ public class Proxies {
         Stream<EntityRelationship<?>> items = entity.getEntities().stream()
                 .filter(e -> e.hasNature(Relationship.ITEM));
         Optional<EntityRelationship<?>> existingProxy = items
-                .filter(e -> ((Proxy) (e.getEntity())).getProperties()
-                        .getProperty("name") != null
-                        && ((Proxy) (e.getEntity())).getProperties()
-                                .getProperty("name").equals(proxyPath))
+                .filter(e -> ((ResolvedEntity<Proxy>) (e.getEntity()))
+                        .getProperties().getProperty("name") != null
+                        && ((ResolvedEntity<Proxy>) (e.getEntity()))
+                                .getProperties().getProperty("name")
+                                .equals(proxyPath))
                 .findAny();
 
         if (existingProxy.isPresent()) {
             return existingProxy.get().getEntity();
         } else {
-            Proxy proxy = new Proxy(proxyPath, targetEndPoint);
+            ResolvedEntity<Proxy> proxy = new ResolvedEntity<Proxy>(
+                    new Proxy(proxyPath, targetEndPoint), proxyPath);
             entity.addEntity(
                     new EntityRelationship<>(proxy, Relationship.ITEM));
             return proxy;
         }
     }
 
-    public Proxy getProxy(ResolvedEntity<Proxies> entity, String path) {
-        return (Proxy) entity.getEntities().stream()
+    public ResolvedEntity<Proxy> getProxy(
+            ResolvedEntity<Proxies> entity, String path) {
+        return (ResolvedEntity<Proxy>) entity.getEntities().stream()
                 .filter(e -> e.hasNature(Relationship.ITEM))
-                .filter(e -> ((Proxy) (e.getEntity())).getProperties()
-                        .getProperty("name") != null
-                        && ((Proxy) (e.getEntity())).getProperties()
-                                .getProperty("name").equals(path))
+                .filter(e -> ((ResolvedEntity<Proxy>) (e.getEntity()))
+                        .getProperties().getProperty("name") != null
+                        && ((ResolvedEntity<Proxy>) (e.getEntity()))
+                                .getProperties().getProperty("name")
+                                .equals(path))
                 .findAny().get().getEntity();
     }
 

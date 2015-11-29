@@ -39,7 +39,6 @@ import au.com.windyroad.servicegateway.model.Endpoint;
 import au.com.windyroad.servicegateway.model.EndpointProperties;
 import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
-import au.com.windyroad.servicegateway.model.ProxyProperties;
 
 @Component
 @Profile(value = "integration")
@@ -80,7 +79,7 @@ public class RestDriver implements Driver {
     @Autowired
     CloseableHttpAsyncClient httpAsyncClient;
 
-    private ResolvedEntity<ProxyProperties> currentProxy;
+    private ResolvedEntity<Proxy> currentProxy;
 
     private Entity<EndpointProperties> currentEndpoint;
 
@@ -136,7 +135,9 @@ public class RestDriver implements Driver {
         Optional<NavigationalRelationship> selfLink = currentProxy.getLinks()
                 .stream().filter(l -> l.hasNature(Relationship.SELF)).findAny();
         assertTrue(selfLink.isPresent());
-        currentProxy = selfLink.get().getLink().resolve(Proxy.class);
+        ParameterizedTypeReference<ResolvedEntity<Proxy>> type = new ParameterizedTypeReference<ResolvedEntity<Proxy>>() {
+        };
+        currentProxy = selfLink.get().getLink().resolve(type);
         List<EntityRelationship<?>> endpointsRels = currentProxy.getEntities()
                 .stream().collect(Collectors.toList());
 

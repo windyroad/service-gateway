@@ -45,6 +45,7 @@ public class ResolvedEntity<T> extends Entity<T> {
                 add(new JavaAction(method, (Object[]) args));
             }
         }
+        getNatures().add(properties.getClass().getSimpleName());
     }
 
     @Override

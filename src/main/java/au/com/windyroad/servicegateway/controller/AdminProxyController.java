@@ -38,7 +38,8 @@ public class AdminProxyController {
             throws URISyntaxException, NoSuchMethodException, SecurityException,
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException {
-        Proxy proxy = proxies.getProperties().getProxy(proxies, proxyName);
+        ResolvedEntity<Proxy> proxy = proxies.getProperties()
+                .getProxy(proxies, proxyName);
         if (proxy == null) {
             return ResponseEntity.notFound().build();
         }
@@ -58,7 +59,8 @@ public class AdminProxyController {
             @RequestParam Map<String, String> allRequestParams)
                     throws IllegalAccessException, IllegalArgumentException,
                     InvocationTargetException {
-        Proxy proxy = proxies.getProperties().getProxy(proxies, proxyName);
+        ResolvedEntity<Proxy> proxy = proxies.getProperties()
+                .getProxy(proxies, proxyName);
         if (proxy == null) {
             return ResponseEntity.notFound().build();
         }

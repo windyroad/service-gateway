@@ -40,7 +40,7 @@ public class JavaDriver implements Driver {
     @Autowired
     RestTemplate restTemplate;
 
-    private Proxy currentProxy;
+    private ResolvedEntity<Proxy> currentProxy;
 
     private Endpoint currentEndpoint;
 
@@ -66,8 +66,8 @@ public class JavaDriver implements Driver {
             throws NoSuchMethodException, SecurityException,
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
-        this.currentProxy = (Proxy) proxies.getProperties().createProxy(proxies,
-                proxyName, endpoint);
+        this.currentProxy = (ResolvedEntity<Proxy>) proxies
+                .getProperties().createProxy(proxies, proxyName, endpoint);
     }
 
     @Override

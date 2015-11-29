@@ -44,10 +44,10 @@ public class ProxyController {
         private String target;
 
         private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
-        private Proxy proxy;
+        private ResolvedEntity<Proxy> proxy;
 
         public CBack(DeferredResult<ResponseEntity<?>> deferredResult,
-                Proxy proxy, String target) {
+                ResolvedEntity<Proxy> proxy, String target) {
             this.deferredResult = deferredResult;
             this.target = target;
             this.proxy = proxy;
@@ -124,7 +124,8 @@ public class ProxyController {
                     InvocationTargetException, URISyntaxException {
         DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<ResponseEntity<?>>();
 
-        Proxy proxy = proxies.getProperties().getProxy(proxies, name);
+        ResolvedEntity<Proxy> proxy = proxies.getProperties()
+                .getProxy(proxies, name);
         if (proxy != null) {
             String url = (String) request.getAttribute(
                     HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
