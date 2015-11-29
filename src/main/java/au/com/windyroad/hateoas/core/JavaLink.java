@@ -2,6 +2,7 @@ package au.com.windyroad.hateoas.core;
 
 import java.net.URI;
 
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.MediaType;
 
@@ -11,13 +12,13 @@ import au.com.windyroad.hateoas.server.annotations.HateoasController;
 
 public class JavaLink extends Link {
 
-    private ResolvedEntity entity;
+    private ResolvedEntity<?> entity;
     private Object[] parameters;
 
     protected JavaLink() {
     }
 
-    public JavaLink(ResolvedEntity entity, Object... parameters) {
+    public JavaLink(ResolvedEntity<?> entity, Object... parameters) {
         this.entity = entity;
         this.parameters = parameters;
     }
@@ -45,5 +46,10 @@ public class JavaLink extends Link {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public <T> T resolve(ParameterizedTypeReference<T> type) {
+        return (T) entity;
     }
 }

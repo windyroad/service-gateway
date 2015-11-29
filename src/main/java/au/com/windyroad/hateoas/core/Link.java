@@ -3,6 +3,7 @@ package au.com.windyroad.hateoas.core;
 import java.net.URI;
 import java.util.Set;
 
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -21,6 +22,8 @@ abstract public class Link extends Resolvable {
     }
 
     public abstract <T> T resolve(Class<T> type);
+
+    public abstract <T> T resolve(ParameterizedTypeReference<T> type);
 
     @JsonProperty("type")
     public abstract MediaType getRepresentationFormat();

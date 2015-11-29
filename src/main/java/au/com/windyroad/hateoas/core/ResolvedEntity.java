@@ -3,8 +3,9 @@ package au.com.windyroad.hateoas.core;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
+
+import org.springframework.core.ParameterizedTypeReference;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -16,9 +17,9 @@ import com.google.common.collect.ImmutableSet;
         "title" })
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonSerialize(as = ResolvedEntity.class)
-public class ResolvedEntity extends Entity {
+public class ResolvedEntity<T> extends Entity<T> {
 
-    Properties properties = new Properties();
+    T properties;
 
     @JsonProperty("links")
     private Set<NavigationalRelationship> navigationalRelationships = new HashSet<>();
@@ -31,8 +32,13 @@ public class ResolvedEntity extends Entity {
     public ResolvedEntity() {
     }
 
-    public ResolvedEntity(String... args) {
+    public ResolvedEntity(T properties) {
+        this.properties = properties;
+    }
+
+    public ResolvedEntity(T properties, String... args) {
         super(args);
+        this.properties = properties;
         add(new NavigationalRelationship(new JavaLink(this, (Object[]) args),
                 Relationship.SELF));
     }
@@ -56,12 +62,12 @@ public class ResolvedEntity extends Entity {
 
     @Override
     @JsonProperty("entities")
-    public ImmutableSet<EntityRelationship> getEntities() {
+    public ImmutableSet<EntityRelationship<?>> getEntities() {
         return ImmutableSet.copyOf(entityRelationships);
     }
 
     @Override
-    public Properties getProperties() {
+    public T getProperties() {
         return properties;
     }
 
@@ -70,7 +76,7 @@ public class ResolvedEntity extends Entity {
         return ImmutableSet.copyOf(navigationalRelationships);
     }
 
-    public void addEntity(EntityRelationship entityRelationship) {
+    public void addEntity(EntityRelationship<?> entityRelationship) {
         entityRelationships.add(entityRelationship);
     }
 
@@ -83,13 +89,19 @@ public class ResolvedEntity extends Entity {
     }
 
     @Override
-    public ResolvedEntity resolve(Class<? extends ResolvedEntity> type) {
-        return this;
+    public <M, K extends ResolvedEntity<M>> K resolve(Class<K> type) {
+        return (K) this;
     }
 
     @Override
-    public LinkedEntity toLinkedEntity() {
-        return new LinkedEntity(getLink(Relationship.SELF).getAddress(),
+    public LinkedEntity<T> toLinkedEntity() {
+        return new LinkedEntity<T>(getLink(Relationship.SELF).getAddress(),
                 getNatures(), getLabel());
+    }
+
+    @Override
+    public <M, K extends ResolvedEntity<M>> K resolve(
+            ParameterizedTypeReference<K> type) {
+        return (K) this;
     }
 }

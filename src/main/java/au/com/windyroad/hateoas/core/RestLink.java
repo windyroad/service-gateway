@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.eclipse.jdt.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
@@ -37,6 +38,15 @@ public class RestLink extends Link {
 
     @Override
     public <T> T resolve(Class<T> type) {
+        RequestEntity<Void> request = RequestEntity.get(address)
+                .accept(getRepresentationFormat()).build();
+        ResponseEntity<T> response = restTemplate.exchange(address,
+                HttpMethod.GET, request, type);
+        return response.getBody();
+    }
+
+    @Override
+    public <T> T resolve(ParameterizedTypeReference<T> type) {
         RequestEntity<Void> request = RequestEntity.get(address)
                 .accept(getRepresentationFormat()).build();
         ResponseEntity<T> response = restTemplate.exchange(address,

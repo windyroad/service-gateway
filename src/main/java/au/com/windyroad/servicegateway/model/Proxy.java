@@ -3,6 +3,7 @@ package au.com.windyroad.servicegateway.model;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.util.Optional;
+import java.util.Properties;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,17 +19,19 @@ import au.com.windyroad.hateoas.server.annotations.HateoasController;
 import au.com.windyroad.servicegateway.controller.AdminProxyController;
 
 @HateoasController(AdminProxyController.class)
-public class Proxy extends ResolvedEntity {
+public class Proxy extends ResolvedEntity<Properties> {
 
     private static final String TARGET = "target";
     private static final String NAME = "name";
 
     protected Proxy() {
+        super(new Properties());
     }
 
     public Proxy(String name, String target) throws NoSuchMethodException,
             SecurityException, IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
+        super(new Properties());
         super.add(new NavigationalRelationship(new JavaLink(this, name),
                 Relationship.SELF));
         getProperties().setProperty(NAME, name);
@@ -47,19 +50,19 @@ public class Proxy extends ResolvedEntity {
             throws NoSuchMethodException, SecurityException,
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
-        Optional<EntityRelationship> relatedEntity = super.getEntities()
+        Optional<EntityRelationship<?>> relatedEntity = super.getEntities()
                 .stream().filter(e -> e.hasNature(Relationship.ITEM))
-                .filter(e -> e.getEntity().getProperties()
+                .filter(e -> ((Endpoint) (e.getEntity())).getProperties()
                         .getProperty("target") != null
-                        && e.getEntity().getProperties().getProperty("target")
-                                .equals(target))
+                        && ((Endpoint) (e.getEntity())).getProperties()
+                                .getProperty("target").equals(target))
                 .findAny();
         if (!relatedEntity.isPresent()) {
-            super.addEntity(new EntityRelationship(
+            super.addEntity(new EntityRelationship<>(
                     new Endpoint(getName(), target, available),
                     Relationship.ITEM));
         } else {
-            Entity entity = relatedEntity.get().getEntity();
+            Entity<?> entity = relatedEntity.get().getEntity();
             if (entity instanceof Endpoint) {
                 Endpoint endpoint = (Endpoint) entity;
                 endpoint.setAvailable(available);
@@ -69,11 +72,12 @@ public class Proxy extends ResolvedEntity {
 
     public Endpoint getEndpoint(String target) {
         return (Endpoint) super.getEntities().stream()
-                .filter(e -> e.hasNature(Relationship.ITEM))
-                .filter(e -> e.getEntity().getProperties()
+                .filter(e -> e.hasNature(Relationship.ITEM)
+                        && e.getEntity() instanceof Endpoint)
+                .filter(e -> ((Endpoint) (e.getEntity())).getProperties()
                         .getProperty("target") != null
-                        && e.getEntity().getProperties().getProperty("target")
-                                .equals(target))
+                        && ((Endpoint) (e.getEntity())).getProperties()
+                                .getProperty("target").equals(target))
                 .findAny().get().getEntity();
 
     }
@@ -94,7 +98,7 @@ public class Proxy extends ResolvedEntity {
     }
 
     @HateoasAction(nature = HttpMethod.PUT, controller = AdminProxyController.class)
-    public Entity update(@RequestParam("endpoint") String targetEndPoint) {
+    public Proxy update(@RequestParam("endpoint") String targetEndPoint) {
         this.setTarget(targetEndPoint);
         return this;
     }

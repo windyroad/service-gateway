@@ -6,9 +6,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -32,7 +35,9 @@ import au.com.windyroad.hateoas.core.NavigationalRelationship;
 import au.com.windyroad.hateoas.core.Relationship;
 import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
+import au.com.windyroad.servicegateway.model.Endpoint;
 import au.com.windyroad.servicegateway.model.Proxies;
+import au.com.windyroad.servicegateway.model.Proxy;
 
 @Component
 @Profile(value = "integration")
@@ -73,9 +78,9 @@ public class RestDriver implements Driver {
     @Autowired
     CloseableHttpAsyncClient httpAsyncClient;
 
-    private ResolvedEntity currentProxy;
+    private ResolvedEntity<Properties> currentProxy;
 
-    private Entity currentEndpoint;
+    private Entity<Properties> currentEndpoint;
 
     @Override
     public void clearProxies() {
@@ -125,13 +130,23 @@ public class RestDriver implements Driver {
         Optional<NavigationalRelationship> selfLink = currentProxy.getLinks()
                 .stream().filter(l -> l.hasNature(Relationship.SELF)).findAny();
         assertTrue(selfLink.isPresent());
-        currentProxy = selfLink.get().getLink().resolve(ResolvedEntity.class);
-        Optional<EntityRelationship> endpoint = currentProxy.getEntities()
-                .stream().filter(e -> e.getEntity().getProperties()
-                        .getProperty("target").equals(endpointPath))
-                .findAny();
-        assertTrue(endpoint.isPresent());
-        currentEndpoint = endpoint.get().getEntity();
+        currentProxy = selfLink.get().getLink().resolve(Proxy.class);
+        List<EntityRelationship<?>> endpointsRels = currentProxy.getEntities()
+                .stream().collect(Collectors.toList());
+
+        Endpoint endpoint = null;
+        for (EntityRelationship<?> rel : endpointsRels) {
+            Entity<?> entity = rel.getEntity();
+            Endpoint endpointCandidate = entity.resolve(Endpoint.class);
+            if (endpointPath
+                    .equals(endpointCandidate.getProperties().get("target"))) {
+                endpoint = endpointCandidate;
+                break;
+            }
+        }
+
+        assertThat(endpoint, org.hamcrest.Matchers.notNullValue());
+        currentEndpoint = endpoint;
     }
 
     @Override

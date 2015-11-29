@@ -12,8 +12,8 @@ import org.eclipse.jdt.annotation.Nullable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import au.com.windyroad.hateoas.annotations.Nature;
 import au.com.windyroad.hateoas.annotations.Label;
+import au.com.windyroad.hateoas.annotations.Nature;
 import au.com.windyroad.hateoas.server.serialization.MessageSourceAwareSerializer;
 
 abstract public class Resolvable {
@@ -36,16 +36,20 @@ abstract public class Resolvable {
         }
     }
 
-    private String interpolate(CharSequence value, String... args) {
-        Pattern patt = Pattern.compile("\\{(.*?)\\}");
-        Matcher m = patt.matcher(value);
-        StringBuffer sb = new StringBuffer(value.length());
-        for (int i = 0; m.find(); ++i) {
-            String code = m.group(1);
-            m.appendReplacement(sb, Matcher.quoteReplacement(args[i]));
+    private String interpolate(String value, String... args) {
+        if (args.length == 0) {
+            return value;
+        } else {
+            Pattern patt = Pattern.compile("\\{(.*?)\\}");
+            Matcher m = patt.matcher(value);
+            StringBuffer sb = new StringBuffer(value.length());
+            for (int i = 0; m.find(); ++i) {
+                String code = m.group(1);
+                m.appendReplacement(sb, Matcher.quoteReplacement(args[i]));
+            }
+            m.appendTail(sb);
+            return sb.toString();
         }
-        m.appendTail(sb);
-        return sb.toString();
     }
 
     public Resolvable(Set<String> natures, String label) {

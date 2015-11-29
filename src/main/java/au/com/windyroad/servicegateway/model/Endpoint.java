@@ -2,6 +2,7 @@ package au.com.windyroad.servicegateway.model;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
+import java.util.Properties;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -12,16 +13,17 @@ import au.com.windyroad.servicegateway.controller.AdminEndpointController;
 
 @HateoasController(AdminEndpointController.class)
 @Label("Endpoint `{proxyName}/{target}`")
-public class Endpoint extends ResolvedEntity {
+public class Endpoint extends ResolvedEntity<Properties> {
 
     protected Endpoint() {
+        super(new Properties());
     }
 
     public Endpoint(String proxyName, String target, boolean available)
             throws NoSuchMethodException, SecurityException,
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
-        super(proxyName, target);
+        super(new Properties(), proxyName, target);
 
         this.getProperties().setProperty("target", target);
         this.getProperties().setProperty("available",
