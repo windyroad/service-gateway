@@ -2,9 +2,6 @@ package au.com.windyroad.servicegateway.model;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
-import java.util.Properties;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import au.com.windyroad.hateoas.annotations.Label;
 import au.com.windyroad.hateoas.core.ResolvedEntity;
@@ -13,31 +10,20 @@ import au.com.windyroad.servicegateway.controller.AdminEndpointController;
 
 @HateoasController(AdminEndpointController.class)
 @Label("Endpoint `{proxyName}/{target}`")
-public class Endpoint extends ResolvedEntity<Properties> {
+public class Endpoint extends ResolvedEntity<EndpointProperties> {
 
     protected Endpoint() {
-        super(new Properties());
+        super(new EndpointProperties());
     }
 
     public Endpoint(String proxyName, String target, boolean available)
             throws NoSuchMethodException, SecurityException,
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
-        super(new Properties(), proxyName, target);
+        super(new EndpointProperties(), proxyName, target);
 
         this.getProperties().setProperty("target", target);
         this.getProperties().setProperty("available",
                 Boolean.toString(available));
-    }
-
-    public void setAvailable(boolean available) {
-        this.getProperties().setProperty("available",
-                Boolean.toString(available));
-    }
-
-    @JsonIgnore
-    public boolean isAvailable() {
-        return Boolean
-                .parseBoolean(this.getProperties().getProperty("available"));
     }
 }

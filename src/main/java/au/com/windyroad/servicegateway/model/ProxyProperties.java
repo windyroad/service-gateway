@@ -62,7 +62,7 @@ public class ProxyProperties extends Properties {
             Entity<?> childEntity = relatedEntity.get().getEntity();
             if (childEntity instanceof Endpoint) {
                 Endpoint endpoint = (Endpoint) childEntity;
-                endpoint.setAvailable(available);
+                endpoint.getProperties().setAvailable(available);
             }
         }
     }

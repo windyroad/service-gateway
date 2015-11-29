@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
@@ -36,6 +35,7 @@ import au.com.windyroad.hateoas.core.Relationship;
 import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.model.Endpoint;
+import au.com.windyroad.servicegateway.model.EndpointProperties;
 import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
 import au.com.windyroad.servicegateway.model.ProxyProperties;
@@ -81,7 +81,7 @@ public class RestDriver implements Driver {
 
     private ResolvedEntity<ProxyProperties> currentProxy;
 
-    private Entity<Properties> currentEndpoint;
+    private Entity<EndpointProperties> currentEndpoint;
 
     @Override
     public void clearProxies() {

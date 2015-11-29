@@ -87,7 +87,7 @@ public class JavaDriver implements Driver {
 
     @Override
     public void checkCurrentEndpointAvailable() {
-        assertTrue(currentEndpoint.isAvailable());
+        assertTrue(currentEndpoint.getProperties().isAvailable());
 
     }
 
