@@ -32,10 +32,6 @@ public class ResolvedEntity<T> extends Entity<T> {
     public ResolvedEntity() {
     }
 
-    public ResolvedEntity(T properties) {
-        this.properties = properties;
-    }
-
     public ResolvedEntity(T properties, String... args) {
         super(args);
         this.properties = properties;
