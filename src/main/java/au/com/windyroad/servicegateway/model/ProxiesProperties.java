@@ -9,7 +9,6 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -22,14 +21,13 @@ import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 import au.com.windyroad.hateoas.server.annotations.HateoasController;
 import au.com.windyroad.servicegateway.controller.AdminProxiesController;
 
-@Component
 @HateoasController(AdminProxiesController.class)
 public class ProxiesProperties extends Properties {
 
     @JsonIgnore
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-    protected ProxiesProperties() throws IllegalAccessException,
+    public ProxiesProperties() throws IllegalAccessException,
             IllegalArgumentException, InvocationTargetException,
             NoSuchMethodException, SecurityException {
     }

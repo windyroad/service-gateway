@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -37,6 +38,9 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
+
+import au.com.windyroad.hateoas.core.ResolvedEntity;
+import au.com.windyroad.servicegateway.model.ProxiesProperties;
 
 @SpringBootApplication
 @EnableAutoConfiguration
@@ -190,6 +194,14 @@ public class ServiceGatewayApplication {
         messageSource.setBasename("classpath:locale/messages");
         messageSource.setCacheSeconds(3600); // refresh cache once per hour
         return messageSource;
+    }
+
+    @Bean
+    public ResolvedEntity<ProxiesProperties> proxies()
+            throws IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException, NoSuchMethodException,
+            SecurityException {
+        return new ResolvedEntity<ProxiesProperties>(new ProxiesProperties());
     }
 
 }

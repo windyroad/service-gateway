@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +37,7 @@ import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.model.Endpoint;
 import au.com.windyroad.servicegateway.model.EndpointProperties;
-import au.com.windyroad.servicegateway.model.Proxies;
+import au.com.windyroad.servicegateway.model.ProxiesProperties;
 import au.com.windyroad.servicegateway.model.Proxy;
 import au.com.windyroad.servicegateway.model.ProxyProperties;
 
@@ -108,11 +109,15 @@ public class RestDriver implements Driver {
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException {
 
-        ResponseEntity<Proxies> response = restTemplate.exchange(
-                RequestEntity.get(new URI("https://localhost:"
-                        + config.getPort() + "/admin/proxies")).build(),
-                Proxies.class);
-        Proxies proxies = response.getBody();
+        ParameterizedTypeReference<ResolvedEntity<ProxiesProperties>> type = new ParameterizedTypeReference<ResolvedEntity<ProxiesProperties>>() {
+        };
+        ResponseEntity<ResolvedEntity<ProxiesProperties>> response = restTemplate
+                .exchange(
+                        RequestEntity
+                                .get(new URI("https://localhost:"
+                                        + config.getPort() + "/admin/proxies"))
+                        .build(), type);
+        ResolvedEntity<ProxiesProperties> proxies = response.getBody();
         Map<String, String> context = new HashMap<>();
         context.put("proxyName", proxyName);
         context.put("endpoint", endpoint);

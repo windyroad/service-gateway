@@ -28,7 +28,8 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.servlet.HandlerMapping;
 
-import au.com.windyroad.servicegateway.model.Proxies;
+import au.com.windyroad.hateoas.core.ResolvedEntity;
+import au.com.windyroad.servicegateway.model.ProxiesProperties;
 import au.com.windyroad.servicegateway.model.Proxy;
 
 @Controller
@@ -36,7 +37,7 @@ public class ProxyController {
     public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    Proxies proxies;
+    ResolvedEntity<ProxiesProperties> proxies;
 
     private static class CBack implements FutureCallback<HttpResponse> {
         private DeferredResult<ResponseEntity<?>> deferredResult;

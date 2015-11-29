@@ -12,8 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.servicegateway.model.Endpoint;
-import au.com.windyroad.servicegateway.model.Proxies;
+import au.com.windyroad.servicegateway.model.ProxiesProperties;
 import au.com.windyroad.servicegateway.model.Proxy;
 
 @Controller
@@ -21,7 +22,7 @@ import au.com.windyroad.servicegateway.model.Proxy;
 public class AdminEndpointController {
 
     @Autowired
-    Proxies proxies;
+    ResolvedEntity<ProxiesProperties> proxies;
 
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
