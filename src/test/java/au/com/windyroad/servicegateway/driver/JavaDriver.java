@@ -22,7 +22,7 @@ import org.springframework.web.client.RestTemplate;
 import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.model.Endpoint;
-import au.com.windyroad.servicegateway.model.ProxiesProperties;
+import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
 
 @Component
@@ -32,7 +32,7 @@ public class JavaDriver implements Driver {
     public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    ResolvedEntity<ProxiesProperties> proxies;
+    ResolvedEntity<Proxies> proxies;
 
     @Autowired
     ServiceGatewayTestConfiguration config;

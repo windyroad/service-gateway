@@ -37,7 +37,7 @@ import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.model.Endpoint;
 import au.com.windyroad.servicegateway.model.EndpointProperties;
-import au.com.windyroad.servicegateway.model.ProxiesProperties;
+import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
 import au.com.windyroad.servicegateway.model.ProxyProperties;
 
@@ -109,15 +109,15 @@ public class RestDriver implements Driver {
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException {
 
-        ParameterizedTypeReference<ResolvedEntity<ProxiesProperties>> type = new ParameterizedTypeReference<ResolvedEntity<ProxiesProperties>>() {
+        ParameterizedTypeReference<ResolvedEntity<Proxies>> type = new ParameterizedTypeReference<ResolvedEntity<Proxies>>() {
         };
-        ResponseEntity<ResolvedEntity<ProxiesProperties>> response = restTemplate
+        ResponseEntity<ResolvedEntity<Proxies>> response = restTemplate
                 .exchange(
                         RequestEntity
                                 .get(new URI("https://localhost:"
                                         + config.getPort() + "/admin/proxies"))
                         .build(), type);
-        ResolvedEntity<ProxiesProperties> proxies = response.getBody();
+        ResolvedEntity<Proxies> proxies = response.getBody();
         Map<String, String> context = new HashMap<>();
         context.put("proxyName", proxyName);
         context.put("endpoint", endpoint);

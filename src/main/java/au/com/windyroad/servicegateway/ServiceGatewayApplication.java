@@ -40,7 +40,7 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import au.com.windyroad.hateoas.core.ResolvedEntity;
-import au.com.windyroad.servicegateway.model.ProxiesProperties;
+import au.com.windyroad.servicegateway.model.Proxies;
 
 @SpringBootApplication
 @EnableAutoConfiguration
@@ -197,11 +197,11 @@ public class ServiceGatewayApplication {
     }
 
     @Bean
-    public ResolvedEntity<ProxiesProperties> proxies()
+    public ResolvedEntity<Proxies> proxies()
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, NoSuchMethodException,
             SecurityException {
-        return new ResolvedEntity<ProxiesProperties>(new ProxiesProperties());
+        return new ResolvedEntity<Proxies>(new Proxies());
     }
 
 }

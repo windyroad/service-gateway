@@ -3,7 +3,6 @@ package au.com.windyroad.servicegateway.model;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -22,18 +21,16 @@ import au.com.windyroad.hateoas.server.annotations.HateoasController;
 import au.com.windyroad.servicegateway.controller.AdminProxiesController;
 
 @HateoasController(AdminProxiesController.class)
-public class ProxiesProperties extends Properties {
+public class Proxies {
 
     @JsonIgnore
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-    public ProxiesProperties() throws IllegalAccessException,
-            IllegalArgumentException, InvocationTargetException,
-            NoSuchMethodException, SecurityException {
+    public Proxies() {
     }
 
     @HateoasAction(nature = HttpMethod.POST, controller = AdminProxiesController.class)
-    public Entity createProxy(ResolvedEntity<ProxiesProperties> entity,
+    public Entity createProxy(ResolvedEntity<Proxies> entity,
             @RequestParam("proxyName") String proxyPath,
             @RequestParam("endpoint") String targetEndPoint)
                     throws NoSuchMethodException, SecurityException,
@@ -59,8 +56,7 @@ public class ProxiesProperties extends Properties {
         }
     }
 
-    public Proxy getProxy(ResolvedEntity<ProxiesProperties> entity,
-            String path) {
+    public Proxy getProxy(ResolvedEntity<Proxies> entity, String path) {
         return (Proxy) entity.getEntities().stream()
                 .filter(e -> e.hasNature(Relationship.ITEM))
                 .filter(e -> ((Proxy) (e.getEntity())).getProperties()

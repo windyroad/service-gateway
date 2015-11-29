@@ -96,7 +96,7 @@ public class ProxyProperties extends Properties {
     }
 
     @HateoasAction(nature = HttpMethod.PUT, controller = AdminProxyController.class)
-    public ProxyProperties update(ResolvedEntity<ProxiesProperties> entity,
+    public ProxyProperties update(ResolvedEntity<Proxies> entity,
             @RequestParam("endpoint") String targetEndPoint) {
         this.setTarget(targetEndPoint);
         return this;

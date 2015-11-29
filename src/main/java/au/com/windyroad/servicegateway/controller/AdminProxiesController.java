@@ -23,7 +23,7 @@ import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.MediaTypes;
 import au.com.windyroad.hateoas.core.Relationship;
 import au.com.windyroad.hateoas.core.ResolvedEntity;
-import au.com.windyroad.servicegateway.model.ProxiesProperties;
+import au.com.windyroad.servicegateway.model.Proxies;
 
 @Controller
 @RequestMapping(value = "/admin/proxies")
@@ -31,7 +31,7 @@ public class AdminProxiesController {
     public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    ResolvedEntity<ProxiesProperties> proxies;
+    ResolvedEntity<Proxies> proxies;
 
     @RequestMapping(method = RequestMethod.GET, produces = {
             MediaTypes.SIREN_JSON_VALUE, MediaType.APPLICATION_JSON_VALUE })
