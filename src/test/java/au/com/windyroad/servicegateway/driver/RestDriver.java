@@ -36,7 +36,6 @@ import au.com.windyroad.hateoas.core.Relationship;
 import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.model.Endpoint;
-import au.com.windyroad.servicegateway.model.EndpointProperties;
 import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
 
@@ -81,7 +80,7 @@ public class RestDriver implements Driver {
 
     private ResolvedEntity<Proxy> currentProxy;
 
-    private Entity<EndpointProperties> currentEndpoint;
+    private Entity<Endpoint> currentEndpoint;
 
     @Override
     public void clearProxies() {
@@ -141,10 +140,13 @@ public class RestDriver implements Driver {
         List<EntityRelationship<?>> endpointsRels = currentProxy.getEntities()
                 .stream().collect(Collectors.toList());
 
-        Endpoint endpoint = null;
+        ResolvedEntity<Endpoint> endpoint = null;
         for (EntityRelationship<?> rel : endpointsRels) {
             Entity<?> entity = rel.getEntity();
-            Endpoint endpointCandidate = entity.resolve(Endpoint.class);
+            ParameterizedTypeReference<ResolvedEntity<Endpoint>> endpointType = new ParameterizedTypeReference<ResolvedEntity<Endpoint>>() {
+            };
+            ResolvedEntity<Endpoint> endpointCandidate = entity
+                    .resolve(endpointType);
             if (endpointPath
                     .equals(endpointCandidate.getProperties().get("target"))) {
                 endpoint = endpointCandidate;

@@ -42,7 +42,7 @@ public class JavaDriver implements Driver {
 
     private ResolvedEntity<Proxy> currentProxy;
 
-    private Endpoint currentEndpoint;
+    private ResolvedEntity<Endpoint> currentEndpoint;
 
     @Override
     public void clearProxies() {
@@ -66,8 +66,8 @@ public class JavaDriver implements Driver {
             throws NoSuchMethodException, SecurityException,
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
-        this.currentProxy = (ResolvedEntity<Proxy>) proxies
-                .getProperties().createProxy(proxies, proxyName, endpoint);
+        this.currentProxy = (ResolvedEntity<Proxy>) proxies.getProperties()
+                .createProxy(proxies, proxyName, endpoint);
     }
 
     @Override
@@ -80,8 +80,8 @@ public class JavaDriver implements Driver {
 
     @Override
     public void checkEndpointExists(String path, String endpointName) {
-        Endpoint endpoint = currentProxy.getProperties()
-                .getEndpoint(currentProxy, endpointName);
+        ResolvedEntity<Endpoint> endpoint = currentProxy
+                .getProperties().getEndpoint(currentProxy, endpointName);
         currentEndpoint = endpoint;
 
     }

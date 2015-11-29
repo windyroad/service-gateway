@@ -32,8 +32,12 @@ abstract public class Resolvable {
 
         Label titleAnnotation = this.getClass().getAnnotation(Label.class);
         if (titleAnnotation != null) {
-            label = interpolate(titleAnnotation.value(), args);
+            setTitle(titleAnnotation.value(), args);
         }
+    }
+
+    void setTitle(String template, String... args) {
+        label = interpolate(template, args);
     }
 
     private String interpolate(String value, String... args) {

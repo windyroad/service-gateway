@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableSet;
 
+import au.com.windyroad.hateoas.annotations.Label;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 
 @JsonPropertyOrder({ "class", "properties", "entities", "actions", "links",
@@ -46,6 +47,12 @@ public class ResolvedEntity<T> extends Entity<T> {
             }
         }
         getNatures().add(properties.getClass().getSimpleName());
+
+        Label titleAnnotation = properties.getClass()
+                .getAnnotation(Label.class);
+        if (titleAnnotation != null) {
+            setTitle(titleAnnotation.value(), args);
+        }
     }
 
     @Override

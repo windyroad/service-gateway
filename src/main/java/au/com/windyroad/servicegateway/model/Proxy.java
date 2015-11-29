@@ -25,9 +25,8 @@ public class Proxy extends Properties {
     protected Proxy() {
     }
 
-    public Proxy(String name, String target)
-            throws NoSuchMethodException, SecurityException,
-            IllegalAccessException, IllegalArgumentException,
+    public Proxy(String name, String target) throws NoSuchMethodException,
+            SecurityException, IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
         setProperty(NAME, name);
         setProperty(TARGET, target);
@@ -41,40 +40,47 @@ public class Proxy extends Properties {
         this.setProperty(TARGET, target);
     }
 
-    public void setEndpoint(ResolvedEntity<Proxy> entity,
-            String target, boolean available)
-                    throws NoSuchMethodException, SecurityException,
+    public void setEndpoint(ResolvedEntity<Proxy> entity, String target,
+            boolean available) throws NoSuchMethodException, SecurityException,
                     IllegalAccessException, IllegalArgumentException,
                     InvocationTargetException, URISyntaxException {
         Optional<EntityRelationship<?>> relatedEntity = entity.getEntities()
                 .stream().filter(e -> e.hasNature(Relationship.ITEM))
-                .filter(e -> ((Endpoint) (e.getEntity())).getProperties()
-                        .getProperty("target") != null
-                        && ((Endpoint) (e.getEntity())).getProperties()
-                                .getProperty("target").equals(target))
+                .filter(e -> ((ResolvedEntity<Endpoint>) (e
+                        .getEntity())).getProperties()
+                                .getProperty("target") != null
+                        && ((ResolvedEntity<Endpoint>) (e
+                                .getEntity())).getProperties()
+                                        .getProperty("target").equals(target))
                 .findAny();
         if (!relatedEntity.isPresent()) {
             entity.addEntity(new EntityRelationship<>(
-                    new Endpoint(getName(), target, available),
+                    new ResolvedEntity<Endpoint>(
+                            new Endpoint(getName(), target,
+                                    available),
+                            getName(), target),
                     Relationship.ITEM));
         } else {
             Entity<?> childEntity = relatedEntity.get().getEntity();
-            if (childEntity instanceof Endpoint) {
-                Endpoint endpoint = (Endpoint) childEntity;
+            if (childEntity instanceof ResolvedEntity<?>) {
+                ResolvedEntity<Endpoint> endpoint = (ResolvedEntity<Endpoint>) childEntity;
                 endpoint.getProperties().setAvailable(available);
             }
         }
     }
 
-    public Endpoint getEndpoint(ResolvedEntity<Proxy> entity,
-            String target) {
-        return (Endpoint) entity.getEntities().stream()
+    public ResolvedEntity<Endpoint> getEndpoint(
+            ResolvedEntity<Proxy> entity, String target) {
+        return (ResolvedEntity<Endpoint>) entity.getEntities()
+                .stream()
                 .filter(e -> e.hasNature(Relationship.ITEM)
-                        && e.getEntity() instanceof Endpoint)
-                .filter(e -> ((Endpoint) (e.getEntity())).getProperties()
-                        .getProperty("target") != null
-                        && ((Endpoint) (e.getEntity())).getProperties()
-                                .getProperty("target").equals(target))
+                        && e.getEntity() instanceof ResolvedEntity<?>)
+                .filter(e -> ((ResolvedEntity<Endpoint>) (e
+                        .getEntity())).getProperties()
+                                .getProperty("target") != null
+                        && ((ResolvedEntity<Endpoint>) (e
+                                .getEntity())).getProperties()
+                                        .getProperty("target").equals(target))
                 .findAny().get().getEntity();
 
     }
