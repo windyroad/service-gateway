@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableSet;
 
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 import au.com.windyroad.servicegateway.model.ProxiesProperties;
+import au.com.windyroad.servicegateway.model.ProxyProperties;
 
 @JsonPropertyOrder({ "class", "properties", "entities", "actions", "links",
         "title" })
@@ -39,7 +40,8 @@ public class ResolvedEntity<T> extends Entity<T> {
     public ResolvedEntity(T properties, String... args) {
         super(args);
         this.properties = properties;
-        if (properties instanceof ProxiesProperties) {
+        if (properties instanceof ProxiesProperties
+                || properties instanceof ProxyProperties) {
             add(new NavigationalRelationship(
                     new JavaLink(properties, (Object[]) args),
                     Relationship.SELF));

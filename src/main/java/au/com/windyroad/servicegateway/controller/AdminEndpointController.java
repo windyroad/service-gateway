@@ -35,7 +35,7 @@ public class AdminEndpointController {
         if (proxy == null) {
             return ResponseEntity.notFound().build();
         }
-        Endpoint endpoint = proxy.getEndpoint(target);
+        Endpoint endpoint = proxy.getProperties().getEndpoint(proxy, target);
 
         ResponseEntity<?> responseEntity = new ResponseEntity<>(endpoint,
                 HttpStatus.OK);

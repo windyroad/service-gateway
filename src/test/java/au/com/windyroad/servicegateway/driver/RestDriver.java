@@ -38,6 +38,7 @@ import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.model.Endpoint;
 import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
+import au.com.windyroad.servicegateway.model.ProxyProperties;
 
 @Component
 @Profile(value = "integration")
@@ -78,7 +79,7 @@ public class RestDriver implements Driver {
     @Autowired
     CloseableHttpAsyncClient httpAsyncClient;
 
-    private ResolvedEntity<Properties> currentProxy;
+    private ResolvedEntity<ProxyProperties> currentProxy;
 
     private Entity<Properties> currentEndpoint;
 

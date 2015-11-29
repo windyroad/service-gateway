@@ -79,7 +79,8 @@ public class JavaDriver implements Driver {
 
     @Override
     public void checkEndpointExists(String path, String endpointName) {
-        Endpoint endpoint = currentProxy.getEndpoint(endpointName);
+        Endpoint endpoint = currentProxy.getProperties()
+                .getEndpoint(currentProxy, endpointName);
         currentEndpoint = endpoint;
 
     }

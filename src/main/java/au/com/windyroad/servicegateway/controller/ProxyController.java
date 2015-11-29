@@ -56,7 +56,7 @@ public class ProxyController {
         public void failed(Exception ex) {
             LOGGER.error("Failure while processing: ", ex);
             try {
-                proxy.setEndpoint(target, false);
+                proxy.getProperties().setEndpoint(proxy, target, false);
             } catch (NoSuchMethodException | SecurityException
                     | IllegalAccessException | IllegalArgumentException
                     | InvocationTargetException | URISyntaxException e) {
@@ -86,7 +86,7 @@ public class ProxyController {
                             httpHeaders, httpStatus);
                 }
                 deferredResult.setResult(responseEntity);
-                proxy.setEndpoint(target, true);
+                proxy.getProperties().setEndpoint(proxy, target, true);
 
             } catch (Exception e) {
                 LOGGER.error("Failure while processing response:", e);
@@ -128,8 +128,9 @@ public class ProxyController {
             String url = (String) request.getAttribute(
                     HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
             String restOfTheUrl = url.replace("/proxy/" + name + "/", "");
-            String target = proxy.getTarget() + "/" + restOfTheUrl;
-            proxy.setEndpoint(restOfTheUrl, false);
+            String target = proxy.getProperties().getTarget() + "/"
+                    + restOfTheUrl;
+            proxy.getProperties().setEndpoint(proxy, restOfTheUrl, false);
 
             httpAsyncClient.start();
             HttpGet newRequest = new HttpGet(target);
