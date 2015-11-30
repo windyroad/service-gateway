@@ -79,9 +79,11 @@ public class JavaDriver implements Driver {
     }
 
     @Override
-    public void checkEndpointExists(String path, String endpointName) {
-        ResolvedEntity<Endpoint> endpoint = currentProxy
-                .getProperties().getEndpoint(currentProxy, endpointName);
+    public void checkEndpointExists(String path, String endpointName)
+            throws IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException {
+        ResolvedEntity<Endpoint> endpoint = currentProxy.getProperties()
+                .getEndpoint(currentProxy, endpointName);
         currentEndpoint = endpoint;
 
     }

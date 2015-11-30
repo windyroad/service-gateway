@@ -2,7 +2,9 @@ package au.com.windyroad.servicegateway.model;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.slf4j.Logger;
@@ -17,6 +19,7 @@ import au.com.windyroad.hateoas.core.EntityRelationship;
 import au.com.windyroad.hateoas.core.Relationship;
 import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
+import au.com.windyroad.hateoas.server.annotations.HateoasChildren;
 import au.com.windyroad.hateoas.server.annotations.HateoasController;
 import au.com.windyroad.servicegateway.controller.AdminProxiesController;
 
@@ -25,6 +28,8 @@ public class Proxies {
 
     @JsonIgnore
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+
+    private Set<EntityRelationship<Proxy>> proxies = new HashSet<>();
 
     public Proxies() {
     }
@@ -37,9 +42,9 @@ public class Proxies {
                     IllegalAccessException, IllegalArgumentException,
                     InvocationTargetException, URISyntaxException {
 
-        Stream<EntityRelationship<?>> items = entity.getEntities().stream()
+        Stream<EntityRelationship<Proxy>> items = proxies.stream()
                 .filter(e -> e.hasNature(Relationship.ITEM));
-        Optional<EntityRelationship<?>> existingProxy = items
+        Optional<EntityRelationship<Proxy>> existingProxy = items
                 .filter(e -> ((ResolvedEntity<Proxy>) (e.getEntity()))
                         .getProperties().getProperty("name") != null
                         && ((ResolvedEntity<Proxy>) (e.getEntity()))
@@ -52,15 +57,15 @@ public class Proxies {
         } else {
             ResolvedEntity<Proxy> proxy = new ResolvedEntity<Proxy>(
                     new Proxy(proxyPath, targetEndPoint), proxyPath);
-            entity.addEntity(
-                    new EntityRelationship<>(proxy, Relationship.ITEM));
+            proxies.add(new EntityRelationship<>(proxy, Relationship.ITEM));
             return proxy;
         }
     }
 
-    public ResolvedEntity<Proxy> getProxy(
-            ResolvedEntity<Proxies> entity, String path) {
-        return (ResolvedEntity<Proxy>) entity.getEntities().stream()
+    public ResolvedEntity<Proxy> getProxy(ResolvedEntity<Proxies> entity,
+            String path) throws IllegalAccessException,
+                    IllegalArgumentException, InvocationTargetException {
+        return (ResolvedEntity<Proxy>) proxies.stream()
                 .filter(e -> e.hasNature(Relationship.ITEM))
                 .filter(e -> ((ResolvedEntity<Proxy>) (e.getEntity()))
                         .getProperties().getProperty("name") != null
@@ -68,6 +73,11 @@ public class Proxies {
                                 .getProperties().getProperty("name")
                                 .equals(path))
                 .findAny().get().getEntity();
+    }
+
+    @HateoasChildren
+    public Set<EntityRelationship<Proxy>> getProxies() {
+        return proxies;
     }
 
 }

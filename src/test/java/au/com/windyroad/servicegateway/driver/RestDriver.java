@@ -130,7 +130,9 @@ public class RestDriver implements Driver {
     }
 
     @Override
-    public void checkEndpointExists(String proxyName, String endpointPath) {
+    public void checkEndpointExists(String proxyName, String endpointPath)
+            throws IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException {
         Optional<NavigationalRelationship> selfLink = currentProxy.getLinks()
                 .stream().filter(l -> l.hasNature(Relationship.SELF)).findAny();
         assertTrue(selfLink.isPresent());

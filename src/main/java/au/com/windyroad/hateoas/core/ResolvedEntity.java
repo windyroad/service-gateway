@@ -1,6 +1,7 @@
 package au.com.windyroad.hateoas.core;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -28,7 +29,6 @@ public class ResolvedEntity<T> extends Entity<T> {
     @JsonProperty("links")
     private Set<NavigationalRelationship> navigationalRelationships = new HashSet<>();
 
-    @JsonProperty("entities")
     private Set<EntityRelationship> entityRelationships = new HashSet<>();
 
     private Map<String, Action> actions = new HashMap<>();
@@ -61,7 +61,6 @@ public class ResolvedEntity<T> extends Entity<T> {
     }
 
     @JsonProperty("actions")
-    // @JsonSerialize(using = ActionAwareSerializer.class)
     public ImmutableSet<Action> getActions() {
         return ImmutableSet.copyOf(actions.values());
     }
@@ -76,6 +75,11 @@ public class ResolvedEntity<T> extends Entity<T> {
     @JsonProperty("entities")
     public ImmutableSet<EntityRelationship<?>> getEntities() {
         return ImmutableSet.copyOf(entityRelationships);
+    }
+
+    public void setEntities(
+            Collection<EntityRelationship<?>> entityRelationships) {
+        this.entityRelationships.addAll(entityRelationships);
     }
 
     @Override
