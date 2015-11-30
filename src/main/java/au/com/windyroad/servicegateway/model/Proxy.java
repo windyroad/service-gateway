@@ -2,8 +2,11 @@ package au.com.windyroad.servicegateway.model;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,6 +16,7 @@ import au.com.windyroad.hateoas.core.EntityRelationship;
 import au.com.windyroad.hateoas.core.Relationship;
 import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
+import au.com.windyroad.hateoas.server.annotations.HateoasChildren;
 import au.com.windyroad.hateoas.server.annotations.HateoasController;
 import au.com.windyroad.servicegateway.controller.AdminProxyController;
 
@@ -21,6 +25,8 @@ public class Proxy extends Properties {
 
     private static final String TARGET = "target";
     private static final String NAME = "name";
+
+    private Set<EntityRelationship<Endpoint>> endpoints = new HashSet<>();
 
     protected Proxy() {
     }
@@ -44,22 +50,18 @@ public class Proxy extends Properties {
             boolean available) throws NoSuchMethodException, SecurityException,
                     IllegalAccessException, IllegalArgumentException,
                     InvocationTargetException, URISyntaxException {
-        Optional<EntityRelationship<?>> relatedEntity = entity.getEntities()
+        Optional<EntityRelationship<Endpoint>> relatedEntity = getEndpoints()
                 .stream().filter(e -> e.hasNature(Relationship.ITEM))
-                .filter(e -> ((ResolvedEntity<Endpoint>) (e
-                        .getEntity())).getProperties()
-                                .getProperty("target") != null
-                        && ((ResolvedEntity<Endpoint>) (e
-                                .getEntity())).getProperties()
-                                        .getProperty("target").equals(target))
+                .filter(e -> ((ResolvedEntity<Endpoint>) (e.getEntity()))
+                        .getProperties().getProperty("target") != null
+                        && ((ResolvedEntity<Endpoint>) (e.getEntity()))
+                                .getProperties().getProperty("target")
+                                .equals(target))
                 .findAny();
         if (!relatedEntity.isPresent()) {
-            entity.addEntity(new EntityRelationship<>(
-                    new ResolvedEntity<Endpoint>(
-                            new Endpoint(getName(), target,
-                                    available),
-                            getName(), target),
-                    Relationship.ITEM));
+            endpoints.add(new EntityRelationship<>(new ResolvedEntity<Endpoint>(
+                    new Endpoint(getName(), target, available), getName(),
+                    target), Relationship.ITEM));
         } else {
             Entity<?> childEntity = relatedEntity.get().getEntity();
             if (childEntity instanceof ResolvedEntity<?>) {
@@ -69,18 +71,16 @@ public class Proxy extends Properties {
         }
     }
 
-    public ResolvedEntity<Endpoint> getEndpoint(
-            ResolvedEntity<Proxy> entity, String target) {
-        return (ResolvedEntity<Endpoint>) entity.getEntities()
-                .stream()
+    public ResolvedEntity<Endpoint> getEndpoint(ResolvedEntity<Proxy> entity,
+            String target) {
+        return (ResolvedEntity<Endpoint>) getEndpoints().stream()
                 .filter(e -> e.hasNature(Relationship.ITEM)
                         && e.getEntity() instanceof ResolvedEntity<?>)
-                .filter(e -> ((ResolvedEntity<Endpoint>) (e
-                        .getEntity())).getProperties()
-                                .getProperty("target") != null
-                        && ((ResolvedEntity<Endpoint>) (e
-                                .getEntity())).getProperties()
-                                        .getProperty("target").equals(target))
+                .filter(e -> ((ResolvedEntity<Endpoint>) (e.getEntity()))
+                        .getProperties().getProperty("target") != null
+                        && ((ResolvedEntity<Endpoint>) (e.getEntity()))
+                                .getProperties().getProperty("target")
+                                .equals(target))
                 .findAny().get().getEntity();
 
     }
@@ -104,7 +104,19 @@ public class Proxy extends Properties {
     public Proxy update(ResolvedEntity<Proxies> entity,
             @RequestParam("endpoint") String targetEndPoint) {
         this.setTarget(targetEndPoint);
+
         return this;
+    }
+
+    @HateoasChildren(Relationship.ITEM)
+    public Set<EntityRelationship<Endpoint>> getEndpoints() {
+        return endpoints;
+    }
+
+    @HateoasChildren(Relationship.ITEM)
+    public void setEndpoints(
+            Collection<EntityRelationship<Endpoint>> endpoints) {
+        this.endpoints.addAll(endpoints);
     }
 
 }

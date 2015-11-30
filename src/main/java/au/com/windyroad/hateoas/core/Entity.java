@@ -1,5 +1,7 @@
 package au.com.windyroad.hateoas.core;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.springframework.core.ParameterizedTypeReference;
 
 import com.google.common.collect.ImmutableSet;
@@ -16,7 +18,9 @@ public abstract class Entity<T> extends Resolvable {
 
     public abstract ImmutableSet<NavigationalRelationship> getLinks();
 
-    public abstract ImmutableSet<EntityRelationship<?>> getEntities();
+    public abstract ImmutableSet<EntityRelationship<?>> getEntities()
+            throws IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException;
 
     public Link getLink(String self) {
         return getLinks().stream().filter(l -> l.hasNature(Relationship.SELF))

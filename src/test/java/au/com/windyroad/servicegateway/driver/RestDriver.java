@@ -1,5 +1,6 @@
 package au.com.windyroad.servicegateway.driver;
 
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import java.lang.reflect.InvocationTargetException;
@@ -156,7 +157,7 @@ public class RestDriver implements Driver {
             }
         }
 
-        assertThat(endpoint, org.hamcrest.Matchers.notNullValue());
+        assertThat(endpoint, notNullValue());
         currentEndpoint = endpoint;
     }
 

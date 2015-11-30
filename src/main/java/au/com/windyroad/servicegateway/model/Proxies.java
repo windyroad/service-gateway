@@ -2,6 +2,7 @@ package au.com.windyroad.servicegateway.model;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -75,9 +76,14 @@ public class Proxies {
                 .findAny().get().getEntity();
     }
 
-    @HateoasChildren
+    @HateoasChildren(Relationship.ITEM)
     public Set<EntityRelationship<Proxy>> getProxies() {
         return proxies;
+    }
+
+    @HateoasChildren(Relationship.ITEM)
+    public void setEndpoints(Collection<EntityRelationship<Proxy>> proxies) {
+        this.proxies.addAll(proxies);
     }
 
 }

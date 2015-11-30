@@ -1,5 +1,6 @@
 package au.com.windyroad.hateoas.core;
 
+import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.Set;
 
@@ -70,7 +71,9 @@ public class LinkedEntity<T> extends Entity<T> {
 
     @Override
     @JsonIgnore
-    public ImmutableSet<EntityRelationship<?>> getEntities() {
+    public ImmutableSet<EntityRelationship<?>> getEntities()
+            throws IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException {
         return resolve(getType()).getEntities();
     }
 

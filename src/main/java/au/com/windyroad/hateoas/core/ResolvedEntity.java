@@ -1,11 +1,15 @@
 package au.com.windyroad.hateoas.core;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.core.ParameterizedTypeReference;
 
@@ -17,6 +21,7 @@ import com.google.common.collect.ImmutableSet;
 
 import au.com.windyroad.hateoas.annotations.Label;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
+import au.com.windyroad.hateoas.server.annotations.HateoasChildren;
 
 @JsonPropertyOrder({ "class", "properties", "entities", "actions", "links",
         "title" })
@@ -28,8 +33,6 @@ public class ResolvedEntity<T> extends Entity<T> {
 
     @JsonProperty("links")
     private Set<NavigationalRelationship> navigationalRelationships = new HashSet<>();
-
-    private Set<EntityRelationship> entityRelationships = new HashSet<>();
 
     private Map<String, Action> actions = new HashMap<>();
 
@@ -73,13 +76,44 @@ public class ResolvedEntity<T> extends Entity<T> {
 
     @Override
     @JsonProperty("entities")
-    public ImmutableSet<EntityRelationship<?>> getEntities() {
+    public ImmutableSet<EntityRelationship<?>> getEntities()
+            throws IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException {
+        Set<EntityRelationship<?>> entityRelationships = new HashSet<>();
+        if (properties != null) {
+            for (Method method : properties.getClass().getMethods()) {
+                HateoasChildren hateoasChildren = method
+                        .getAnnotation(HateoasChildren.class);
+                if (hateoasChildren != null
+                        && method.getParameterTypes().length == 0) {
+                    entityRelationships
+                            .addAll((Collection<EntityRelationship<?>>) method
+                                    .invoke(properties));
+                }
+            }
+        }
         return ImmutableSet.copyOf(entityRelationships);
     }
 
     public void setEntities(
-            Collection<EntityRelationship<?>> entityRelationships) {
-        this.entityRelationships.addAll(entityRelationships);
+            Collection<EntityRelationship<?>> entityRelationships)
+                    throws IllegalAccessException, IllegalArgumentException,
+                    InvocationTargetException {
+        if (properties != null) {
+            for (Method method : properties.getClass().getMethods()) {
+                HateoasChildren hateoasChildren = method
+                        .getAnnotation(HateoasChildren.class);
+                if (hateoasChildren != null
+                        && method.getParameterTypes().length != 0) {
+                    List<EntityRelationship<?>> entityRels = entityRelationships
+                            .stream()
+                            .filter(e -> Arrays.asList(e.getNature())
+                                    .contains(hateoasChildren.value()))
+                            .collect(Collectors.toList());
+                    method.invoke(properties, entityRels);
+                }
+            }
+        }
     }
 
     @Override
@@ -90,10 +124,6 @@ public class ResolvedEntity<T> extends Entity<T> {
     @Override
     public ImmutableSet<NavigationalRelationship> getLinks() {
         return ImmutableSet.copyOf(navigationalRelationships);
-    }
-
-    public void addEntity(EntityRelationship<?> entityRelationship) {
-        entityRelationships.add(entityRelationship);
     }
 
     protected void add(Action action) {
