@@ -116,8 +116,8 @@ public class RestDriver implements Driver {
         Map<String, String> context = new HashMap<>();
         context.put("proxyName", proxyName);
         context.put("endpoint", endpoint);
-        Entity<?> createResponse = proxies.getAction("createProxy")
-                .invoke(proxies, context);
+        Entity createResponse = proxies.getAction("createProxy").invoke(proxies,
+                context);
         ParameterizedTypeReference<ResolvedEntity<Proxy>> proxyType = new ParameterizedTypeReference<ResolvedEntity<Proxy>>() {
         };
 
@@ -138,7 +138,7 @@ public class RestDriver implements Driver {
         ParameterizedTypeReference<ResolvedEntity<Proxy>> type = new ParameterizedTypeReference<ResolvedEntity<Proxy>>() {
         };
         currentProxy = currentProxy.toLinkedEntity().resolve(type);
-        Entity<Endpoint> endpoint = currentProxy.getProperties()
+        Entity endpoint = currentProxy.getProperties()
                 .getEndpoint(endpointPath);
 
         assertThat(endpoint, notNullValue());

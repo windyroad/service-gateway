@@ -4,7 +4,7 @@ import org.springframework.core.ParameterizedTypeReference;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public abstract class Entity<T> extends Resolvable {
+public abstract class Entity extends Resolvable {
 
     public Entity(String... args) {
         super(args);
@@ -17,6 +17,6 @@ public abstract class Entity<T> extends Resolvable {
             ParameterizedTypeReference<ResolvedEntity<K>> type);
 
     @JsonIgnore
-    public abstract LinkedEntity<T> toLinkedEntity();
+    public abstract LinkedEntity toLinkedEntity();
 
 }

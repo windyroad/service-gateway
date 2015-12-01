@@ -7,25 +7,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class LinkedEntity<T> extends Entity<T> {
+public class LinkedEntity extends Entity {
     private Link link;
-    private RestTemplate restTemplate;
 
     @Autowired
     public void setApplicationContext(ApplicationContext context) {
         AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
         bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
         bpp.processInjection(this.link);
-    }
-
-    @Autowired
-    public void setRestTemplate(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
     }
 
     public LinkedEntity(@JsonProperty("href") URI address,
@@ -63,14 +56,8 @@ public class LinkedEntity<T> extends Entity<T> {
         return link.getAddress();
     }
 
-    ParameterizedTypeReference<ResolvedEntity<T>> getType() {
-        ParameterizedTypeReference<ResolvedEntity<T>> type = new ParameterizedTypeReference<ResolvedEntity<T>>() {
-        };
-        return type;
-    }
-
     @Override
-    public LinkedEntity<T> toLinkedEntity() {
+    public LinkedEntity toLinkedEntity() {
         return this;
     }
 }

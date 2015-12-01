@@ -87,7 +87,7 @@ public class JavaDriver implements Driver {
     public void checkEndpointExists(String path, String endpointName)
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException {
-        Entity<Endpoint> endpoint = currentProxy.getProperties()
+        Entity endpoint = currentProxy.getProperties()
                 .getEndpoint(endpointName);
         assertThat(endpoint, notNullValue());
         ParameterizedTypeReference<ResolvedEntity<Endpoint>> type = new ParameterizedTypeReference<ResolvedEntity<Endpoint>>() {

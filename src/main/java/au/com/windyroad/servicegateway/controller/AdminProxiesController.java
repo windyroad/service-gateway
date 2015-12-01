@@ -60,7 +60,7 @@ public class AdminProxiesController {
                     IllegalArgumentException, InvocationTargetException {
         au.com.windyroad.hateoas.core.Action action = proxies
                 .getAction(allRequestParams.get("trigger"));
-        LinkedEntity<?> result = action.invoke(proxies, allRequestParams)
+        LinkedEntity result = action.invoke(proxies, allRequestParams)
                 .toLinkedEntity();
         return ResponseEntity.created(result.getAddress()).build();
     }

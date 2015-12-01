@@ -31,7 +31,7 @@ import au.com.windyroad.hateoas.server.annotations.HateoasController;
 @JsonPropertyOrder({ "class", "properties", "entities", "actions", "links",
         "title" })
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class ResolvedEntity<T> extends Entity<T> {
+public class ResolvedEntity<T> extends Entity {
 
     public static URI buildUrl(Class<?> type, Object... parameters) {
         Class<?> controller = type.getAnnotation(HateoasController.class)
@@ -89,16 +89,16 @@ public class ResolvedEntity<T> extends Entity<T> {
     }
 
     @JsonProperty("entities")
-    public ImmutableSet<EntityRelationship<?>> getEntities()
+    public ImmutableSet<EntityRelationship> getEntities()
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException {
         return getEntities(0);
     }
 
-    public ImmutableSet<EntityRelationship<?>> getEntities(int page)
+    public ImmutableSet<EntityRelationship> getEntities(int page)
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException {
-        Set<EntityRelationship<?>> entityRelationships = new HashSet<>();
+        Set<EntityRelationship> entityRelationships = new HashSet<>();
         if (properties != null) {
             for (Method method : properties.getClass().getMethods()) {
                 HateoasChildren hateoasChildren = method
@@ -109,9 +109,8 @@ public class ResolvedEntity<T> extends Entity<T> {
                     if (entities instanceof Collection) {
                         Collection<?> entityCollection = (Collection<?>) entities;
                         for (Object entity : entityCollection) {
-                            entityRelationships.add(
-                                    new EntityRelationship<>((Entity<?>) entity,
-                                            hateoasChildren.value()));
+                            entityRelationships.add(new EntityRelationship(
+                                    (Entity) entity, hateoasChildren.value()));
                         }
                     } else {
                         throw new RuntimeException("unknown entity collection: "
@@ -161,17 +160,16 @@ public class ResolvedEntity<T> extends Entity<T> {
         bpp.processInjection(properties);
     }
 
-    public void setEntities(
-            Collection<EntityRelationship<?>> entityRelationships)
-                    throws IllegalAccessException, IllegalArgumentException,
-                    InvocationTargetException {
+    public void setEntities(Collection<EntityRelationship> entityRelationships)
+            throws IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException {
         if (properties != null) {
             for (Method method : properties.getClass().getMethods()) {
                 HateoasChildren hateoasChildren = method
                         .getAnnotation(HateoasChildren.class);
                 if (hateoasChildren != null
                         && method.getParameterTypes().length != 0) {
-                    List<LinkedEntity<?>> entities = new ArrayList<>();
+                    List<LinkedEntity> entities = new ArrayList<>();
                     entityRelationships.stream()
                             .filter(e -> Arrays.asList(e.getNature())
                                     .contains(hateoasChildren.value()))
@@ -185,9 +183,9 @@ public class ResolvedEntity<T> extends Entity<T> {
     }
 
     @Override
-    public LinkedEntity<T> toLinkedEntity() {
-        LinkedEntity<T> linkedEntity = new LinkedEntity<T>(
-                getLink(Relationship.SELF), getNatures(), getLabel());
+    public LinkedEntity toLinkedEntity() {
+        LinkedEntity linkedEntity = new LinkedEntity(getLink(Relationship.SELF),
+                getNatures(), getLabel());
         AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
         bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
         bpp.processInjection(linkedEntity);

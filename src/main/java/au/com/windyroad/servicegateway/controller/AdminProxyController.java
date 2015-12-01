@@ -39,7 +39,7 @@ public class AdminProxyController {
             throws URISyntaxException, NoSuchMethodException, SecurityException,
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException {
-        Entity<Proxy> proxy = proxies.getProperties().getProxy(proxyName);
+        Entity proxy = proxies.getProperties().getProxy(proxyName);
         if (proxy == null) {
             return ResponseEntity.notFound().build();
         }
@@ -69,7 +69,7 @@ public class AdminProxyController {
         }
         au.com.windyroad.hateoas.core.Action action = proxy
                 .getAction(allRequestParams.get("trigger"));
-        LinkedEntity<?> result = action.invoke(proxy, allRequestParams)
+        LinkedEntity result = action.invoke(proxy, allRequestParams)
                 .toLinkedEntity();
         return ResponseEntity.noContent().location(result.getAddress()).build();
     }

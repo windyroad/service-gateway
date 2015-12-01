@@ -39,20 +39,20 @@ public class Proxies {
     @JsonIgnore
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-    private Map<String, Entity<Proxy>> proxies = new HashMap<>();
+    private Map<String, Entity> proxies = new HashMap<>();
 
     public Proxies() {
     }
 
     @HateoasAction(nature = HttpMethod.POST, controller = AdminProxiesController.class)
-    public LinkedEntity<Proxy> createProxy(ResolvedEntity<Proxies> entity,
+    public LinkedEntity createProxy(ResolvedEntity<Proxies> entity,
             @RequestParam("proxyName") String proxyPath,
             @RequestParam("endpoint") String targetEndPoint)
                     throws NoSuchMethodException, SecurityException,
                     IllegalAccessException, IllegalArgumentException,
                     InvocationTargetException, URISyntaxException {
 
-        Entity<Proxy> existingProxy = proxies.get(proxyPath);
+        Entity existingProxy = proxies.get(proxyPath);
 
         if (existingProxy != null) {
             return existingProxy.toLinkedEntity();
@@ -67,20 +67,20 @@ public class Proxies {
         }
     }
 
-    public Entity<Proxy> getProxy(String path) throws IllegalAccessException,
+    public Entity getProxy(String path) throws IllegalAccessException,
             IllegalArgumentException, InvocationTargetException {
         return proxies.get(path);
     }
 
     @HateoasChildren(Relationship.ITEM)
     @JsonIgnore
-    public Collection<Entity<Proxy>> getProxies() {
+    public Collection<Entity> getProxies() {
         return proxies.values();
     }
 
     @HateoasChildren(Relationship.ITEM)
-    public void setEndpoints(Collection<LinkedEntity<Proxy>> proxies) {
-        for (LinkedEntity<Proxy> proxy : proxies) {
+    public void setEndpoints(Collection<LinkedEntity> proxies) {
+        for (LinkedEntity proxy : proxies) {
             URI address = proxy.getAddress();
             String[] pathElements = address.getPath().split("/");
             this.proxies.put(pathElements[pathElements.length - 1], proxy);

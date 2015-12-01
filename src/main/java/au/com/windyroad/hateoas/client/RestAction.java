@@ -56,7 +56,7 @@ public class RestAction extends Action {
     }
 
     @Override
-    public <T extends ResolvedEntity<?>> Entity<?> invoke(T entity,
+    public <T extends ResolvedEntity<?>> Entity invoke(T entity,
             Map<String, String> context) throws IllegalAccessException,
                     IllegalArgumentException, InvocationTargetException {
         switch (nature) {

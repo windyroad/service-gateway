@@ -11,14 +11,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
-public class EntityRelationship<T> extends Relationship {
+public class EntityRelationship extends Relationship {
 
-    private Entity<T> entity;
+    private Entity entity;
 
     protected EntityRelationship() {
     }
 
-    public EntityRelationship(Entity<T> entity, String... natures) {
+    public EntityRelationship(Entity entity, String... natures) {
         super(natures);
         this.entity = entity;
     }
@@ -34,19 +34,19 @@ public class EntityRelationship<T> extends Relationship {
     public EntityRelationship(@JsonProperty("href") URI address,
             @JsonProperty("rel") String... natures) {
         super(natures);
-        this.entity = new LinkedEntity<T>(address, null, null);
+        this.entity = new LinkedEntity(address, null, null);
     }
 
     /**
      * @return the entity
      */
     @JsonIgnore
-    public Entity<T> getEntity() {
+    public Entity getEntity() {
         return entity;
     }
 
     @JsonUnwrapped
-    public LinkedEntity<T> getEntityLink() {
+    public LinkedEntity getEntityLink() {
         return entity.toLinkedEntity();
     }
 }

@@ -32,7 +32,7 @@ public class Proxy extends Properties {
     private static final String TARGET = "target";
     private static final String NAME = "name";
 
-    private Map<String, Entity<Endpoint>> endpoints = new HashMap<>();
+    private Map<String, Entity> endpoints = new HashMap<>();
 
     protected Proxy() {
     }
@@ -55,11 +55,11 @@ public class Proxy extends Properties {
     @Autowired
     ApplicationContext context;
 
-    public void setEndpoint(Entity<Proxy> entity, String target,
-            boolean available) throws NoSuchMethodException, SecurityException,
-                    IllegalAccessException, IllegalArgumentException,
-                    InvocationTargetException, URISyntaxException {
-        Entity<Endpoint> endpoint = getEndpoint(target);
+    public void setEndpoint(Entity entity, String target, boolean available)
+            throws NoSuchMethodException, SecurityException,
+            IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException, URISyntaxException {
+        Entity endpoint = getEndpoint(target);
 
         if (endpoint == null) {
             endpoint = new ResolvedEntity<Endpoint>(
@@ -79,7 +79,7 @@ public class Proxy extends Properties {
         }
     }
 
-    public Entity<Endpoint> getEndpoint(String target) {
+    public Entity getEndpoint(String target) {
         return endpoints.get(target);
     }
 
@@ -108,13 +108,13 @@ public class Proxy extends Properties {
 
     @HateoasChildren(Relationship.ITEM)
     @JsonIgnore
-    public Collection<Entity<Endpoint>> getEndpoints() {
+    public Collection<Entity> getEndpoints() {
         return endpoints.values();
     }
 
     @HateoasChildren(Relationship.ITEM)
-    public void setEndpoints(Collection<LinkedEntity<Endpoint>> endpoints) {
-        for (LinkedEntity<Endpoint> endpoint : endpoints) {
+    public void setEndpoints(Collection<LinkedEntity> endpoints) {
+        for (LinkedEntity endpoint : endpoints) {
             URI address = endpoint.getAddress();
             String[] pathElements = address.getPath().split("/");
             this.endpoints.put(pathElements[pathElements.length - 1], endpoint);
