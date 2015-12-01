@@ -1,10 +1,8 @@
 package au.com.windyroad.hateoas.core;
 
-import java.lang.reflect.InvocationTargetException;
-
 import org.springframework.core.ParameterizedTypeReference;
 
-import com.google.common.collect.ImmutableSet;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public abstract class Entity<T> extends Resolvable {
 
@@ -12,26 +10,13 @@ public abstract class Entity<T> extends Resolvable {
         super(args);
     }
 
-    public abstract T getProperties();
+    public abstract <K> ResolvedEntity<K> resolve(
+            Class<ResolvedEntity<K>> type);
 
-    public abstract Action getAction(String identifier);
+    public abstract <K> ResolvedEntity<K> resolve(
+            ParameterizedTypeReference<ResolvedEntity<K>> type);
 
-    public abstract ImmutableSet<NavigationalRelationship> getLinks();
-
-    public abstract ImmutableSet<EntityRelationship<?>> getEntities()
-            throws IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException;
-
-    public Link getLink(String self) {
-        return getLinks().stream().filter(l -> l.hasNature(Relationship.SELF))
-                .findAny().get().getLink();
-    }
-
-    public abstract <M, K extends ResolvedEntity<M>> K resolve(Class<K> type);
-
-    public abstract <M, K extends ResolvedEntity<M>> K resolve(
-            ParameterizedTypeReference<K> type);
-
+    @JsonIgnore
     public abstract LinkedEntity<T> toLinkedEntity();
 
 }

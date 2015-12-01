@@ -1,18 +1,24 @@
 package au.com.windyroad.servicegateway.model;
 
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import au.com.windyroad.hateoas.core.Entity;
-import au.com.windyroad.hateoas.core.EntityRelationship;
+import au.com.windyroad.hateoas.core.LinkedEntity;
 import au.com.windyroad.hateoas.core.Relationship;
 import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
@@ -26,7 +32,7 @@ public class Proxy extends Properties {
     private static final String TARGET = "target";
     private static final String NAME = "name";
 
-    private Set<EntityRelationship<Endpoint>> endpoints = new HashSet<>();
+    private Map<String, Entity<Endpoint>> endpoints = new HashMap<>();
 
     protected Proxy() {
     }
@@ -46,43 +52,35 @@ public class Proxy extends Properties {
         this.setProperty(TARGET, target);
     }
 
-    public void setEndpoint(ResolvedEntity<Proxy> entity, String target,
+    @Autowired
+    ApplicationContext context;
+
+    public void setEndpoint(Entity<Proxy> entity, String target,
             boolean available) throws NoSuchMethodException, SecurityException,
                     IllegalAccessException, IllegalArgumentException,
                     InvocationTargetException, URISyntaxException {
-        Optional<EntityRelationship<Endpoint>> relatedEntity = getEndpoints()
-                .stream().filter(e -> e.hasNature(Relationship.ITEM))
-                .filter(e -> ((ResolvedEntity<Endpoint>) (e.getEntity()))
-                        .getProperties().getProperty("target") != null
-                        && ((ResolvedEntity<Endpoint>) (e.getEntity()))
-                                .getProperties().getProperty("target")
-                                .equals(target))
-                .findAny();
-        if (!relatedEntity.isPresent()) {
-            endpoints.add(new EntityRelationship<>(new ResolvedEntity<Endpoint>(
+        Entity<Endpoint> endpoint = getEndpoint(target);
+
+        if (endpoint == null) {
+            endpoint = new ResolvedEntity<Endpoint>(
                     new Endpoint(getName(), target, available), getName(),
-                    target), Relationship.ITEM));
+                    target);
+            AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
+            bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
+            bpp.processInjection(endpoint);
+
+            endpoints.put(target, endpoint);
         } else {
-            Entity<?> childEntity = relatedEntity.get().getEntity();
-            if (childEntity instanceof ResolvedEntity<?>) {
-                ResolvedEntity<Endpoint> endpoint = (ResolvedEntity<Endpoint>) childEntity;
-                endpoint.getProperties().setAvailable(available);
-            }
+            // TODO we can't assume that the endpoint is local
+            // we should invoke an action to update it's state
+            ParameterizedTypeReference<ResolvedEntity<Endpoint>> type = new ParameterizedTypeReference<ResolvedEntity<Endpoint>>() {
+            };
+            endpoint.resolve(type).getProperties().setAvailable(available);
         }
     }
 
-    public ResolvedEntity<Endpoint> getEndpoint(ResolvedEntity<Proxy> entity,
-            String target) {
-        return (ResolvedEntity<Endpoint>) getEndpoints().stream()
-                .filter(e -> e.hasNature(Relationship.ITEM)
-                        && e.getEntity() instanceof ResolvedEntity<?>)
-                .filter(e -> ((ResolvedEntity<Endpoint>) (e.getEntity()))
-                        .getProperties().getProperty("target") != null
-                        && ((ResolvedEntity<Endpoint>) (e.getEntity()))
-                                .getProperties().getProperty("target")
-                                .equals(target))
-                .findAny().get().getEntity();
-
+    public Entity<Endpoint> getEndpoint(String target) {
+        return endpoints.get(target);
     }
 
     /**
@@ -109,14 +107,18 @@ public class Proxy extends Properties {
     }
 
     @HateoasChildren(Relationship.ITEM)
-    public Set<EntityRelationship<Endpoint>> getEndpoints() {
-        return endpoints;
+    @JsonIgnore
+    public Collection<Entity<Endpoint>> getEndpoints() {
+        return endpoints.values();
     }
 
     @HateoasChildren(Relationship.ITEM)
-    public void setEndpoints(
-            Collection<EntityRelationship<Endpoint>> endpoints) {
-        this.endpoints.addAll(endpoints);
+    public void setEndpoints(Collection<LinkedEntity<Endpoint>> endpoints) {
+        for (LinkedEntity<Endpoint> endpoint : endpoints) {
+            URI address = endpoint.getAddress();
+            String[] pathElements = address.getPath().split("/");
+            this.endpoints.put(pathElements[pathElements.length - 1], endpoint);
+        }
     }
 
 }

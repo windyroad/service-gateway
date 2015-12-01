@@ -38,8 +38,15 @@ public class JavaLink extends Link {
     @JsonProperty("href")
     public URI getAddress() {
         if (entityOrProperties != null) {
-            Class<?> controller = entityOrProperties.getClass()
-                    .getAnnotation(HateoasController.class).value();
+            Class<?> controller;
+            if (entityOrProperties instanceof ResolvedEntity<?>) {
+                ResolvedEntity<?> entity = (ResolvedEntity<?>) entityOrProperties;
+                controller = entity.getProperties().getClass()
+                        .getAnnotation(HateoasController.class).value();
+            } else {
+                controller = entityOrProperties.getClass()
+                        .getAnnotation(HateoasController.class).value();
+            }
             URI uri = ControllerLinkBuilder.linkTo(controller, parameters)
                     .toUri();
             return uri;

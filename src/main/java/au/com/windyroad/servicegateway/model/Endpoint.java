@@ -17,10 +17,10 @@ public class Endpoint extends Properties {
     protected Endpoint() {
     }
 
-    public Endpoint(String proxyName, String target,
-            boolean available) throws NoSuchMethodException, SecurityException,
-                    IllegalAccessException, IllegalArgumentException,
-                    InvocationTargetException, URISyntaxException {
+    public Endpoint(String proxyName, String target, boolean available)
+            throws NoSuchMethodException, SecurityException,
+            IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException, URISyntaxException {
         this.setProperty("target", target);
         this.setProperty("available", Boolean.toString(available));
     }
@@ -33,4 +33,9 @@ public class Endpoint extends Properties {
     public boolean isAvailable() {
         return Boolean.parseBoolean(this.getProperty("available"));
     }
+
+    public String getTarget() {
+        return this.getProperty("target");
+    }
+
 }

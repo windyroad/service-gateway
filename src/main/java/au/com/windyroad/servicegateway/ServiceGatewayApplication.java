@@ -27,10 +27,13 @@ import org.apache.http.nio.conn.NHttpClientConnectionManager;
 import org.apache.http.nio.conn.NoopIOSessionStrategy;
 import org.apache.http.nio.conn.SchemeIOSessionStrategy;
 import org.apache.http.nio.conn.ssl.SSLIOSessionStrategy;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
@@ -196,12 +199,20 @@ public class ServiceGatewayApplication {
         return messageSource;
     }
 
+    @Autowired
+    ApplicationContext context;
+
     @Bean
-    public ResolvedEntity<Proxies> proxies()
-            throws IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException, NoSuchMethodException,
-            SecurityException {
-        return new ResolvedEntity<Proxies>(new Proxies());
+    public ResolvedEntity<Proxies> proxies() throws IllegalAccessException,
+            IllegalArgumentException, InvocationTargetException,
+            NoSuchMethodException, SecurityException {
+        ResolvedEntity<Proxies> resolvedEntity = new ResolvedEntity<Proxies>(
+                new Proxies());
+        AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
+        bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
+        bpp.processInjection(resolvedEntity);
+
+        return resolvedEntity;
     }
 
 }

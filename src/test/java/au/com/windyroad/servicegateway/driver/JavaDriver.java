@@ -14,11 +14,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.model.Endpoint;
@@ -66,8 +68,11 @@ public class JavaDriver implements Driver {
             throws NoSuchMethodException, SecurityException,
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
-        this.currentProxy = (ResolvedEntity<Proxy>) proxies.getProperties()
-                .createProxy(proxies, proxyName, endpoint);
+        ParameterizedTypeReference<ResolvedEntity<Proxy>> type = new ParameterizedTypeReference<ResolvedEntity<Proxy>>() {
+        };
+
+        this.currentProxy = proxies.getProperties()
+                .createProxy(proxies, proxyName, endpoint).resolve(type);
     }
 
     @Override
@@ -82,9 +87,13 @@ public class JavaDriver implements Driver {
     public void checkEndpointExists(String path, String endpointName)
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException {
-        ResolvedEntity<Endpoint> endpoint = currentProxy.getProperties()
-                .getEndpoint(currentProxy, endpointName);
-        currentEndpoint = endpoint;
+        Entity<Endpoint> endpoint = currentProxy.getProperties()
+                .getEndpoint(endpointName);
+        assertThat(endpoint, notNullValue());
+        ParameterizedTypeReference<ResolvedEntity<Endpoint>> type = new ParameterizedTypeReference<ResolvedEntity<Endpoint>>() {
+        };
+
+        currentEndpoint = endpoint.resolve(type);
 
     }
 

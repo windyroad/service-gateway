@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,7 @@ import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.LinkedEntity;
 import au.com.windyroad.hateoas.core.MediaTypes;
 import au.com.windyroad.hateoas.core.Parameter;
+import au.com.windyroad.hateoas.core.ResolvedEntity;
 
 public class RestAction extends Action {
 
@@ -54,7 +56,7 @@ public class RestAction extends Action {
     }
 
     @Override
-    public <T extends Entity<?>> Entity<?> invoke(T entity,
+    public <T extends ResolvedEntity<?>> Entity<?> invoke(T entity,
             Map<String, String> context) throws IllegalAccessException,
                     IllegalArgumentException, InvocationTargetException {
         switch (nature) {
@@ -74,7 +76,11 @@ public class RestAction extends Action {
                     .body(body);
             URI location = restTemplate.postForLocation(address, request);
             LinkedEntity linkedEntity = new LinkedEntity(location, null, null);
-            linkedEntity.setApplicationContext(applicationContext);
+            AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
+            bpp.setBeanFactory(
+                    applicationContext.getAutowireCapableBeanFactory());
+            bpp.processInjection(linkedEntity);
+
             return linkedEntity;
         default:
             throw new HttpServerErrorException(HttpStatus.NOT_IMPLEMENTED);

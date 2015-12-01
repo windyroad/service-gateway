@@ -17,6 +17,7 @@ import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -124,8 +125,11 @@ public class ProxyController {
                     InvocationTargetException, URISyntaxException {
         DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<ResponseEntity<?>>();
 
-        ResolvedEntity<Proxy> proxy = proxies.getProperties()
-                .getProxy(proxies, name);
+        ParameterizedTypeReference<ResolvedEntity<Proxy>> type = new ParameterizedTypeReference<ResolvedEntity<Proxy>>() {
+        };
+
+        ResolvedEntity<Proxy> proxy = proxies.getProperties().getProxy(name)
+                .resolve(type);
         if (proxy != null) {
             String url = (String) request.getAttribute(
                     HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);

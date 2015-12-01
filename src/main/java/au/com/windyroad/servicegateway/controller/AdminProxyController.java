@@ -7,6 +7,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import au.com.windyroad.hateoas.core.Entity;
-import au.com.windyroad.hateoas.core.Relationship;
+import au.com.windyroad.hateoas.core.LinkedEntity;
 import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
@@ -38,8 +39,7 @@ public class AdminProxyController {
             throws URISyntaxException, NoSuchMethodException, SecurityException,
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException {
-        ResolvedEntity<Proxy> proxy = proxies.getProperties()
-                .getProxy(proxies, proxyName);
+        Entity<Proxy> proxy = proxies.getProperties().getProxy(proxyName);
         if (proxy == null) {
             return ResponseEntity.notFound().build();
         }
@@ -59,17 +59,19 @@ public class AdminProxyController {
             @RequestParam Map<String, String> allRequestParams)
                     throws IllegalAccessException, IllegalArgumentException,
                     InvocationTargetException {
+        ParameterizedTypeReference<ResolvedEntity<Proxy>> type = new ParameterizedTypeReference<ResolvedEntity<Proxy>>() {
+        };
+
         ResolvedEntity<Proxy> proxy = proxies.getProperties()
-                .getProxy(proxies, proxyName);
+                .getProxy(proxyName).resolve(type);
         if (proxy == null) {
             return ResponseEntity.notFound().build();
         }
         au.com.windyroad.hateoas.core.Action action = proxy
                 .getAction(allRequestParams.get("trigger"));
-        Entity result = action.invoke(proxy, allRequestParams);
-        return ResponseEntity.noContent()
-                .location(result.getLink(Relationship.SELF).getAddress())
-                .build();
+        LinkedEntity<?> result = action.invoke(proxy, allRequestParams)
+                .toLinkedEntity();
+        return ResponseEntity.noContent().location(result.getAddress()).build();
     }
 
     @ExceptionHandler(Exception.class)

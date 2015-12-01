@@ -51,7 +51,7 @@ public class JavaAction extends Action {
     }
 
     @Override
-    public <T extends Entity<?>> Entity<?> invoke(T entity,
+    public <T extends ResolvedEntity<?>> Entity<?> invoke(T entity,
             Map<String, String> context) throws IllegalAccessException,
                     IllegalArgumentException, InvocationTargetException {
         List<Object> args = new ArrayList<>(getParameters().size() + 1);
@@ -62,7 +62,8 @@ public class JavaAction extends Action {
             }
         }
 
-        return (Entity) method.invoke(entity.getProperties(), args.toArray());
+        return (Entity<?>) method.invoke(entity.getProperties(),
+                args.toArray());
 
     }
 

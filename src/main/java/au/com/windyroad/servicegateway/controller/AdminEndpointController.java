@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -31,14 +32,19 @@ public class AdminEndpointController {
                     throws URISyntaxException, NoSuchMethodException,
                     SecurityException, IllegalAccessException,
                     IllegalArgumentException, InvocationTargetException {
-        // TODO: get the proxy using http.
-        ResolvedEntity<Proxy> proxy = proxies.getProperties().getProxy(proxies,
-                proxyName);
+        ParameterizedTypeReference<ResolvedEntity<Proxy>> type = new ParameterizedTypeReference<ResolvedEntity<Proxy>>() {
+        };
+
+        ResolvedEntity<Proxy> proxy = proxies.getProperties()
+                .getProxy(proxyName).resolve(type);
         if (proxy == null) {
             return ResponseEntity.notFound().build();
         }
+        ParameterizedTypeReference<ResolvedEntity<Endpoint>> endpointType = new ParameterizedTypeReference<ResolvedEntity<Endpoint>>() {
+        };
+
         ResolvedEntity<Endpoint> endpoint = proxy.getProperties()
-                .getEndpoint(proxy, target);
+                .getEndpoint(target).resolve(endpointType);
 
         ResponseEntity<?> responseEntity = new ResponseEntity<>(endpoint,
                 HttpStatus.OK);

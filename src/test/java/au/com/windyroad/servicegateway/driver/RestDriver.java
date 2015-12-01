@@ -7,11 +7,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -31,8 +28,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import au.com.windyroad.hateoas.core.Entity;
-import au.com.windyroad.hateoas.core.EntityRelationship;
-import au.com.windyroad.hateoas.core.NavigationalRelationship;
+import au.com.windyroad.hateoas.core.Link;
 import au.com.windyroad.hateoas.core.Relationship;
 import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
@@ -81,7 +77,7 @@ public class RestDriver implements Driver {
 
     private ResolvedEntity<Proxy> currentProxy;
 
-    private Entity<Endpoint> currentEndpoint;
+    private ResolvedEntity<Endpoint> currentEndpoint;
 
     @Override
     public void clearProxies() {
@@ -120,9 +116,12 @@ public class RestDriver implements Driver {
         Map<String, String> context = new HashMap<>();
         context.put("proxyName", proxyName);
         context.put("endpoint", endpoint);
-        Entity createResponse = proxies.getAction("createProxy").invoke(proxies,
-                context);
-        currentProxy = createResponse.resolve(ResolvedEntity.class);
+        Entity<?> createResponse = proxies.getAction("createProxy")
+                .invoke(proxies, context);
+        ParameterizedTypeReference<ResolvedEntity<Proxy>> proxyType = new ParameterizedTypeReference<ResolvedEntity<Proxy>>() {
+        };
+
+        currentProxy = createResponse.resolve(proxyType);
     }
 
     @Override
@@ -134,37 +133,23 @@ public class RestDriver implements Driver {
     public void checkEndpointExists(String proxyName, String endpointPath)
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException {
-        Optional<NavigationalRelationship> selfLink = currentProxy.getLinks()
-                .stream().filter(l -> l.hasNature(Relationship.SELF)).findAny();
-        assertTrue(selfLink.isPresent());
+        Link selfLink = currentProxy.getLink(Relationship.SELF);
+        assertTrue(selfLink != null);
         ParameterizedTypeReference<ResolvedEntity<Proxy>> type = new ParameterizedTypeReference<ResolvedEntity<Proxy>>() {
         };
-        currentProxy = selfLink.get().getLink().resolve(type);
-        List<EntityRelationship<?>> endpointsRels = currentProxy.getEntities()
-                .stream().collect(Collectors.toList());
-
-        ResolvedEntity<Endpoint> endpoint = null;
-        for (EntityRelationship<?> rel : endpointsRels) {
-            Entity<?> entity = rel.getEntity();
-            ParameterizedTypeReference<ResolvedEntity<Endpoint>> endpointType = new ParameterizedTypeReference<ResolvedEntity<Endpoint>>() {
-            };
-            ResolvedEntity<Endpoint> endpointCandidate = entity
-                    .resolve(endpointType);
-            if (endpointPath
-                    .equals(endpointCandidate.getProperties().get("target"))) {
-                endpoint = endpointCandidate;
-                break;
-            }
-        }
+        currentProxy = currentProxy.toLinkedEntity().resolve(type);
+        Entity<Endpoint> endpoint = currentProxy.getProperties()
+                .getEndpoint(endpointPath);
 
         assertThat(endpoint, notNullValue());
-        currentEndpoint = endpoint;
+        ParameterizedTypeReference<ResolvedEntity<Endpoint>> endpointType = new ParameterizedTypeReference<ResolvedEntity<Endpoint>>() {
+        };
+        currentEndpoint = endpoint.resolve(endpointType);
     }
 
     @Override
     public void checkCurrentEndpointAvailable() {
-        assertTrue(Boolean.parseBoolean(
-                currentEndpoint.getProperties().getProperty("available")));
+        assertTrue(currentEndpoint.getProperties().isAvailable());
     }
 
     String normaliseUrl(String endpoint) {

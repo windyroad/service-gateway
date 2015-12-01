@@ -1,6 +1,5 @@
 package au.com.windyroad.hateoas.core;
 
-import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.Set;
 
@@ -8,14 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import com.google.common.collect.ImmutableSet;
 
 public class LinkedEntity<T> extends Entity<T> {
     private Link link;
+    private RestTemplate restTemplate;
 
     @Autowired
     public void setApplicationContext(ApplicationContext context) {
@@ -24,36 +23,44 @@ public class LinkedEntity<T> extends Entity<T> {
         bpp.processInjection(this.link);
     }
 
+    @Autowired
+    public void setRestTemplate(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
     public LinkedEntity(@JsonProperty("href") URI address,
             @JsonProperty("class") Set<String> natures,
             @JsonProperty("title") String label) {
         this.link = new RestLink(address, natures, label);
+        setNatures(natures);
+        setLabel(label);
     }
 
-    public LinkedEntity(Link link) {
+    public LinkedEntity(Link link, Set<String> natures, String label) {
         this.link = link;
+        setNatures(natures);
+        setLabel(label);
     }
 
     @Override
-    public <M, K extends ResolvedEntity<M>> K resolve(Class<K> type) {
+    public <K> ResolvedEntity<K> resolve(Class<ResolvedEntity<K>> type) {
         return link.resolve(type);
     }
 
     @Override
-    public <M, K extends ResolvedEntity<M>> K resolve(
-            ParameterizedTypeReference<K> type) {
+    public <K> ResolvedEntity<K> resolve(
+            ParameterizedTypeReference<ResolvedEntity<K>> type) {
         return link.resolve(type);
     }
 
-    @JsonUnwrapped
+    @JsonIgnore
     public Link getLink() {
         return link;
     }
 
-    @Override
-    @JsonIgnore
-    public Action getAction(String identifier) {
-        return resolve(getType()).getAction(identifier);
+    @JsonProperty("href")
+    public URI getAddress() {
+        return link.getAddress();
     }
 
     ParameterizedTypeReference<ResolvedEntity<T>> getType() {
@@ -63,28 +70,7 @@ public class LinkedEntity<T> extends Entity<T> {
     }
 
     @Override
-    @JsonIgnore
-    public T getProperties() {
-        ResolvedEntity<T> resolved = resolve(getType());
-        return resolved.getProperties();
-    }
-
-    @Override
-    @JsonIgnore
-    public ImmutableSet<EntityRelationship<?>> getEntities()
-            throws IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException {
-        return resolve(getType()).getEntities();
-    }
-
-    @Override
-    @JsonIgnore
-    public ImmutableSet<NavigationalRelationship> getLinks() {
-        return resolve(getType()).getLinks();
-    }
-
-    @Override
-    public LinkedEntity toLinkedEntity() {
+    public LinkedEntity<T> toLinkedEntity() {
         return this;
     }
 }

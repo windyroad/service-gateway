@@ -19,9 +19,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import au.com.windyroad.hateoas.core.Entity;
+import au.com.windyroad.hateoas.core.LinkedEntity;
 import au.com.windyroad.hateoas.core.MediaTypes;
-import au.com.windyroad.hateoas.core.Relationship;
 import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.servicegateway.model.Proxies;
 
@@ -61,10 +60,9 @@ public class AdminProxiesController {
                     IllegalArgumentException, InvocationTargetException {
         au.com.windyroad.hateoas.core.Action action = proxies
                 .getAction(allRequestParams.get("trigger"));
-        Entity result = action.invoke(proxies, allRequestParams);
-        return ResponseEntity
-                .created(result.getLink(Relationship.SELF).getAddress())
-                .build();
+        LinkedEntity<?> result = action.invoke(proxies, allRequestParams)
+                .toLinkedEntity();
+        return ResponseEntity.created(result.getAddress()).build();
     }
 
     @ExceptionHandler(value = Exception.class)
