@@ -6,12 +6,10 @@ import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -20,36 +18,32 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.LinkedEntity;
 import au.com.windyroad.hateoas.core.Relationship;
-import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 import au.com.windyroad.hateoas.server.annotations.HateoasChildren;
 import au.com.windyroad.hateoas.server.annotations.HateoasController;
 import au.com.windyroad.servicegateway.controller.AdminProxyController;
 
 @HateoasController(AdminProxyController.class)
-public class Proxy extends Properties {
-
-    private static final String TARGET = "target";
-    private static final String NAME = "name";
+public class Proxy {
 
     private Map<String, Entity> endpoints = new HashMap<>();
+    private String target;
+    private String name;
 
     protected Proxy() {
     }
 
-    public Proxy(String name, String target) throws NoSuchMethodException,
-            SecurityException, IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException, URISyntaxException {
-        setProperty(NAME, name);
-        setProperty(TARGET, target);
+    public Proxy(String name, String target) {
+        this.name = name;
+        this.target = target;
     }
 
     public String getTarget() {
-        return this.getProperty(TARGET);
+        return this.target;
     }
 
     public void setTarget(String target) {
-        this.setProperty(TARGET, target);
+        this.target = target;
     }
 
     @Autowired
@@ -62,7 +56,7 @@ public class Proxy extends Properties {
         Entity endpoint = getEndpoint(target);
 
         if (endpoint == null) {
-            endpoint = new ResolvedEntity<Endpoint>(
+            endpoint = new EndpointEntity(
                     new Endpoint(getName(), target, available), getName(),
                     target);
             AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
@@ -71,11 +65,8 @@ public class Proxy extends Properties {
 
             endpoints.put(target, endpoint);
         } else {
-            // TODO we can't assume that the endpoint is local
-            // we should invoke an action to update it's state
-            ParameterizedTypeReference<ResolvedEntity<Endpoint>> type = new ParameterizedTypeReference<ResolvedEntity<Endpoint>>() {
-            };
-            endpoint.resolve(type).getProperties().setAvailable(available);
+            endpoint.resolve(EndpointEntity.class).getProperties()
+                    .setAvailable(available);
         }
     }
 
@@ -87,7 +78,7 @@ public class Proxy extends Properties {
      * @return the name
      */
     public String getName() {
-        return getProperty("name");
+        return this.name;
     }
 
     /**
@@ -95,7 +86,7 @@ public class Proxy extends Properties {
      *            the name to set
      */
     public void setName(String name) {
-        setProperty("name", name);
+        this.name = name;
     }
 
     @HateoasAction(nature = HttpMethod.PUT, controller = AdminProxyController.class)

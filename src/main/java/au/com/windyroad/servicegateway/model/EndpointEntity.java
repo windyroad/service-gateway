@@ -7,4 +7,8 @@ public class EndpointEntity extends ResolvedEntity<Endpoint> {
     public EndpointEntity() {
     }
 
+    public EndpointEntity(Endpoint endpoint, String... args) {
+        super(endpoint, args);
+    }
+
 }

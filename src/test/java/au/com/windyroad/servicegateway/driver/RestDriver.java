@@ -59,19 +59,30 @@ public class RestDriver extends JavaDriver {
         context.put("proxyName", proxyName);
         context.put("endpoint", endpoint);
 
-        Entity createResponse = getRoot().getAction("createProxy")
-                .invoke(context);
+        currentProxy = getRoot().getAction("createProxy")
+                .invoke(context).resolve(ProxyEntity.class);
 
-        currentProxy = createResponse.resolve(ProxyEntity.class);
+        // InvocationHandler handler = new InvocationHandler() {
+        //
+        // @Override
+        // public Object invoke(Object proxy, Method method, Object[] args)
+        // throws Throwable {
+        // // TODO Auto-generated method stub
+        // return null;
+        // }
+        // };
+        // ProxyEntity f = (ProxyEntity) Proxy.newProxyInstance(
+        // ProxyEntity.class.getClassLoader(),
+        // new Class[] { ProxyEntity.class }, handler);
+        // f.getProperties();
     }
 
     ProxiesEntity getRoot() throws URISyntaxException {
         URI rootUrl = new URI(
                 "https://localhost:" + config.getPort() + "/admin/proxies");
 
-        ResponseEntity<ProxiesEntity> response = restTemplate
-                .getForEntity(rootUrl, ProxiesEntity.class);
-        return response.getBody();
+        return restTemplate
+                .getForEntity(rootUrl, ProxiesEntity.class).getBody();
     }
 
     @Override

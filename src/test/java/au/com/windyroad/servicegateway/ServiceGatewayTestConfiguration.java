@@ -1,7 +1,6 @@
 package au.com.windyroad.servicegateway;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainer;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.context.ApplicationContext;
@@ -33,7 +31,6 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.http.converter.support.AllEncompassingFormHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.BeanDescription;
@@ -195,14 +192,6 @@ public class ServiceGatewayTestConfiguration {
     List<ObjectMapper> objectMappers;
 
     @Bean
-    public HttpMessageConverters messageConverters() {
-        List<HttpMessageConverter<?>> converters = new ArrayList<>();
-        converters.add(mappingJacksonHttpMessageConverter());
-        converters.add(new AllEncompassingFormHttpMessageConverter());
-        return new HttpMessageConverters(false, converters);
-    }
-
-    @Bean
     public MappingJackson2HttpMessageConverter mappingJacksonHttpMessageConverter() {
         MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter(
                 objectMapper);
@@ -211,10 +200,17 @@ public class ServiceGatewayTestConfiguration {
 
     @Bean
     public RestTemplate restTemplate() throws Exception {
-        RestTemplate restTemplate = new RestTemplate(
-                messageConverters().getConverters());
+        RestTemplate restTemplate = new RestTemplate();
         restTemplate.setRequestFactory(httpClientFactory());
-
+        List<HttpMessageConverter<?>> messageConverters = restTemplate
+                .getMessageConverters();
+        for (int i = 0; i < messageConverters.size(); ++i) {
+            if (messageConverters
+                    .get(i) instanceof MappingJackson2HttpMessageConverter) {
+                messageConverters.set(i, mappingJacksonHttpMessageConverter());
+            }
+        }
+        restTemplate.setMessageConverters(messageConverters);
         restTemplate.setInterceptors(
                 Arrays.asList(new ClientHttpRequestInterceptor[] {
                         basicAuthHttpRequestIntercepter() }));

@@ -80,7 +80,8 @@ public class ProxyController {
                 if (entity != null) {
                     InputStreamResource inputStreamResource = new InputStreamResource(
                             entity.getContent());
-
+                    // httpHeaders.setContentLength(Long.parseLong(result
+                    // .getFirstHeader("Content-Length").getValue()));
                     responseEntity = new ResponseEntity<InputStreamResource>(
                             inputStreamResource, httpHeaders, httpStatus);
                 } else {
