@@ -21,14 +21,16 @@ public class JavaAction extends Action {
 
     private Method method;
     private Object[] pathParameters;
+    private Object entity;
 
     protected JavaAction() {
     }
 
-    public JavaAction(Method method, Object... pathParameters) {
+    public JavaAction(Object entity, Method method, Object... pathParameters) {
         super(method.getName(), extractParameters(method));
         this.method = method;
         this.pathParameters = pathParameters;
+        this.entity = entity;
     }
 
     private static au.com.windyroad.hateoas.core.Parameter[] extractParameters(
@@ -51,18 +53,16 @@ public class JavaAction extends Action {
     }
 
     @Override
-    public <T extends ResolvedEntity<?>> Entity invoke(T entity,
+    public <T extends ResolvedEntity<?>> Entity invoke(
             Map<String, String> context) throws IllegalAccessException,
                     IllegalArgumentException, InvocationTargetException {
-        List<Object> args = new ArrayList<>(getParameters().size() + 1);
-        args.add(entity);
+        List<Object> args = new ArrayList<>(getParameters().size());
         for (au.com.windyroad.hateoas.core.Parameter param : getParameters()) {
             if (!PresentationType.SUBMIT.equals(param.getType())) {
                 args.add(context.get(param.getIdentifier()));
             }
         }
-
-        return (Entity) method.invoke(entity.getProperties(), args.toArray());
+        return (Entity) method.invoke(entity, args.toArray());
 
     }
 

@@ -10,11 +10,10 @@ public abstract class Entity extends Resolvable {
         super(args);
     }
 
-    public abstract <K> ResolvedEntity<K> resolve(
-            Class<ResolvedEntity<K>> type);
+    public abstract <K, T extends ResolvedEntity<K>> T resolve(Class<T> type);
 
-    public abstract <K> ResolvedEntity<K> resolve(
-            ParameterizedTypeReference<ResolvedEntity<K>> type);
+    public abstract <K, T extends ResolvedEntity<K>> T resolve(
+            ParameterizedTypeReference<T> type);
 
     @JsonIgnore
     public abstract LinkedEntity toLinkedEntity();

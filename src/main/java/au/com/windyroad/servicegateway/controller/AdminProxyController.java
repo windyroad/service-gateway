@@ -69,8 +69,7 @@ public class AdminProxyController {
         }
         au.com.windyroad.hateoas.core.Action action = proxy
                 .getAction(allRequestParams.get("trigger"));
-        LinkedEntity result = action.invoke(proxy, allRequestParams)
-                .toLinkedEntity();
+        LinkedEntity result = action.invoke(allRequestParams).toLinkedEntity();
         return ResponseEntity.noContent().location(result.getAddress()).build();
     }
 

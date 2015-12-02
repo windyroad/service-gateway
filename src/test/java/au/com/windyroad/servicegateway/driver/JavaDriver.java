@@ -72,7 +72,7 @@ public class JavaDriver implements Driver {
         };
 
         this.currentProxy = proxies.getProperties()
-                .createProxy(proxies, proxyName, endpoint).resolve(type);
+                .createProxy(proxyName, endpoint).resolve(type);
     }
 
     @Override

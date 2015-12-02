@@ -59,7 +59,7 @@ public class ResolvedEntity<T> extends Entity {
                 Relationship.SELF));
         for (Method method : properties.getClass().getMethods()) {
             if (method.getAnnotation(HateoasAction.class) != null) {
-                add(new JavaAction(method, (Object[]) args));
+                add(new JavaAction(properties, method, (Object[]) args));
             }
         }
         getNatures().add(properties.getClass().getSimpleName());
@@ -136,14 +136,14 @@ public class ResolvedEntity<T> extends Entity {
     }
 
     @Override
-    public <K> ResolvedEntity<K> resolve(Class<ResolvedEntity<K>> type) {
-        return (ResolvedEntity<K>) this;
+    public <K, L extends ResolvedEntity<K>> L resolve(Class<L> type) {
+        return (L) this;
     }
 
     @Override
-    public <K> ResolvedEntity<K> resolve(
-            ParameterizedTypeReference<ResolvedEntity<K>> type) {
-        return (ResolvedEntity<K>) this;
+    public <K, L extends ResolvedEntity<K>> L resolve(
+            ParameterizedTypeReference<L> type) {
+        return (L) this;
     }
 
     protected void setActions(Action[] actions) {
@@ -191,5 +191,12 @@ public class ResolvedEntity<T> extends Entity {
         bpp.processInjection(linkedEntity);
         return linkedEntity;
     }
+
+    public static <T> ParameterizedTypeReference<ResolvedEntity<T>> getType(
+            Class<T> type) {
+
+        return new ParameterizedTypeReference<ResolvedEntity<T>>() {
+        };
+    };
 
 }

@@ -45,8 +45,7 @@ public class Proxies {
     }
 
     @HateoasAction(nature = HttpMethod.POST, controller = AdminProxiesController.class)
-    public LinkedEntity createProxy(ResolvedEntity<Proxies> entity,
-            @RequestParam("proxyName") String proxyPath,
+    public LinkedEntity createProxy(@RequestParam("proxyName") String proxyPath,
             @RequestParam("endpoint") String targetEndPoint)
                     throws NoSuchMethodException, SecurityException,
                     IllegalAccessException, IllegalArgumentException,

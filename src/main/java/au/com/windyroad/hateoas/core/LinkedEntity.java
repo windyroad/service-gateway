@@ -36,13 +36,13 @@ public class LinkedEntity extends Entity {
     }
 
     @Override
-    public <K> ResolvedEntity<K> resolve(Class<ResolvedEntity<K>> type) {
+    public <K, T extends ResolvedEntity<K>> T resolve(Class<T> type) {
         return link.resolve(type);
     }
 
     @Override
-    public <K> ResolvedEntity<K> resolve(
-            ParameterizedTypeReference<ResolvedEntity<K>> type) {
+    public <K, T extends ResolvedEntity<K>> T resolve(
+            ParameterizedTypeReference<T> type) {
         return link.resolve(type);
     }
 

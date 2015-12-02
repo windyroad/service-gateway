@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
@@ -30,11 +29,10 @@ import org.springframework.web.context.request.async.DeferredResult;
 import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.Link;
 import au.com.windyroad.hateoas.core.Relationship;
-import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
-import au.com.windyroad.servicegateway.model.Endpoint;
-import au.com.windyroad.servicegateway.model.Proxies;
-import au.com.windyroad.servicegateway.model.Proxy;
+import au.com.windyroad.servicegateway.model.EndpointEntity;
+import au.com.windyroad.servicegateway.model.ProxiesEntity;
+import au.com.windyroad.servicegateway.model.ProxyEntity;
 
 @Component
 @Profile(value = "integration")
@@ -75,9 +73,9 @@ public class RestDriver implements Driver {
     @Autowired
     CloseableHttpAsyncClient httpAsyncClient;
 
-    private ResolvedEntity<Proxy> currentProxy;
+    private ProxyEntity currentProxy;
 
-    private ResolvedEntity<Endpoint> currentEndpoint;
+    private EndpointEntity currentEndpoint;
 
     @Override
     public void clearProxies() {
@@ -98,30 +96,30 @@ public class RestDriver implements Driver {
                 .is2xxSuccessful());
     }
 
+    Map<String, String> context = new HashMap<>();
+
     @Override
     public void createProxy(String proxyName, String endpoint)
             throws RestClientException, URISyntaxException,
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException {
-
-        ParameterizedTypeReference<ResolvedEntity<Proxies>> type = new ParameterizedTypeReference<ResolvedEntity<Proxies>>() {
-        };
-        ResponseEntity<ResolvedEntity<Proxies>> response = restTemplate
-                .exchange(
-                        RequestEntity
-                                .get(new URI("https://localhost:"
-                                        + config.getPort() + "/admin/proxies"))
-                        .build(), type);
-        ResolvedEntity<Proxies> proxies = response.getBody();
-        Map<String, String> context = new HashMap<>();
         context.put("proxyName", proxyName);
         context.put("endpoint", endpoint);
-        Entity createResponse = proxies.getAction("createProxy").invoke(proxies,
-                context);
-        ParameterizedTypeReference<ResolvedEntity<Proxy>> proxyType = new ParameterizedTypeReference<ResolvedEntity<Proxy>>() {
-        };
 
-        currentProxy = createResponse.resolve(proxyType);
+        Entity createResponse = getRoot().getAction("createProxy")
+                .invoke(context);
+
+        currentProxy = createResponse.resolve(ProxyEntity.class);
+    }
+
+    ProxiesEntity getRoot() throws URISyntaxException {
+        URI rootUrl = new URI(
+                "https://localhost:" + config.getPort() + "/admin/proxies");
+
+        ResponseEntity<ProxiesEntity> response = restTemplate.exchange(
+                RequestEntity.get(rootUrl).build(), ProxiesEntity.class);
+        ProxiesEntity proxies = response.getBody();
+        return proxies;
     }
 
     @Override
@@ -135,16 +133,13 @@ public class RestDriver implements Driver {
             InvocationTargetException {
         Link selfLink = currentProxy.getLink(Relationship.SELF);
         assertTrue(selfLink != null);
-        ParameterizedTypeReference<ResolvedEntity<Proxy>> type = new ParameterizedTypeReference<ResolvedEntity<Proxy>>() {
-        };
-        currentProxy = currentProxy.toLinkedEntity().resolve(type);
+
+        currentProxy = currentProxy.toLinkedEntity().resolve(ProxyEntity.class);
         Entity endpoint = currentProxy.getProperties()
                 .getEndpoint(endpointPath);
 
         assertThat(endpoint, notNullValue());
-        ParameterizedTypeReference<ResolvedEntity<Endpoint>> endpointType = new ParameterizedTypeReference<ResolvedEntity<Endpoint>>() {
-        };
-        currentEndpoint = endpoint.resolve(endpointType);
+        currentEndpoint = endpoint.resolve(EndpointEntity.class);
     }
 
     @Override
