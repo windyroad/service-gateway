@@ -6,26 +6,30 @@ import static org.junit.Assert.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.concurrent.Future;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.model.Endpoint;
+import au.com.windyroad.servicegateway.model.EndpointEntity;
 import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
+import au.com.windyroad.servicegateway.model.ProxyEntity;
 
 @Component
 @Profile(value = "default")
@@ -42,6 +46,9 @@ public class JavaDriver implements Driver {
     @Autowired
     RestTemplate restTemplate;
 
+    @Autowired
+    CloseableHttpAsyncClient httpAsyncClient;
+
     private ResolvedEntity<Proxy> currentProxy;
 
     private ResolvedEntity<Endpoint> currentEndpoint;
@@ -51,15 +58,41 @@ public class JavaDriver implements Driver {
 
     }
 
+    private static class CBack implements FutureCallback<HttpResponse> {
+        private DeferredResult<HttpResponse> deferredResult;
+
+        public CBack(DeferredResult<HttpResponse> deferredResult) {
+            this.deferredResult = deferredResult;
+        }
+
+        @Override
+        public void completed(HttpResponse result) {
+            deferredResult.setResult(result);
+        }
+
+        @Override
+        public void failed(Exception ex) {
+            deferredResult.setErrorResult(ex);
+
+        }
+
+        @Override
+        public void cancelled() {
+            // do nothing
+        }
+    }
+
     @Override
     public void checkPingService(String path) throws Exception {
-        HttpClient client = HttpClientBuilder.create().build();
-        HttpPost post = new HttpPost();
-
-        ResponseEntity<String> response = restTemplate.getForEntity(
-                new URI("https://localhost:" + config.getPort() + path),
-                String.class);
-        assertThat(response.getStatusCode(), equalTo(HttpStatus.NO_CONTENT));
+        URI url = new URI("https://localhost:" + config.getPort() + path);
+        DeferredResult<HttpResponse> deferredResult = new DeferredResult<HttpResponse>();
+        HttpGet newRequest = new HttpGet(url);
+        CBack callback = new CBack(deferredResult);
+        Future<HttpResponse> future = httpAsyncClient.execute(newRequest,
+                callback);
+        HttpResponse response = future.get();
+        assertTrue(HttpStatus.valueOf(response.getStatusLine().getStatusCode())
+                .is2xxSuccessful());
         LOGGER.info("PING SERVICE CHECKED");
     }
 
@@ -68,11 +101,8 @@ public class JavaDriver implements Driver {
             throws NoSuchMethodException, SecurityException,
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
-        ParameterizedTypeReference<ResolvedEntity<Proxy>> type = new ParameterizedTypeReference<ResolvedEntity<Proxy>>() {
-        };
-
         this.currentProxy = proxies.getProperties()
-                .createProxy(proxyName, endpoint).resolve(type);
+                .createProxy(proxyName, endpoint).resolve(ProxyEntity.class);
     }
 
     @Override
@@ -90,10 +120,7 @@ public class JavaDriver implements Driver {
         Entity endpoint = currentProxy.getProperties()
                 .getEndpoint(endpointName);
         assertThat(endpoint, notNullValue());
-        ParameterizedTypeReference<ResolvedEntity<Endpoint>> type = new ParameterizedTypeReference<ResolvedEntity<Endpoint>>() {
-        };
-
-        currentEndpoint = endpoint.resolve(type);
+        currentEndpoint = endpoint.resolve(EndpointEntity.class);
 
     }
 

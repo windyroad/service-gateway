@@ -199,4 +199,8 @@ public class ResolvedEntity<T> extends Entity {
         };
     };
 
+    public <L extends ResolvedEntity<T>> L refresh() {
+        return (L) getLink(Relationship.SELF).resolve(this.getClass());
+    }
+
 }
