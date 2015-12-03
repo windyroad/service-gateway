@@ -21,15 +21,16 @@ public class Ping {
 
     public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET, produces = {
+            "application/vnd.siren+json", "application/json" })
     public ResponseEntity<?> get(final HttpServletRequest request)
             throws InterruptedException {
         LOGGER.info("PING!");
-        // Map<String, Object> response = new HashMap<>();
-        // response.put("parameters", request.getParameterMap());
-        // response.put("headers", getHeaders(request));
-        // return ResponseEntity.ok(response);
-        return ResponseEntity.noContent().build();
+        Map<String, Object> response = new HashMap<>();
+        response.put("parameters", request.getParameterMap());
+        response.put("headers", getHeaders(request));
+        return ResponseEntity.ok(response);
+        // return ResponseEntity.noContent().build();
     }
 
     MultiValueMap<String, String> getHeaders(HttpServletRequest request) {

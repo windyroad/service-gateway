@@ -23,6 +23,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import au.com.windyroad.hateoas.core.Entity;
+import au.com.windyroad.hateoas.core.MediaTypes;
 import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.model.Endpoint;
@@ -87,6 +88,7 @@ public class JavaDriver implements Driver {
         URI url = new URI("https://localhost:" + config.getPort() + path);
         DeferredResult<HttpResponse> deferredResult = new DeferredResult<HttpResponse>();
         HttpGet newRequest = new HttpGet(url);
+        newRequest.addHeader("Accept", MediaTypes.SIREN_JSON_VALUE);
         CBack callback = new CBack(deferredResult);
         Future<HttpResponse> future = httpAsyncClient.execute(newRequest,
                 callback);

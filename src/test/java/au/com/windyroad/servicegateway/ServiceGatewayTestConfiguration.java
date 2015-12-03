@@ -200,8 +200,7 @@ public class ServiceGatewayTestConfiguration {
 
     @Bean
     public RestTemplate restTemplate() throws Exception {
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.setRequestFactory(httpClientFactory());
+        RestTemplate restTemplate = new RestTemplate(httpClientFactory());
         List<HttpMessageConverter<?>> messageConverters = restTemplate
                 .getMessageConverters();
         for (int i = 0; i < messageConverters.size(); ++i) {
