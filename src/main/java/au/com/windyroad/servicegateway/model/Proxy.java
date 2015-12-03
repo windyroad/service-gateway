@@ -55,23 +55,24 @@ public class Proxy {
             throws NoSuchMethodException, SecurityException,
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
-        EndpointEntity endpoint = repository
-                .getEndpoint(getTarget() + "/" + target);
+        EndpointEntity endpoint = repository.getEndpoint(target);
 
         if (endpoint == null) {
+            String restOfTheUrl = target.replace(getTarget() + "/", "");
+
             endpoint = new EndpointEntity(
                     new Endpoint(getName(), target,
                             Boolean.parseBoolean(available)),
-                    getName(), target);
+                    getName(), restOfTheUrl);
             AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
             bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
             bpp.processInjection(endpoint);
 
-            repository.store(getTarget() + "/" + target, endpoint);
+            repository.store(endpoint);
         } else {
             endpoint.getProperties()
                     .setAvailable(Boolean.parseBoolean(available));
-            repository.store(getTarget() + "/" + target, endpoint);
+            repository.store(endpoint);
         }
     }
 

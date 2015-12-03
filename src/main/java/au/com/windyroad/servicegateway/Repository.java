@@ -17,7 +17,7 @@ public interface Repository {
 
     EndpointEntity getEndpoint(String target);
 
-    void store(String string, EndpointEntity endpoint);
+    void store(EndpointEntity endpoint);
 
     Collection<EndpointEntity> getEndpoints();
 

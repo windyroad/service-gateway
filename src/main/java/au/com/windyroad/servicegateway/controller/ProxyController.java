@@ -144,7 +144,7 @@ public class ProxyController {
             String restOfTheUrl = url.replace("/proxy/" + name + "/", "");
             String target = proxy.getProperties().getTarget() + "/"
                     + restOfTheUrl;
-            proxy.getProperties().setEndpoint(restOfTheUrl, "false");
+            proxy.getProperties().setEndpoint(target, "false");
 
             httpAsyncClient.start();
             HttpGet newRequest = new HttpGet(target);
@@ -158,7 +158,7 @@ public class ProxyController {
             LOGGER.debug("{ 'event': 'proxyReqeust', 'from': '" + url
                     + "', 'to': '" + target + "' }");
             httpAsyncClient.execute(newRequest,
-                    new CBack(deferredResult, proxy, restOfTheUrl));
+                    new CBack(deferredResult, proxy, target));
 
         } else {
             LOGGER.error("{ 'error': 'proxy not found', 'proxyName' : '" + name

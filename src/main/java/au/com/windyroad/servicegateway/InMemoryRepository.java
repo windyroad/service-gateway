@@ -40,8 +40,8 @@ public class InMemoryRepository implements Repository {
     }
 
     @Override
-    public void store(String target, EndpointEntity endpoint) {
-        this.endpoints.put(target, endpoint);
+    public void store(EndpointEntity endpoint) {
+        this.endpoints.put(endpoint.getProperties().getTarget(), endpoint);
     }
 
     @Override
