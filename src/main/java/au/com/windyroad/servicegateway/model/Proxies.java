@@ -13,14 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.LinkedEntity;
 import au.com.windyroad.hateoas.core.Relationship;
-import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 import au.com.windyroad.hateoas.server.annotations.HateoasChildren;
 import au.com.windyroad.hateoas.server.annotations.HateoasController;
@@ -45,23 +43,22 @@ public class Proxies {
     }
 
     @HateoasAction(nature = HttpMethod.POST, controller = AdminProxiesController.class)
-    public LinkedEntity createProxy(@RequestParam("proxyName") String proxyPath,
-            @RequestParam("endpoint") String targetEndPoint)
-                    throws NoSuchMethodException, SecurityException,
-                    IllegalAccessException, IllegalArgumentException,
-                    InvocationTargetException, URISyntaxException {
+    public LinkedEntity createProxy(String proxyName, String endpoint)
+            throws NoSuchMethodException, SecurityException,
+            IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException, URISyntaxException {
 
-        Entity existingProxy = proxies.get(proxyPath);
+        Entity existingProxy = proxies.get(proxyName);
 
         if (existingProxy != null) {
             return existingProxy.toLinkedEntity();
         } else {
-            ResolvedEntity<Proxy> proxy = new ResolvedEntity<Proxy>(
-                    new Proxy(proxyPath, targetEndPoint), proxyPath);
+            ProxyEntity proxy = new ProxyEntity(new Proxy(proxyName, endpoint),
+                    proxyName);
             AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
             bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
             bpp.processInjection(proxy);
-            proxies.put(proxyPath, proxy);
+            proxies.put(proxyName, proxy);
             return proxy.toLinkedEntity();
         }
     }

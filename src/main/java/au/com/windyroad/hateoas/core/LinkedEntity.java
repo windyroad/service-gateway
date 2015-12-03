@@ -51,6 +51,7 @@ public class LinkedEntity extends Entity {
         return link;
     }
 
+    @Override
     @JsonProperty("href")
     public URI getAddress() {
         return link.getAddress();

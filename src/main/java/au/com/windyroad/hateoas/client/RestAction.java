@@ -14,6 +14,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpServerErrorException;
@@ -60,7 +61,7 @@ public class RestAction extends Action {
             Map<String, String> context) throws IllegalAccessException,
                     IllegalArgumentException, InvocationTargetException {
         switch (nature) {
-        case POST:
+        case POST: {
             Set<String> parameterKeys = getParameterKeys();
             Map<String, String> filteredParameters = Maps.filterKeys(context,
                     Predicates.in(parameterKeys));
@@ -82,6 +83,32 @@ public class RestAction extends Action {
             bpp.processInjection(linkedEntity);
 
             return linkedEntity;
+        }
+        case PUT: {
+            Set<String> parameterKeys = getParameterKeys();
+            Map<String, String> filteredParameters = Maps.filterKeys(context,
+                    Predicates.in(parameterKeys));
+            filteredParameters.put("trigger", getIdentifier());
+            MultiValueMap<String, String> body = new LinkedMultiValueMap<>(
+                    filteredParameters.size());
+            for (Entry<String, String> entry : filteredParameters.entrySet()) {
+                body.add(entry.getKey(), entry.getValue());
+            }
+            RequestEntity<?> request = RequestEntity.put(address)
+                    .accept(MediaTypes.SIREN_JSON)
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .body(body);
+            ResponseEntity<Void> response = restTemplate.exchange(request,
+                    Void.class);
+            LinkedEntity linkedEntity = new LinkedEntity(
+                    response.getHeaders().getLocation(), null, null);
+            AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
+            bpp.setBeanFactory(
+                    applicationContext.getAutowireCapableBeanFactory());
+            bpp.processInjection(linkedEntity);
+
+            return linkedEntity;
+        }
         default:
             throw new HttpServerErrorException(HttpStatus.NOT_IMPLEMENTED);
         }

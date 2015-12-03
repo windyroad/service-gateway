@@ -18,6 +18,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -201,6 +202,12 @@ public class ResolvedEntity<T> extends Entity {
 
     public <L extends ResolvedEntity<T>> L refresh() {
         return (L) getLink(Relationship.SELF).resolve(this.getClass());
+    }
+
+    @Override
+    @JsonIgnore
+    public URI getAddress() {
+        return getLink(Relationship.SELF).getAddress();
     }
 
 }

@@ -7,4 +7,8 @@ public class ProxyEntity extends ResolvedEntity<Proxy> {
     public ProxyEntity() {
     }
 
+    public ProxyEntity(Proxy properties, String... args) {
+        super(properties, args);
+    }
+
 }

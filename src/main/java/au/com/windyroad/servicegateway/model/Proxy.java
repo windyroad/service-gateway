@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -49,7 +48,8 @@ public class Proxy {
     @Autowired
     ApplicationContext context;
 
-    public void setEndpoint(Entity entity, String target, boolean available)
+    @HateoasAction(nature = HttpMethod.PUT, controller = AdminProxyController.class)
+    public void setEndpoint(String target, String available)
             throws NoSuchMethodException, SecurityException,
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
@@ -57,8 +57,9 @@ public class Proxy {
 
         if (endpoint == null) {
             endpoint = new EndpointEntity(
-                    new Endpoint(getName(), target, available), getName(),
-                    target);
+                    new Endpoint(getName(), target,
+                            Boolean.parseBoolean(available)),
+                    getName(), target);
             AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
             bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
             bpp.processInjection(endpoint);
@@ -66,7 +67,7 @@ public class Proxy {
             endpoints.put(target, endpoint);
         } else {
             endpoint.resolve(EndpointEntity.class).getProperties()
-                    .setAvailable(available);
+                    .setAvailable(Boolean.parseBoolean(available));
         }
     }
 
@@ -90,8 +91,8 @@ public class Proxy {
     }
 
     @HateoasAction(nature = HttpMethod.PUT, controller = AdminProxyController.class)
-    public Proxy update(@RequestParam("endpoint") String targetEndPoint) {
-        this.setTarget(targetEndPoint);
+    public Proxy update(String endpoint) {
+        this.setTarget(endpoint);
 
         return this;
     }

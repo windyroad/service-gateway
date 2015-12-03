@@ -4,6 +4,8 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -13,16 +15,20 @@ import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.proxy.Enhancer;
+import org.springframework.cglib.proxy.MethodInterceptor;
+import org.springframework.cglib.proxy.MethodProxy;
 import org.springframework.context.annotation.Profile;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import au.com.windyroad.hateoas.core.Entity;
+import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.model.EndpointEntity;
 import au.com.windyroad.servicegateway.model.ProxiesEntity;
+import au.com.windyroad.servicegateway.model.Proxy;
 import au.com.windyroad.servicegateway.model.ProxyEntity;
 
 @Component
@@ -55,34 +61,50 @@ public class RestDriver extends JavaDriver {
     public void createProxy(String proxyName, String endpoint)
             throws RestClientException, URISyntaxException,
             IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException {
+            InvocationTargetException, NoSuchMethodException,
+            SecurityException {
         context.put("proxyName", proxyName);
         context.put("endpoint", endpoint);
 
-        currentProxy = getRoot().getAction("createProxy")
-                .invoke(context).resolve(ProxyEntity.class);
+        currentProxy = getRoot().getAction("createProxy").invoke(context)
+                .resolve(ProxyEntity.class);
 
-        // InvocationHandler handler = new InvocationHandler() {
-        //
-        // @Override
-        // public Object invoke(Object proxy, Method method, Object[] args)
-        // throws Throwable {
-        // // TODO Auto-generated method stub
-        // return null;
-        // }
-        // };
-        // ProxyEntity f = (ProxyEntity) Proxy.newProxyInstance(
-        // ProxyEntity.class.getClassLoader(),
-        // new Class[] { ProxyEntity.class }, handler);
-        // f.getProperties();
+        Enhancer e = new Enhancer();
+        e.setClassLoader(this.getClass().getClassLoader());
+        e.setSuperclass(Proxy.class);
+        e.setCallback(new MethodInterceptor() {
+            @Override
+            public Object intercept(Object obj, Method method, Object[] args,
+                    MethodProxy proxy) throws Throwable {
+                HateoasAction hateoasAction = method
+                        .getAnnotation(HateoasAction.class);
+                if (hateoasAction != null) {
+                    Parameter[] params = method.getParameters();
+                    for (int i = 0; i < params.length; ++i) {
+                        context.put(params[i].getName(), args[i].toString());
+                    }
+                    return currentProxy.getAction(method.getName())
+                            .invoke(context).resolve(ProxyEntity.class);
+
+                } else {
+                    throw new RuntimeException("`" + method.getName()
+                            + "` is not remotely callable");
+                }
+            }
+        });
+        // create proxy using SomeConcreteClass() no-arg constructor
+        Proxy myProxy = (Proxy) e.create();
+        // create proxy using SomeConcreteClass(String) constructor
+        myProxy.setEndpoint("foo", "false");
+
     }
 
     ProxiesEntity getRoot() throws URISyntaxException {
         URI rootUrl = new URI(
                 "https://localhost:" + config.getPort() + "/admin/proxies");
 
-        return restTemplate
-                .getForEntity(rootUrl, ProxiesEntity.class).getBody();
+        return restTemplate.getForEntity(rootUrl, ProxiesEntity.class)
+                .getBody();
     }
 
     @Override

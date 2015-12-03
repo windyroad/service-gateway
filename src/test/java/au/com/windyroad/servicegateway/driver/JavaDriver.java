@@ -105,6 +105,7 @@ public class JavaDriver implements Driver {
             InvocationTargetException, URISyntaxException {
         this.currentProxy = proxies.getProperties()
                 .createProxy(proxyName, endpoint).resolve(ProxyEntity.class);
+
     }
 
     @Override
