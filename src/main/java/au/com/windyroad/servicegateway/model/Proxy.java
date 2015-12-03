@@ -1,7 +1,5 @@
 package au.com.windyroad.servicegateway.model;
 
-import java.lang.reflect.InvocationTargetException;
-import java.net.URISyntaxException;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,19 +49,20 @@ public class Proxy {
     ApplicationContext context;
 
     @HateoasAction(nature = HttpMethod.PUT, controller = AdminProxyController.class)
-    public void setEndpoint(String target, String available)
-            throws NoSuchMethodException, SecurityException,
-            IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException, URISyntaxException {
+    public static void setEndpoint(ApplicationContext context,
+            Repository repository, Proxy proxy, String target,
+            String available) {
         EndpointEntity endpoint = repository.getEndpoint(target);
 
         if (endpoint == null) {
-            String restOfTheUrl = target.replace(getTarget() + "/", "");
+            String restOfTheUrl = target.replace(proxy.getTarget() + "/", "");
 
-            endpoint = new EndpointEntity(
-                    new Endpoint(getName(), target,
+            endpoint = new EndpointEntity(context, repository,
+                    new Endpoint(proxy.getName(), target,
                             Boolean.parseBoolean(available)),
-                    getName(), restOfTheUrl);
+                    proxy.getName(), restOfTheUrl);
+
+            // we shouldn't have to be autowiring the domain objects.
             AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
             bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
             bpp.processInjection(endpoint);
@@ -75,6 +74,34 @@ public class Proxy {
             repository.store(endpoint);
         }
     }
+
+    // @HateoasAction(nature = HttpMethod.PUT, controller =
+    // AdminProxyController.class)
+    // public void setEndpoint(String target, String available)
+    // throws NoSuchMethodException, SecurityException,
+    // IllegalAccessException, IllegalArgumentException,
+    // InvocationTargetException, URISyntaxException {
+    // EndpointEntity endpoint = repository.getEndpoint(target);
+    //
+    // if (endpoint == null) {
+    // String restOfTheUrl = target.replace(getTarget() + "/", "");
+    //
+    // endpoint = new EndpointEntity(
+    // new Endpoint(getName(), target,
+    // Boolean.parseBoolean(available)),
+    // getName(), restOfTheUrl);
+    // AutowiredAnnotationBeanPostProcessor bpp = new
+    // AutowiredAnnotationBeanPostProcessor();
+    // bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
+    // bpp.processInjection(endpoint);
+    //
+    // repository.store(endpoint);
+    // } else {
+    // endpoint.getProperties()
+    // .setAvailable(Boolean.parseBoolean(available));
+    // repository.store(endpoint);
+    // }
+    // }
 
     /**
      * @return the name

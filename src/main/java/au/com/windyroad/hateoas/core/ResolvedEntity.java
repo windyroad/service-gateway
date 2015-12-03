@@ -28,6 +28,7 @@ import au.com.windyroad.hateoas.annotations.Label;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 import au.com.windyroad.hateoas.server.annotations.HateoasChildren;
 import au.com.windyroad.hateoas.server.annotations.HateoasController;
+import au.com.windyroad.servicegateway.Repository;
 
 @JsonPropertyOrder({ "class", "properties", "entities", "actions", "links",
         "title" })
@@ -53,14 +54,16 @@ public class ResolvedEntity<T> extends Entity {
     public ResolvedEntity() {
     }
 
-    public ResolvedEntity(T properties, String... args) {
+    public ResolvedEntity(ApplicationContext context, Repository repository,
+            T properties, String... args) {
         super(args);
         this.properties = properties;
         add(new NavigationalRelationship(new JavaLink(this, (Object[]) args),
                 Relationship.SELF));
         for (Method method : properties.getClass().getMethods()) {
             if (method.getAnnotation(HateoasAction.class) != null) {
-                add(new JavaAction(properties, method, (Object[]) args));
+                add(new JavaAction(context, repository, properties, method,
+                        (Object[]) args));
             }
         }
         getNatures().add(properties.getClass().getSimpleName());

@@ -43,18 +43,19 @@ public class Proxies {
     }
 
     @HateoasAction(nature = HttpMethod.POST, controller = AdminProxiesController.class)
-    public LinkedEntity createProxy(String proxyName, String endpoint)
-            throws NoSuchMethodException, SecurityException,
-            IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException, URISyntaxException {
+    static public LinkedEntity createProxy(ApplicationContext context,
+            Repository repository, Proxies proxies, String proxyName,
+            String endpoint) throws NoSuchMethodException, SecurityException,
+                    IllegalAccessException, IllegalArgumentException,
+                    InvocationTargetException, URISyntaxException {
 
         ProxyEntity existingProxy = repository.getProxy(proxyName);
 
         if (existingProxy != null) {
             return existingProxy.toLinkedEntity();
         } else {
-            ProxyEntity proxy = new ProxyEntity(new Proxy(proxyName, endpoint),
-                    proxyName);
+            ProxyEntity proxy = new ProxyEntity(context, repository,
+                    new Proxy(proxyName, endpoint), proxyName);
             AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
             bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
             bpp.processInjection(proxy);
@@ -63,6 +64,30 @@ public class Proxies {
             return proxy.toLinkedEntity();
         }
     }
+
+    // @HateoasAction(nature = HttpMethod.POST, controller =
+    // AdminProxiesController.class)
+    // public LinkedEntity createProxy(String proxyName, String endpoint)
+    // throws NoSuchMethodException, SecurityException,
+    // IllegalAccessException, IllegalArgumentException,
+    // InvocationTargetException, URISyntaxException {
+    //
+    // ProxyEntity existingProxy = repository.getProxy(proxyName);
+    //
+    // if (existingProxy != null) {
+    // return existingProxy.toLinkedEntity();
+    // } else {
+    // ProxyEntity proxy = new ProxyEntity(new Proxy(proxyName, endpoint),
+    // proxyName);
+    // AutowiredAnnotationBeanPostProcessor bpp = new
+    // AutowiredAnnotationBeanPostProcessor();
+    // bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
+    // bpp.processInjection(proxy);
+    //
+    // repository.store(proxy);
+    // return proxy.toLinkedEntity();
+    // }
+    // }
 
     @HateoasChildren(Relationship.ITEM)
     @JsonIgnore

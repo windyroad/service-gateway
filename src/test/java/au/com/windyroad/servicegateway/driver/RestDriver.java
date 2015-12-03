@@ -99,7 +99,7 @@ public class RestDriver extends JavaDriver {
         // create proxy using SomeConcreteClass() no-arg constructor
         Proxy myProxy = (Proxy) e.create();
         // create proxy using SomeConcreteClass(String) constructor
-        myProxy.setEndpoint("foo", "false");
+        // myProxy.setEndpoint("foo", "false");
 
     }
 

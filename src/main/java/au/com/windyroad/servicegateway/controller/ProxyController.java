@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -26,13 +26,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.servlet.HandlerMapping;
 
 import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.servicegateway.Repository;
-import au.com.windyroad.servicegateway.model.Proxies;
+import au.com.windyroad.servicegateway.model.ProxiesEntity;
 import au.com.windyroad.servicegateway.model.Proxy;
 import au.com.windyroad.servicegateway.model.ProxyEntity;
 
@@ -41,7 +40,7 @@ public class ProxyController {
     public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    ResolvedEntity<Proxies> proxies;
+    ProxiesEntity proxies;
 
     private static class CBack implements FutureCallback<HttpResponse> {
         private DeferredResult<ResponseEntity<?>> deferredResult;
@@ -49,9 +48,14 @@ public class ProxyController {
 
         private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
         private ResolvedEntity<Proxy> proxy;
+        private ApplicationContext context;
+        private Repository repository;
 
         public CBack(DeferredResult<ResponseEntity<?>> deferredResult,
+                ApplicationContext context, Repository repository,
                 ResolvedEntity<Proxy> proxy, String target) {
+            this.context = context;
+            this.repository = repository;
             this.deferredResult = deferredResult;
             this.target = target;
             this.proxy = proxy;
@@ -60,14 +64,8 @@ public class ProxyController {
         @Override
         public void failed(Exception ex) {
             LOGGER.error("Failure while processing: ", ex);
-            try {
-                proxy.getProperties().setEndpoint(target, "false");
-            } catch (NoSuchMethodException | SecurityException
-                    | IllegalAccessException | IllegalArgumentException
-                    | InvocationTargetException | URISyntaxException e) {
-                throw new HttpServerErrorException(HttpStatus.NOT_IMPLEMENTED,
-                        "TODO");
-            }
+            Proxy.setEndpoint(context, repository, proxy.getProperties(),
+                    target, "false");
             deferredResult.setErrorResult(ex);
         }
 
@@ -92,7 +90,8 @@ public class ProxyController {
                             httpHeaders, httpStatus);
                 }
                 deferredResult.setResult(responseEntity);
-                proxy.getProperties().setEndpoint(target, "true");
+                Proxy.setEndpoint(context, repository, proxy.getProperties(),
+                        target, "true");
 
             } catch (Exception e) {
                 LOGGER.error("Failure while processing response:", e);
@@ -123,6 +122,9 @@ public class ProxyController {
     @Qualifier("serverRepository")
     Repository repository;
 
+    @Autowired
+    ApplicationContext context;
+
     @RequestMapping("/proxy/{name}/**")
     public DeferredResult<ResponseEntity<?>> get(
             final HttpServletRequest request,
@@ -133,9 +135,6 @@ public class ProxyController {
                     InvocationTargetException, URISyntaxException {
         DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<ResponseEntity<?>>();
 
-        ParameterizedTypeReference<ResolvedEntity<Proxy>> type = new ParameterizedTypeReference<ResolvedEntity<Proxy>>() {
-        };
-
         ProxyEntity proxy = repository.getProxy(name);
 
         if (proxy != null) {
@@ -144,7 +143,8 @@ public class ProxyController {
             String restOfTheUrl = url.replace("/proxy/" + name + "/", "");
             String target = proxy.getProperties().getTarget() + "/"
                     + restOfTheUrl;
-            proxy.getProperties().setEndpoint(target, "false");
+            Proxy.setEndpoint(context, repository, proxy.getProperties(),
+                    target, "false");
 
             httpAsyncClient.start();
             HttpGet newRequest = new HttpGet(target);
@@ -157,8 +157,8 @@ public class ProxyController {
 
             LOGGER.debug("{ 'event': 'proxyReqeust', 'from': '" + url
                     + "', 'to': '" + target + "' }");
-            httpAsyncClient.execute(newRequest,
-                    new CBack(deferredResult, proxy, target));
+            httpAsyncClient.execute(newRequest, new CBack(deferredResult,
+                    context, repository, proxy, target));
 
         } else {
             LOGGER.error("{ 'error': 'proxy not found', 'proxyName' : '" + name

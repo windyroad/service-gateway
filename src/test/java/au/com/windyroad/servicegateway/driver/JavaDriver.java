@@ -15,6 +15,8 @@ import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,12 +26,11 @@ import org.springframework.web.context.request.async.DeferredResult;
 
 import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.MediaTypes;
-import au.com.windyroad.hateoas.core.ResolvedEntity;
+import au.com.windyroad.servicegateway.Repository;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
-import au.com.windyroad.servicegateway.model.Endpoint;
 import au.com.windyroad.servicegateway.model.EndpointEntity;
 import au.com.windyroad.servicegateway.model.Proxies;
-import au.com.windyroad.servicegateway.model.Proxy;
+import au.com.windyroad.servicegateway.model.ProxiesEntity;
 import au.com.windyroad.servicegateway.model.ProxyEntity;
 
 @Component
@@ -39,7 +40,7 @@ public class JavaDriver implements Driver {
     public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    ResolvedEntity<Proxies> proxies;
+    ProxiesEntity proxies;
 
     @Autowired
     ServiceGatewayTestConfiguration config;
@@ -50,9 +51,9 @@ public class JavaDriver implements Driver {
     @Autowired
     CloseableHttpAsyncClient httpAsyncClient;
 
-    private ResolvedEntity<Proxy> currentProxy;
+    private ProxyEntity currentProxy;
 
-    private ResolvedEntity<Endpoint> currentEndpoint;
+    private EndpointEntity currentEndpoint;
 
     @Override
     public void clearProxies() {
@@ -98,14 +99,21 @@ public class JavaDriver implements Driver {
         LOGGER.info("PING SERVICE CHECKED");
     }
 
+    @Autowired
+    ApplicationContext context;
+
+    @Autowired
+    @Qualifier("serverRepository")
+    Repository repository;
+
     @Override
     public void createProxy(String proxyName, String endpoint)
             throws NoSuchMethodException, SecurityException,
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
-        this.currentProxy = proxies.getProperties()
-                .createProxy(proxyName, endpoint).resolve(ProxyEntity.class);
-
+        this.currentProxy = Proxies.createProxy(context, repository,
+                proxies.getProperties(), proxyName, endpoint)
+                .resolve(ProxyEntity.class);
     }
 
     @Override

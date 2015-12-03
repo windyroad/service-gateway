@@ -29,6 +29,7 @@ import org.apache.http.nio.conn.SchemeIOSessionStrategy;
 import org.apache.http.nio.conn.ssl.SSLIOSessionStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -202,11 +203,16 @@ public class ServiceGatewayApplication {
     @Autowired
     ApplicationContext context;
 
+    @Autowired
+    @Qualifier("serverRepository")
+    Repository repository;
+
     @Bean
     public ProxiesEntity proxies() throws IllegalAccessException,
             IllegalArgumentException, InvocationTargetException,
             NoSuchMethodException, SecurityException {
-        ProxiesEntity resolvedEntity = new ProxiesEntity(new Proxies());
+        ProxiesEntity resolvedEntity = new ProxiesEntity(context, repository,
+                new Proxies());
         AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
         bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
         bpp.processInjection(resolvedEntity);
