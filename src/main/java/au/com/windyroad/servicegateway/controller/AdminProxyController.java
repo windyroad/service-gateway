@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import au.com.windyroad.hateoas.core.Entity;
+import au.com.windyroad.servicegateway.Repository;
 import au.com.windyroad.servicegateway.model.ProxiesEntity;
 import au.com.windyroad.servicegateway.model.ProxyEntity;
 
@@ -32,18 +32,20 @@ public class AdminProxyController {
     @Autowired
     ProxiesEntity proxies;
 
+    @Autowired
+    Repository repository;
+
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<?> self(@PathVariable("proxyName") String proxyName)
             throws URISyntaxException, NoSuchMethodException, SecurityException,
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException {
-        Entity proxy = proxies.getProperties().getProxy(proxyName);
+        ProxyEntity proxy = repository.getProxy(proxyName);
+
         if (proxy == null) {
             return ResponseEntity.notFound().build();
         }
-        // proxy.setTitle("Proxy `" + proxyName + "`");
-        // TODO: move title to annotation
 
         ResponseEntity<?> responseEntity = new ResponseEntity<>(proxy,
                 HttpStatus.OK);
@@ -59,8 +61,8 @@ public class AdminProxyController {
             @RequestBody MultiValueMap<String, String> bodyParams)
                     throws IllegalAccessException, IllegalArgumentException,
                     InvocationTargetException {
-        ProxyEntity proxy = proxies.getProperties().getProxy(proxyName)
-                .resolve(ProxyEntity.class);
+
+        ProxyEntity proxy = repository.getProxy(proxyName);
         if (proxy == null) {
             return ResponseEntity.notFound().build();
         }
@@ -90,8 +92,7 @@ public class AdminProxyController {
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException {
 
-        ProxyEntity proxy = proxies.getProperties().getProxy(proxyName)
-                .resolve(ProxyEntity.class);
+        ProxyEntity proxy = repository.getProxy(proxyName);
         proxy.getProperties().deleteProxy();
         return ResponseEntity.noContent().location(proxies.getAddress())
                 .build();

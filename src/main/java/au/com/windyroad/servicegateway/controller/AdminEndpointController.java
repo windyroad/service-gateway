@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import au.com.windyroad.hateoas.core.ResolvedEntity;
-import au.com.windyroad.servicegateway.model.Endpoint;
+import au.com.windyroad.servicegateway.Repository;
+import au.com.windyroad.servicegateway.model.EndpointEntity;
 import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
+import au.com.windyroad.servicegateway.model.ProxyEntity;
 
 @Controller
 @RequestMapping(value = "/admin/proxies/{proxyName}/{target}")
@@ -24,6 +26,9 @@ public class AdminEndpointController {
 
     @Autowired
     ResolvedEntity<Proxies> proxies;
+
+    @Autowired
+    Repository repository;
 
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
@@ -35,16 +40,12 @@ public class AdminEndpointController {
         ParameterizedTypeReference<ResolvedEntity<Proxy>> type = new ParameterizedTypeReference<ResolvedEntity<Proxy>>() {
         };
 
-        ResolvedEntity<Proxy> proxy = proxies.getProperties()
-                .getProxy(proxyName).resolve(type);
+        ProxyEntity proxy = repository.getProxy(proxyName);
         if (proxy == null) {
             return ResponseEntity.notFound().build();
         }
-        ParameterizedTypeReference<ResolvedEntity<Endpoint>> endpointType = new ParameterizedTypeReference<ResolvedEntity<Endpoint>>() {
-        };
-
-        ResolvedEntity<Endpoint> endpoint = proxy.getProperties()
-                .getEndpoint(target).resolve(endpointType);
+        EndpointEntity endpoint = proxy.getProperties().getEndpoint(target)
+                .resolve(EndpointEntity.class);
 
         ResponseEntity<?> responseEntity = new ResponseEntity<>(endpoint,
                 HttpStatus.OK);

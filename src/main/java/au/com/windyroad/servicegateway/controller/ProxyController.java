@@ -30,8 +30,10 @@ import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.servlet.HandlerMapping;
 
 import au.com.windyroad.hateoas.core.ResolvedEntity;
+import au.com.windyroad.servicegateway.Repository;
 import au.com.windyroad.servicegateway.model.Proxies;
 import au.com.windyroad.servicegateway.model.Proxy;
+import au.com.windyroad.servicegateway.model.ProxyEntity;
 
 @Controller
 public class ProxyController {
@@ -116,6 +118,9 @@ public class ProxyController {
     @Autowired
     CloseableHttpAsyncClient httpAsyncClient;
 
+    @Autowired
+    Repository repository;
+
     @RequestMapping("/proxy/{name}/**")
     public DeferredResult<ResponseEntity<?>> get(
             final HttpServletRequest request,
@@ -129,8 +134,8 @@ public class ProxyController {
         ParameterizedTypeReference<ResolvedEntity<Proxy>> type = new ParameterizedTypeReference<ResolvedEntity<Proxy>>() {
         };
 
-        ResolvedEntity<Proxy> proxy = proxies.getProperties().getProxy(name)
-                .resolve(type);
+        ProxyEntity proxy = repository.getProxy(name);
+
         if (proxy != null) {
             String url = (String) request.getAttribute(
                     HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);

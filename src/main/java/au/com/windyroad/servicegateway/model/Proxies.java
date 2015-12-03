@@ -22,6 +22,7 @@ import au.com.windyroad.hateoas.core.Relationship;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 import au.com.windyroad.hateoas.server.annotations.HateoasChildren;
 import au.com.windyroad.hateoas.server.annotations.HateoasController;
+import au.com.windyroad.servicegateway.Repository;
 import au.com.windyroad.servicegateway.controller.AdminProxiesController;
 
 @HateoasController(AdminProxiesController.class)
@@ -37,6 +38,9 @@ public class Proxies {
     @JsonIgnore
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
+    @Autowired
+    Repository repository;
+
     private Map<String, Entity> proxies = new HashMap<>();
 
     public Proxies() {
@@ -48,7 +52,9 @@ public class Proxies {
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
 
-        Entity existingProxy = proxies.get(proxyName);
+        // repository.getProxy(proxyName);
+
+        ProxyEntity existingProxy = repository.getProxy(proxyName);
 
         if (existingProxy != null) {
             return existingProxy.toLinkedEntity();
@@ -58,14 +64,11 @@ public class Proxies {
             AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
             bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
             bpp.processInjection(proxy);
-            proxies.put(proxyName, proxy);
+
+            // proxies.put(proxyName, proxy);
+            repository.store(proxy);
             return proxy.toLinkedEntity();
         }
-    }
-
-    public Entity getProxy(String path) throws IllegalAccessException,
-            IllegalArgumentException, InvocationTargetException {
-        return proxies.get(path);
     }
 
     @HateoasChildren(Relationship.ITEM)
