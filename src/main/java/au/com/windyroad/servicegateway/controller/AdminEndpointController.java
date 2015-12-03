@@ -4,7 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -13,11 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.servicegateway.Repository;
 import au.com.windyroad.servicegateway.model.EndpointEntity;
-import au.com.windyroad.servicegateway.model.Proxies;
-import au.com.windyroad.servicegateway.model.Proxy;
 import au.com.windyroad.servicegateway.model.ProxyEntity;
 
 @Controller
@@ -25,9 +22,7 @@ import au.com.windyroad.servicegateway.model.ProxyEntity;
 public class AdminEndpointController {
 
     @Autowired
-    ResolvedEntity<Proxies> proxies;
-
-    @Autowired
+    @Qualifier("serverRepository")
     Repository repository;
 
     @RequestMapping(method = RequestMethod.GET)
@@ -37,15 +32,14 @@ public class AdminEndpointController {
                     throws URISyntaxException, NoSuchMethodException,
                     SecurityException, IllegalAccessException,
                     IllegalArgumentException, InvocationTargetException {
-        ParameterizedTypeReference<ResolvedEntity<Proxy>> type = new ParameterizedTypeReference<ResolvedEntity<Proxy>>() {
-        };
 
         ProxyEntity proxy = repository.getProxy(proxyName);
         if (proxy == null) {
             return ResponseEntity.notFound().build();
         }
-        EndpointEntity endpoint = proxy.getProperties().getEndpoint(target)
-                .resolve(EndpointEntity.class);
+
+        EndpointEntity endpoint = repository
+                .getEndpoint(proxy.getProperties().getTarget() + "/" + target);
 
         ResponseEntity<?> responseEntity = new ResponseEntity<>(endpoint,
                 HttpStatus.OK);

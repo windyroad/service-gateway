@@ -2,6 +2,7 @@ package au.com.windyroad.servicegateway;
 
 import java.util.Collection;
 
+import au.com.windyroad.servicegateway.model.EndpointEntity;
 import au.com.windyroad.servicegateway.model.ProxyEntity;
 
 public interface Repository {
@@ -13,5 +14,11 @@ public interface Repository {
     Collection<ProxyEntity> getProxies();
 
     void deleteProxy(String proxyName);
+
+    EndpointEntity getEndpoint(String target);
+
+    void store(String string, EndpointEntity endpoint);
+
+    Collection<EndpointEntity> getEndpoints();
 
 }

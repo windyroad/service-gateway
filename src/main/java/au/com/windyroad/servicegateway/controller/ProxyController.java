@@ -17,6 +17,7 @@ import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -119,6 +120,7 @@ public class ProxyController {
     CloseableHttpAsyncClient httpAsyncClient;
 
     @Autowired
+    @Qualifier("serverRepository")
     Repository repository;
 
     @RequestMapping("/proxy/{name}/**")

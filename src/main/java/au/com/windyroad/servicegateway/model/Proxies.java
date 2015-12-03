@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
 
@@ -35,6 +36,7 @@ public class Proxies {
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
+    @Qualifier("serverRepository")
     Repository repository;
 
     public Proxies() {
@@ -51,8 +53,8 @@ public class Proxies {
         if (existingProxy != null) {
             return existingProxy.toLinkedEntity();
         } else {
-            ProxyEntity proxy = new ProxyEntity(
-                    new Proxy(this, proxyName, endpoint), proxyName);
+            ProxyEntity proxy = new ProxyEntity(new Proxy(proxyName, endpoint),
+                    proxyName);
             AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
             bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
             bpp.processInjection(proxy);

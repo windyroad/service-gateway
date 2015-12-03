@@ -37,6 +37,10 @@ public class RestDriver extends JavaDriver {
 
     public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
+    // @Autowired
+    // @Qualifier("clientRepository")
+    // Repository repository;
+
     @Autowired
     ServiceGatewayTestConfiguration config;
 
