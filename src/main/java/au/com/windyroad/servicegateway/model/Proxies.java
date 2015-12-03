@@ -1,11 +1,8 @@
 package au.com.windyroad.servicegateway.model;
 
 import java.lang.reflect.InvocationTargetException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +13,6 @@ import org.springframework.http.HttpMethod;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.LinkedEntity;
 import au.com.windyroad.hateoas.core.Relationship;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
@@ -41,8 +37,6 @@ public class Proxies {
     @Autowired
     Repository repository;
 
-    private Map<String, Entity> proxies = new HashMap<>();
-
     public Proxies() {
     }
 
@@ -51,8 +45,6 @@ public class Proxies {
             throws NoSuchMethodException, SecurityException,
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
-
-        // repository.getProxy(proxyName);
 
         ProxyEntity existingProxy = repository.getProxy(proxyName);
 
@@ -65,7 +57,6 @@ public class Proxies {
             bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
             bpp.processInjection(proxy);
 
-            // proxies.put(proxyName, proxy);
             repository.store(proxy);
             return proxy.toLinkedEntity();
         }
@@ -73,21 +64,27 @@ public class Proxies {
 
     @HateoasChildren(Relationship.ITEM)
     @JsonIgnore
-    public Collection<Entity> getProxies() {
-        return proxies.values();
+    public Collection<ProxyEntity> getProxies() {
+        return repository.getProxies();
     }
 
     @HateoasChildren(Relationship.ITEM)
     public void setEndpoints(Collection<LinkedEntity> proxies) {
-        for (LinkedEntity proxy : proxies) {
-            URI address = proxy.getAddress();
-            String[] pathElements = address.getPath().split("/");
-            this.proxies.put(pathElements[pathElements.length - 1], proxy);
-        }
+        // hmmm.., this is called during deserialisation.
+        // clients don't have access to the repository, so
+        // this will fail.
+        // need to think about how to handle this
+        // client side classes need to deserialize very differently.
+        // for (LinkedEntity proxy : proxies) {
+        // URI address = proxy.getAddress();
+        // String[] pathElements = address.getPath().split("/");
+        // repository.store(proxy);
+        // this.proxies.put(pathElements[pathElements.length - 1], proxy);
+        // }
     }
 
     void deleteProxy(String proxyName) {
-        proxies.remove(proxyName);
+        repository.deleteProxy(proxyName);
     }
 
 }

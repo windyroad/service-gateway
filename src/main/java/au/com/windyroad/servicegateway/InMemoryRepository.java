@@ -1,5 +1,6 @@
 package au.com.windyroad.servicegateway;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,6 +19,17 @@ public class InMemoryRepository implements Repository {
     @Override
     public void store(ProxyEntity proxy) {
         proxies.put(proxy.getProperties().getName(), proxy);
+    }
+
+    @Override
+    public Collection<ProxyEntity> getProxies() {
+        // TODO paging
+        return proxies.values();
+    }
+
+    @Override
+    public void deleteProxy(String proxyName) {
+        proxies.remove(proxyName);
     }
 
 }
