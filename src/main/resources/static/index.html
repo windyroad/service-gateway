@@ -65,7 +65,7 @@
 
     <div ng-repeat="action in controller.entity.actions">
       <h3>{{action.title || action.name}}</h3>
-      <form ng-submit="controller.processForm()" class="{{action.class}}" name="{{action.name}}">
+      <form ng-submit="controller.processForm(this)" class="{{action.class}}" name="{{action.name}}">
         <div class="row">
           <div ng-repeat="field in action.fields" class="{{field.class.join(' ')}} form-group col-sm-4">
             <div ng-if="field.type != 'submit'">

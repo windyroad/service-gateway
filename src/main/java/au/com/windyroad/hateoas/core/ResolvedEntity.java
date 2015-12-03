@@ -193,13 +193,6 @@ public class ResolvedEntity<T> extends Entity {
         return linkedEntity;
     }
 
-    public static <T> ParameterizedTypeReference<ResolvedEntity<T>> getType(
-            Class<T> type) {
-
-        return new ParameterizedTypeReference<ResolvedEntity<T>>() {
-        };
-    };
-
     public <L extends ResolvedEntity<T>> L refresh() {
         return (L) getLink(Relationship.SELF).resolve(this.getClass());
     }

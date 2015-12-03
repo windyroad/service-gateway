@@ -29,10 +29,13 @@ public class Proxy {
     private String target;
     private String name;
 
+    Proxies parent;
+
     protected Proxy() {
     }
 
-    public Proxy(String name, String target) {
+    public Proxy(Proxies parent, String name, String target) {
+        this.parent = parent;
         this.name = name;
         this.target = target;
     }
@@ -110,6 +113,11 @@ public class Proxy {
             String[] pathElements = address.getPath().split("/");
             this.endpoints.put(pathElements[pathElements.length - 1], endpoint);
         }
+    }
+
+    @HateoasAction(nature = HttpMethod.DELETE, controller = AdminProxyController.class)
+    public void deleteProxy() {
+        parent.deleteProxy(name);
     }
 
 }

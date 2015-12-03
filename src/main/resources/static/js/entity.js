@@ -43,9 +43,10 @@ app.controller('EntityController', function($scope, $http, $location, $window) {
 		controller.entity = data;
 	})
 
-	controller.processForm = function() {
+	controller.processForm = function(form) {
 		console.log("processForm");
-		var action = controller.entity.actions[0];
+		console.log(form);
+		var action = form.action;
 
 		$http(
 				{

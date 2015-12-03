@@ -53,8 +53,8 @@ public class Proxies {
         if (existingProxy != null) {
             return existingProxy.toLinkedEntity();
         } else {
-            ProxyEntity proxy = new ProxyEntity(new Proxy(proxyName, endpoint),
-                    proxyName);
+            ProxyEntity proxy = new ProxyEntity(
+                    new Proxy(this, proxyName, endpoint), proxyName);
             AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
             bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
             bpp.processInjection(proxy);
@@ -81,6 +81,10 @@ public class Proxies {
             String[] pathElements = address.getPath().split("/");
             this.proxies.put(pathElements[pathElements.length - 1], proxy);
         }
+    }
+
+    void deleteProxy(String proxyName) {
+        proxies.remove(proxyName);
     }
 
 }

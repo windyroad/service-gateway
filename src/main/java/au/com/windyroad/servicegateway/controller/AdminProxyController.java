@@ -82,6 +82,21 @@ public class AdminProxyController {
         return ResponseEntity.noContent().location(proxy.getAddress()).build();
     }
 
+    @RequestMapping(method = RequestMethod.DELETE, produces = {
+            "application/vnd.siren+json",
+            "application/json" }, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    @ResponseBody
+    public ResponseEntity<?> delete(@PathVariable("proxyName") String proxyName)
+            throws IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException {
+
+        ProxyEntity proxy = proxies.getProperties().getProxy(proxyName)
+                .resolve(ProxyEntity.class);
+        proxy.getProperties().deleteProxy();
+        return ResponseEntity.noContent().location(proxies.getAddress())
+                .build();
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> onException(Exception e) {
         LOGGER.error("Error processing proxy admin request", e);
