@@ -3,23 +3,19 @@ package au.com.windyroad.servicegateway.model;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
-import org.springframework.http.HttpMethod;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.LinkedEntity;
 import au.com.windyroad.hateoas.core.Relationship;
-import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 import au.com.windyroad.hateoas.server.annotations.HateoasChildren;
 import au.com.windyroad.hateoas.server.annotations.HateoasController;
 import au.com.windyroad.servicegateway.Repository;
-import au.com.windyroad.servicegateway.controller.AdminProxyController;
 
-@HateoasController(AdminProxyController.class)
+@HateoasController(ProxyController.class)
 public class Proxy {
 
     @Autowired
@@ -48,32 +44,34 @@ public class Proxy {
     @Autowired
     ApplicationContext context;
 
-    @HateoasAction(nature = HttpMethod.PUT, controller = AdminProxyController.class)
-    public static void setEndpoint(ApplicationContext context,
-            Repository repository, Proxy proxy, String target,
-            String available) {
-        EndpointEntity endpoint = repository.getEndpoint(target);
-
-        if (endpoint == null) {
-            String restOfTheUrl = target.replace(proxy.getTarget() + "/", "");
-
-            endpoint = new EndpointEntity(context, repository,
-                    new Endpoint(proxy.getName(), target,
-                            Boolean.parseBoolean(available)),
-                    proxy.getName(), restOfTheUrl);
-
-            // we shouldn't have to be autowiring the domain objects.
-            AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
-            bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
-            bpp.processInjection(endpoint);
-
-            repository.store(endpoint);
-        } else {
-            endpoint.getProperties()
-                    .setAvailable(Boolean.parseBoolean(available));
-            repository.store(endpoint);
-        }
-    }
+    // @HateoasAction(nature = HttpMethod.PUT, controller =
+    // AdminProxyController.class)
+    // public static void setEndpoint(ApplicationContext context,
+    // Repository repository, Proxy proxy, String target,
+    // String available) {
+    // EndpointEntity endpoint = repository.getEndpoint(target);
+    //
+    // if (endpoint == null) {
+    // String restOfTheUrl = target.replace(proxy.getTarget() + "/", "");
+    //
+    // endpoint = new EndpointEntity(context, repository,
+    // new Endpoint(proxy.getName(), target,
+    // Boolean.parseBoolean(available)),
+    // proxy.getName(), restOfTheUrl);
+    //
+    // // we shouldn't have to be autowiring the domain objects.
+    // AutowiredAnnotationBeanPostProcessor bpp = new
+    // AutowiredAnnotationBeanPostProcessor();
+    // bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
+    // bpp.processInjection(endpoint);
+    //
+    // repository.store(endpoint);
+    // } else {
+    // endpoint.getProperties()
+    // .setAvailable(Boolean.parseBoolean(available));
+    // repository.store(endpoint);
+    // }
+    // }
 
     // @HateoasAction(nature = HttpMethod.PUT, controller =
     // AdminProxyController.class)
@@ -118,12 +116,13 @@ public class Proxy {
         this.name = name;
     }
 
-    @HateoasAction(nature = HttpMethod.PUT, controller = AdminProxyController.class)
-    public Proxy update(String endpoint) {
-        this.setTarget(endpoint);
-
-        return this;
-    }
+    // @HateoasAction(nature = HttpMethod.PUT, controller =
+    // AdminProxyController.class)
+    // public Proxy update(String endpoint) {
+    // this.setTarget(endpoint);
+    //
+    // return this;
+    // }
 
     @HateoasChildren(Relationship.ITEM)
     @JsonIgnore
@@ -145,10 +144,11 @@ public class Proxy {
         // }
     }
 
-    @HateoasAction(nature = HttpMethod.DELETE, controller = AdminProxyController.class)
-    public void deleteProxy() {
-        repository.deleteProxy(getName());
-    }
+    // @HateoasAction(nature = HttpMethod.DELETE, controller =
+    // AdminProxyController.class)
+    // public void deleteProxy() {
+    // repository.deleteProxy(getName());
+    // }
 
     public Entity getEndpoint(String endpointName) {
         return repository.getEndpoint(getTarget() + "/" + endpointName);

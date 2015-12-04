@@ -15,7 +15,6 @@ import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
@@ -26,10 +25,9 @@ import org.springframework.web.context.request.async.DeferredResult;
 
 import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.MediaTypes;
-import au.com.windyroad.servicegateway.Repository;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.model.EndpointEntity;
-import au.com.windyroad.servicegateway.model.Proxies;
+import au.com.windyroad.servicegateway.model.ProxiesController;
 import au.com.windyroad.servicegateway.model.ProxiesEntity;
 import au.com.windyroad.servicegateway.model.ProxyEntity;
 
@@ -103,17 +101,14 @@ public class JavaDriver implements Driver {
     ApplicationContext context;
 
     @Autowired
-    @Qualifier("serverRepository")
-    Repository repository;
+    ProxiesController proxiesController;
 
     @Override
     public void createProxy(String proxyName, String endpoint)
             throws NoSuchMethodException, SecurityException,
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
-        this.currentProxy = Proxies.createProxy(context, repository,
-                proxies.getProperties(), proxyName, endpoint)
-                .resolve(ProxyEntity.class);
+        this.currentProxy = proxiesController.createProxy(proxyName, endpoint);
     }
 
     @Override

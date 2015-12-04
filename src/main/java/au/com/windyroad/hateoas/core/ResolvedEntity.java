@@ -58,12 +58,15 @@ public class ResolvedEntity<T> extends Entity {
             T properties, String... args) {
         super(args);
         this.properties = properties;
-        add(new NavigationalRelationship(new JavaLink(this, (Object[]) args),
+        HateoasController javaControllerAnnotation = properties.getClass()
+                .getAnnotation(HateoasController.class);
+        Object controller = context.getBean(javaControllerAnnotation.value());
+        add(new NavigationalRelationship(
+                new JavaLink(controller, this, (Object[]) args),
                 Relationship.SELF));
-        for (Method method : properties.getClass().getMethods()) {
+        for (Method method : javaControllerAnnotation.value().getMethods()) {
             if (method.getAnnotation(HateoasAction.class) != null) {
-                add(new JavaAction(context, repository, properties, method,
-                        (Object[]) args));
+                add(new JavaAction(controller, method, (Object[]) args));
             }
         }
         getNatures().add(properties.getClass().getSimpleName());

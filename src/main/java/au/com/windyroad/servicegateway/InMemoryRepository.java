@@ -4,11 +4,17 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import au.com.windyroad.servicegateway.model.EndpointEntity;
+import au.com.windyroad.servicegateway.model.ProxiesEntity;
 import au.com.windyroad.servicegateway.model.ProxyEntity;
 
 @org.springframework.stereotype.Repository("serverRepository")
 public class InMemoryRepository implements Repository {
+
+    @Autowired
+    ProxiesEntity proxiesEntity;
 
     Map<String, ProxyEntity> proxies = new HashMap<>();
     Map<String, EndpointEntity> endpoints = new HashMap<>();
@@ -48,6 +54,11 @@ public class InMemoryRepository implements Repository {
     public Collection<EndpointEntity> getEndpoints() {
         // TODO paging
         return endpoints.values();
+    }
+
+    @Override
+    public ProxiesEntity getRoot() {
+        return proxiesEntity;
     }
 
 }

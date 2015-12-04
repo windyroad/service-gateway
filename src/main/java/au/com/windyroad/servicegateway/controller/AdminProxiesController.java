@@ -19,10 +19,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import au.com.windyroad.hateoas.core.LinkedEntity;
+import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.MediaTypes;
-import au.com.windyroad.hateoas.core.ResolvedEntity;
-import au.com.windyroad.servicegateway.model.Proxies;
+import au.com.windyroad.servicegateway.model.ProxiesController;
 
 @Controller
 @RequestMapping(value = "/admin/proxies")
@@ -30,17 +29,13 @@ public class AdminProxiesController {
     public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    ResolvedEntity<Proxies> proxies;
+    ProxiesController proxiesController;
 
     @RequestMapping(method = RequestMethod.GET, produces = {
             MediaTypes.SIREN_JSON_VALUE, MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
-    public ResponseEntity<?> self() throws IllegalAccessException,
-            IllegalArgumentException, InvocationTargetException,
-            NoSuchMethodException, SecurityException {
-        ResponseEntity<?> responseEntity = new ResponseEntity<>(proxies,
-                HttpStatus.OK);
-        return responseEntity;
+    public ResponseEntity<?> self() {
+        return ResponseEntity.ok(proxiesController.self());
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = { "text/html",
@@ -58,9 +53,9 @@ public class AdminProxiesController {
                     throws URISyntaxException, NoSuchMethodException,
                     SecurityException, ScriptException, IllegalAccessException,
                     IllegalArgumentException, InvocationTargetException {
-        au.com.windyroad.hateoas.core.Action action = proxies
+        au.com.windyroad.hateoas.core.Action action = proxiesController.self()
                 .getAction(allRequestParams.get("trigger"));
-        LinkedEntity result = action.invoke(allRequestParams).toLinkedEntity();
+        Entity result = action.invoke(allRequestParams);
         return ResponseEntity.created(result.getAddress()).build();
     }
 

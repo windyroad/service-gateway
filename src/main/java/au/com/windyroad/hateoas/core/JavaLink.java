@@ -14,13 +14,16 @@ public class JavaLink extends Link {
 
     private Object entityOrProperties;
     private Object[] parameters;
+    private Object javaController;
 
     protected JavaLink() {
     }
 
-    public JavaLink(Object entityOrProperties, Object... parameters) {
+    public JavaLink(Object javaController, Object entityOrProperties,
+            Object... parameters) {
         this.entityOrProperties = entityOrProperties;
         this.parameters = parameters;
+        this.javaController = javaController;
     }
 
     @SuppressWarnings("unchecked")
@@ -41,7 +44,7 @@ public class JavaLink extends Link {
             Class<?> controller;
             if (entityOrProperties instanceof ResolvedEntity<?>) {
                 ResolvedEntity<?> entity = (ResolvedEntity<?>) entityOrProperties;
-                controller = entity.getProperties().getClass()
+                controller = javaController.getClass()
                         .getAnnotation(HateoasController.class).value();
             } else {
                 controller = entityOrProperties.getClass()

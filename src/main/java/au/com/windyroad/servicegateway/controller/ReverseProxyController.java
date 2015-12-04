@@ -29,43 +29,39 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.servlet.HandlerMapping;
 
-import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.servicegateway.Repository;
-import au.com.windyroad.servicegateway.model.ProxiesEntity;
-import au.com.windyroad.servicegateway.model.Proxy;
 import au.com.windyroad.servicegateway.model.ProxyEntity;
 
 @Controller
-public class ProxyController {
+public class ReverseProxyController {
     public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    ProxiesEntity proxies;
+    au.com.windyroad.servicegateway.model.ProxyController proxyController;
 
     private static class CBack implements FutureCallback<HttpResponse> {
         private DeferredResult<ResponseEntity<?>> deferredResult;
         private String target;
 
         private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
-        private ResolvedEntity<Proxy> proxy;
-        private ApplicationContext context;
-        private Repository repository;
+
+        private au.com.windyroad.servicegateway.model.ProxyController proxyController;
+
+        private String proxyName;
 
         public CBack(DeferredResult<ResponseEntity<?>> deferredResult,
-                ApplicationContext context, Repository repository,
-                ResolvedEntity<Proxy> proxy, String target) {
-            this.context = context;
-            this.repository = repository;
+                au.com.windyroad.servicegateway.model.ProxyController proxyController,
+                String proxyName, String target) {
             this.deferredResult = deferredResult;
             this.target = target;
-            this.proxy = proxy;
+            this.proxyName = proxyName;
+            this.proxyController = proxyController;
         }
 
         @Override
         public void failed(Exception ex) {
             LOGGER.error("Failure while processing: ", ex);
-            Proxy.setEndpoint(context, repository, proxy.getProperties(),
-                    target, "false");
+            proxyController.setEndpoint(proxyName, target, "false");
             deferredResult.setErrorResult(ex);
         }
 
@@ -90,8 +86,7 @@ public class ProxyController {
                             httpHeaders, httpStatus);
                 }
                 deferredResult.setResult(responseEntity);
-                Proxy.setEndpoint(context, repository, proxy.getProperties(),
-                        target, "true");
+                proxyController.setEndpoint(proxyName, target, "true");
 
             } catch (Exception e) {
                 LOGGER.error("Failure while processing response:", e);
@@ -125,26 +120,25 @@ public class ProxyController {
     @Autowired
     ApplicationContext context;
 
-    @RequestMapping("/proxy/{name}/**")
+    @RequestMapping("/proxy/{proxyName}/**")
     public DeferredResult<ResponseEntity<?>> get(
             final HttpServletRequest request,
             final HttpServletResponse response,
-            @PathVariable("name") String name)
+            @PathVariable("proxyName") String proxyName)
                     throws NoSuchMethodException, SecurityException,
                     IllegalAccessException, IllegalArgumentException,
                     InvocationTargetException, URISyntaxException {
         DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<ResponseEntity<?>>();
 
-        ProxyEntity proxy = repository.getProxy(name);
+        ProxyEntity proxy = proxyController.self(proxyName);
 
         if (proxy != null) {
             String url = (String) request.getAttribute(
                     HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-            String restOfTheUrl = url.replace("/proxy/" + name + "/", "");
+            String restOfTheUrl = url.replace("/proxy/" + proxyName + "/", "");
             String target = proxy.getProperties().getTarget() + "/"
                     + restOfTheUrl;
-            Proxy.setEndpoint(context, repository, proxy.getProperties(),
-                    target, "false");
+            proxyController.setEndpoint(proxyName, target, "false");
 
             httpAsyncClient.start();
             HttpGet newRequest = new HttpGet(target);
@@ -158,11 +152,11 @@ public class ProxyController {
             LOGGER.debug("{ 'event': 'proxyReqeust', 'from': '" + url
                     + "', 'to': '" + target + "' }");
             httpAsyncClient.execute(newRequest, new CBack(deferredResult,
-                    context, repository, proxy, target));
+                    proxyController, proxyName, target));
 
         } else {
-            LOGGER.error("{ 'error': 'proxy not found', 'proxyName' : '" + name
-                    + "' }");
+            LOGGER.error("{ 'error': 'proxy not found', 'proxyName' : '"
+                    + proxyName + "' }");
             deferredResult.setResult(ResponseEntity.notFound().build());
         }
         return deferredResult;

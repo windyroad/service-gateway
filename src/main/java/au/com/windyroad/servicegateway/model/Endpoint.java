@@ -2,9 +2,8 @@ package au.com.windyroad.servicegateway.model;
 
 import au.com.windyroad.hateoas.annotations.Label;
 import au.com.windyroad.hateoas.server.annotations.HateoasController;
-import au.com.windyroad.servicegateway.controller.AdminEndpointController;
 
-@HateoasController(AdminEndpointController.class)
+@HateoasController(EndpointController.class)
 @Label("Endpoint `{proxyName}/{target}`")
 public class Endpoint {
 

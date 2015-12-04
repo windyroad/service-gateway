@@ -1,12 +1,10 @@
 package au.com.windyroad.servicegateway.controller;
 
 import java.lang.reflect.InvocationTargetException;
-import java.net.URISyntaxException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +19,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import au.com.windyroad.servicegateway.Repository;
-import au.com.windyroad.servicegateway.model.ProxiesEntity;
+import au.com.windyroad.servicegateway.model.ProxiesController;
+import au.com.windyroad.servicegateway.model.ProxyController;
 import au.com.windyroad.servicegateway.model.ProxyEntity;
 
 @Controller
@@ -31,26 +29,21 @@ public class AdminProxyController {
     public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    ProxiesEntity proxies;
+    ProxyController proxyController;
 
     @Autowired
-    @Qualifier("serverRepository")
-    Repository repository;
+    ProxiesController proxiesController;
 
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<?> self(@PathVariable("proxyName") String proxyName)
-            throws URISyntaxException, NoSuchMethodException, SecurityException,
-            IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException {
-        ProxyEntity proxy = repository.getProxy(proxyName);
+    public ResponseEntity<?> self(@PathVariable("proxyName") String proxyName) {
+        ProxyEntity proxy = proxyController.self(proxyName);
 
         if (proxy == null) {
             return ResponseEntity.notFound().build();
         }
 
-        ResponseEntity<?> responseEntity = new ResponseEntity<>(proxy,
-                HttpStatus.OK);
+        ResponseEntity<?> responseEntity = ResponseEntity.ok(proxy);
         return responseEntity;
     }
 
@@ -64,7 +57,7 @@ public class AdminProxyController {
                     throws IllegalAccessException, IllegalArgumentException,
                     InvocationTargetException {
 
-        ProxyEntity proxy = repository.getProxy(proxyName);
+        ProxyEntity proxy = proxyController.self(proxyName);
         if (proxy == null) {
             return ResponseEntity.notFound().build();
         }
@@ -94,10 +87,11 @@ public class AdminProxyController {
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException {
 
-        ProxyEntity proxy = repository.getProxy(proxyName);
-        proxy.getProperties().deleteProxy();
-        return ResponseEntity.noContent().location(proxies.getAddress())
-                .build();
+        proxyController.deleteProxy(proxyName);
+        // should we do it this way, or should the proxies controller return a
+        // link to the root?
+        return ResponseEntity.noContent()
+                .location(proxiesController.self().getAddress()).build();
     }
 
     @ExceptionHandler(Exception.class)
