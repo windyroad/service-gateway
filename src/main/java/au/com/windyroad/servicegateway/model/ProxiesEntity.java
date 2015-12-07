@@ -11,8 +11,8 @@ public class ProxiesEntity extends ResolvedEntity<Proxies> {
     }
 
     public ProxiesEntity(ApplicationContext context, Repository repository,
-            Proxies properties, String... args) {
-        super(context, repository, properties, args);
+            String path, Proxies properties, String... args) {
+        super(context, repository, path, properties, args);
     }
 
 }

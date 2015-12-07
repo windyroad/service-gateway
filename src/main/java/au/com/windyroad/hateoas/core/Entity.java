@@ -1,6 +1,7 @@
 package au.com.windyroad.hateoas.core;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.springframework.core.ParameterizedTypeReference;
 
@@ -20,6 +21,6 @@ public abstract class Entity extends Resolvable {
     @JsonIgnore
     public abstract LinkedEntity toLinkedEntity();
 
-    public abstract URI getAddress();
+    public abstract URI getAddress() throws URISyntaxException;
 
 }

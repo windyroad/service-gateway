@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import au.com.windyroad.hateoas.core.LinkedEntity;
 import au.com.windyroad.hateoas.core.Relationship;
+import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.hateoas.server.annotations.HateoasChildren;
 import au.com.windyroad.hateoas.server.annotations.HateoasController;
 import au.com.windyroad.servicegateway.Repository;
@@ -79,7 +80,7 @@ public class Proxies {
 
     @HateoasChildren(Relationship.ITEM)
     @JsonIgnore
-    public Collection<ProxyEntity> getProxies() {
+    public Collection<ResolvedEntity<?>> getProxies() {
         return repository.getProxies();
     }
 

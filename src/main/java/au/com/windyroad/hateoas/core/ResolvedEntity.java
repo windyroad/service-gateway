@@ -3,6 +3,7 @@ package au.com.windyroad.hateoas.core;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -55,18 +56,18 @@ public class ResolvedEntity<T> extends Entity {
     }
 
     public ResolvedEntity(ApplicationContext context, Repository repository,
-            T properties, String... args) {
+            String path, T properties, String... args) {
         super(args);
         this.properties = properties;
         HateoasController javaControllerAnnotation = properties.getClass()
                 .getAnnotation(HateoasController.class);
         Object controller = context.getBean(javaControllerAnnotation.value());
         add(new NavigationalRelationship(
-                new JavaLink(controller, this, (Object[]) args),
+                new JavaLink(controller, path, this, (Object[]) args),
                 Relationship.SELF));
         for (Method method : javaControllerAnnotation.value().getMethods()) {
             if (method.getAnnotation(HateoasAction.class) != null) {
-                add(new JavaAction(controller, method, (Object[]) args));
+                add(new JavaAction(controller, path, method, (Object[]) args));
             }
         }
         getNatures().add(properties.getClass().getSimpleName());
@@ -205,7 +206,7 @@ public class ResolvedEntity<T> extends Entity {
 
     @Override
     @JsonIgnore
-    public URI getAddress() {
+    public URI getAddress() throws URISyntaxException {
         return getLink(Relationship.SELF).getAddress();
     }
 

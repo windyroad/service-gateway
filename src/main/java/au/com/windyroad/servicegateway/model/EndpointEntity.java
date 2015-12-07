@@ -11,8 +11,8 @@ public class EndpointEntity extends ResolvedEntity<Endpoint> {
     }
 
     public EndpointEntity(ApplicationContext context, Repository repository,
-            Endpoint endpoint, String... args) {
-        super(context, repository, endpoint, args);
+            String path, Endpoint endpoint, String... args) {
+        super(context, repository, path, endpoint, args);
     }
 
 }

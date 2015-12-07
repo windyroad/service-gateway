@@ -1,10 +1,12 @@
 package au.com.windyroad.servicegateway.model;
 
+import java.io.UnsupportedEncodingException;
+
 import au.com.windyroad.hateoas.annotations.Label;
 import au.com.windyroad.hateoas.server.annotations.HateoasController;
 
 @HateoasController(EndpointController.class)
-@Label("Endpoint `{proxyName}/{target}`")
+@Label("Endpoint `{target}`")
 public class Endpoint {
 
     private boolean available;
@@ -13,7 +15,7 @@ public class Endpoint {
     protected Endpoint() {
     }
 
-    public Endpoint(String proxyName, String target, boolean available) {
+    public Endpoint(String target, boolean available) {
         this.target = target;
         this.available = available;
     }
@@ -30,4 +32,9 @@ public class Endpoint {
         return this.target;
     }
 
+    public static String getUrl(String target)
+            throws UnsupportedEncodingException {
+        return "/admin/endpoints"
+                + target.replaceFirst("://", "/").replaceFirst(":", "/");
+    }
 }

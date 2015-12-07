@@ -8,5 +8,5 @@ Scenario: Proxy single service
     And a ping service at "/test/ping"
     And "/test" is proxied at "/proxy/test"
     When a request is successfully made to "/proxy/test/ping"
-    Then "ping" will be listed in the endpoints proxied by "/proxy/test"
+    Then "/test/ping" will be listed in the endpoints proxied by "/proxy/test"
     And the endpoint will be shown as available

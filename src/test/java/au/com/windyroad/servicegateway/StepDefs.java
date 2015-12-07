@@ -68,7 +68,7 @@ public class StepDefs {
     @Then("^\"(.*?)\" will be listed in the endpoints proxied by \"/proxy/(.*?)\"$")
     public void will_be_listed_in_the_endpoints_proxied_by(String endpoint,
             String proxy) throws Throwable {
-        driver.checkEndpointExists(proxy, endpoint);
+        driver.checkEndpointExists(proxy, normaliseUrl(endpoint));
     }
 
     @Then("^the endpoint will be shown as available$")

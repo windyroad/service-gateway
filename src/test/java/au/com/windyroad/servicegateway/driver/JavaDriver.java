@@ -3,9 +3,12 @@ package au.com.windyroad.servicegateway.driver;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Future;
 
 import org.apache.http.HttpResponse;
@@ -15,6 +18,7 @@ import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
@@ -23,12 +27,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.MediaTypes;
+import au.com.windyroad.hateoas.core.ResolvedEntity;
+import au.com.windyroad.servicegateway.Repository;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
+import au.com.windyroad.servicegateway.model.Endpoint;
 import au.com.windyroad.servicegateway.model.EndpointEntity;
-import au.com.windyroad.servicegateway.model.ProxiesController;
-import au.com.windyroad.servicegateway.model.ProxiesEntity;
 import au.com.windyroad.servicegateway.model.ProxyEntity;
 
 @Component
@@ -36,9 +40,6 @@ import au.com.windyroad.servicegateway.model.ProxyEntity;
 public class JavaDriver implements Driver {
 
     public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
-
-    @Autowired
-    ProxiesEntity proxies;
 
     @Autowired
     ServiceGatewayTestConfiguration config;
@@ -52,6 +53,10 @@ public class JavaDriver implements Driver {
     private ProxyEntity currentProxy;
 
     private EndpointEntity currentEndpoint;
+
+    @Autowired
+    @Qualifier("serverRepository")
+    Repository repository;
 
     @Override
     public void clearProxies() {
@@ -100,15 +105,17 @@ public class JavaDriver implements Driver {
     @Autowired
     ApplicationContext context;
 
-    @Autowired
-    ProxiesController proxiesController;
-
     @Override
     public void createProxy(String proxyName, String endpoint)
             throws NoSuchMethodException, SecurityException,
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
-        this.currentProxy = proxiesController.createProxy(proxyName, endpoint);
+        ResolvedEntity<?> root = repository.get("/admin/proxies");
+        Map<String, String> actionContext = new HashMap<>();
+        actionContext.put("proxyName", proxyName);
+        actionContext.put("endpoint", endpoint);
+        this.currentProxy = root.getAction("createProxy").invoke(actionContext)
+                .resolve(ProxyEntity.class);
     }
 
     @Override
@@ -122,9 +129,9 @@ public class JavaDriver implements Driver {
     @Override
     public void checkEndpointExists(String path, String endpointName)
             throws IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException {
-        Entity endpoint = currentProxy.getProperties()
-                .getEndpoint(endpointName);
+            InvocationTargetException, UnsupportedEncodingException {
+        EndpointEntity endpoint = repository.get(Endpoint.getUrl(endpointName))
+                .resolve(EndpointEntity.class);
         assertThat(endpoint, notNullValue());
         currentEndpoint = endpoint.resolve(EndpointEntity.class);
 

@@ -11,8 +11,8 @@ public class ProxyEntity extends ResolvedEntity<Proxy> {
     }
 
     public ProxyEntity(ApplicationContext context, Repository repository,
-            Proxy properties, String... args) {
-        super(context, repository, properties, args);
+            String path, Proxy properties, String... args) {
+        super(context, repository, path, properties, args);
     }
 
 }

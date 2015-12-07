@@ -3,6 +3,8 @@ package au.com.windyroad.servicegateway.controller;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,32 +38,38 @@ import au.com.windyroad.servicegateway.model.ProxyEntity;
 public class ReverseProxyController {
     public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    au.com.windyroad.servicegateway.model.ProxyController proxyController;
-
     private static class CBack implements FutureCallback<HttpResponse> {
         private DeferredResult<ResponseEntity<?>> deferredResult;
         private String target;
 
         private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-        private au.com.windyroad.servicegateway.model.ProxyController proxyController;
+        private ProxyEntity proxy;
 
         private String proxyName;
 
         public CBack(DeferredResult<ResponseEntity<?>> deferredResult,
-                au.com.windyroad.servicegateway.model.ProxyController proxyController,
-                String proxyName, String target) {
+                ProxyEntity proxy, String proxyName, String target) {
             this.deferredResult = deferredResult;
             this.target = target;
             this.proxyName = proxyName;
-            this.proxyController = proxyController;
+            this.proxy = proxy;
         }
 
         @Override
         public void failed(Exception ex) {
             LOGGER.error("Failure while processing: ", ex);
-            proxyController.setEndpoint(proxyName, target, "false");
+            Map<String, String> actionContext = new HashMap<>();
+            actionContext.put("proxyName", proxyName);
+            actionContext.put("target", target);
+            actionContext.put("available", "false");
+            try {
+                proxy.getAction("setEndpoint").invoke(actionContext);
+            } catch (IllegalAccessException | IllegalArgumentException
+                    | InvocationTargetException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
             deferredResult.setErrorResult(ex);
         }
 
@@ -86,7 +94,18 @@ public class ReverseProxyController {
                             httpHeaders, httpStatus);
                 }
                 deferredResult.setResult(responseEntity);
-                proxyController.setEndpoint(proxyName, target, "true");
+
+                Map<String, String> actionContext = new HashMap<>();
+                actionContext.put("proxyName", proxyName);
+                actionContext.put("target", target);
+                actionContext.put("available", "true");
+                try {
+                    proxy.getAction("setEndpoint").invoke(actionContext);
+                } catch (IllegalAccessException | IllegalArgumentException
+                        | InvocationTargetException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
 
             } catch (Exception e) {
                 LOGGER.error("Failure while processing response:", e);
@@ -130,7 +149,9 @@ public class ReverseProxyController {
                     InvocationTargetException, URISyntaxException {
         DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<ResponseEntity<?>>();
 
-        ProxyEntity proxy = proxyController.self(proxyName);
+        String path = "/admin/proxies/" + proxyName;
+
+        ProxyEntity proxy = (ProxyEntity) repository.get(path);
 
         if (proxy != null) {
             String url = (String) request.getAttribute(
@@ -138,7 +159,11 @@ public class ReverseProxyController {
             String restOfTheUrl = url.replace("/proxy/" + proxyName + "/", "");
             String target = proxy.getProperties().getTarget() + "/"
                     + restOfTheUrl;
-            proxyController.setEndpoint(proxyName, target, "false");
+            Map<String, String> actionContext = new HashMap<>();
+            actionContext.put("proxyName", proxyName);
+            actionContext.put("target", target);
+            actionContext.put("available", "false");
+            proxy.getAction("setEndpoint").invoke(actionContext);
 
             httpAsyncClient.start();
             HttpGet newRequest = new HttpGet(target);
@@ -151,8 +176,8 @@ public class ReverseProxyController {
 
             LOGGER.debug("{ 'event': 'proxyReqeust', 'from': '" + url
                     + "', 'to': '" + target + "' }");
-            httpAsyncClient.execute(newRequest, new CBack(deferredResult,
-                    proxyController, proxyName, target));
+            httpAsyncClient.execute(newRequest,
+                    new CBack(deferredResult, proxy, proxyName, target));
 
         } else {
             LOGGER.error("{ 'error': 'proxy not found', 'proxyName' : '"

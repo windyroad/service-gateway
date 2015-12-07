@@ -1,5 +1,6 @@
 package au.com.windyroad.servicegateway.driver;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 
@@ -15,7 +16,7 @@ public interface Driver {
 
     void checkEndpointExists(String proxyName, String endpoint)
             throws IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException;
+            InvocationTargetException, UnsupportedEncodingException;
 
     void createProxy(String proxyName, String endpoint)
             throws NoSuchMethodException, SecurityException,

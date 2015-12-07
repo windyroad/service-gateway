@@ -37,7 +37,7 @@ app.controller('EntityController', function($scope, $http, $location, $window) {
 	
 	
 	
-	$http.get($window.location.pathname, {
+	$http.get($window.location.href, {
 		cache: false
 	}).success(function(data) {
 		controller.entity = data;

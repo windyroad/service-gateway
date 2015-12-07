@@ -19,8 +19,4 @@ public class EndpointController {
     @Qualifier("serverRepository")
     Repository repository;
 
-    public EndpointEntity self(String target) {
-        return repository.getEndpoint(target);
-    }
-
 }

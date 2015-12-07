@@ -7,6 +7,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
+import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 import au.com.windyroad.hateoas.server.annotations.HateoasController;
 import au.com.windyroad.servicegateway.Repository;
@@ -23,25 +24,22 @@ public class ProxiesController {
     @Qualifier("serverRepository")
     Repository repository;
 
-    public ProxiesEntity self() {
-        return repository.getRoot();
-    }
-
     @HateoasAction(nature = HttpMethod.POST, controller = AdminProxiesController.class)
-    public ProxyEntity createProxy(String proxyName, String endpoint) {
+    public ResolvedEntity<?> createProxy(String proxyName, String endpoint) {
 
-        ProxyEntity existingProxy = repository.getProxy(proxyName);
+        String path = "/admin/proxies/" + proxyName;
+        ResolvedEntity<?> existingProxy = repository.get(path);
 
         if (existingProxy != null) {
             return existingProxy;
         } else {
-            ProxyEntity proxy = new ProxyEntity(context, repository,
+            ProxyEntity proxy = new ProxyEntity(context, repository, path,
                     new Proxy(proxyName, endpoint), proxyName);
             AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
             bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
             bpp.processInjection(proxy);
 
-            repository.store(proxy);
+            repository.put(path, proxy);
             return proxy;
         }
     }

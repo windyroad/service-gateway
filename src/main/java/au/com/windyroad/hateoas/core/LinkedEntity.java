@@ -1,6 +1,7 @@
 package au.com.windyroad.hateoas.core;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +54,7 @@ public class LinkedEntity extends Entity {
 
     @Override
     @JsonProperty("href")
-    public URI getAddress() {
+    public URI getAddress() throws URISyntaxException {
         return link.getAddress();
     }
 

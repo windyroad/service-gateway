@@ -212,11 +212,11 @@ public class ServiceGatewayApplication {
             IllegalArgumentException, InvocationTargetException,
             NoSuchMethodException, SecurityException {
         ProxiesEntity resolvedEntity = new ProxiesEntity(context, repository,
-                new Proxies());
+                "/admin/proxies", new Proxies());
         AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
         bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
         bpp.processInjection(resolvedEntity);
-
+        repository.put("/admin/proxies", resolvedEntity);
         return resolvedEntity;
     }
 

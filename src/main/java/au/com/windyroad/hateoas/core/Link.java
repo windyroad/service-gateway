@@ -1,6 +1,7 @@
 package au.com.windyroad.hateoas.core;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Set;
 
 import org.springframework.core.ParameterizedTypeReference;
@@ -29,5 +30,5 @@ abstract public class Link extends Resolvable {
     public abstract MediaType getRepresentationFormat();
 
     @JsonProperty("href")
-    public abstract URI getAddress();
+    public abstract URI getAddress() throws URISyntaxException;
 }

@@ -1,5 +1,6 @@
 package au.com.windyroad.servicegateway.model;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,9 +9,9 @@ import org.springframework.context.ApplicationContext;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.LinkedEntity;
 import au.com.windyroad.hateoas.core.Relationship;
+import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.hateoas.server.annotations.HateoasChildren;
 import au.com.windyroad.hateoas.server.annotations.HateoasController;
 import au.com.windyroad.servicegateway.Repository;
@@ -126,8 +127,9 @@ public class Proxy {
 
     @HateoasChildren(Relationship.ITEM)
     @JsonIgnore
-    public Collection<EndpointEntity> getEndpoints() {
-        return repository.getEndpoints();
+    public Collection<ResolvedEntity<?>> getEndpoints() {
+        // this should actuallly be a query object
+        return repository.getEndpointsUnder(this.getTarget());
     }
 
     @HateoasChildren(Relationship.ITEM)
@@ -150,8 +152,10 @@ public class Proxy {
     // repository.deleteProxy(getName());
     // }
 
-    public Entity getEndpoint(String endpointName) {
-        return repository.getEndpoint(getTarget() + "/" + endpointName);
+    public EndpointEntity getEndpoint(String target)
+            throws UnsupportedEncodingException {
+        String path = Endpoint.getUrl(target);
+        return (EndpointEntity) repository.get(path);
     }
 
 }

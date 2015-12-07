@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -14,23 +15,25 @@ import org.springframework.http.HttpMethod;
 
 import au.com.windyroad.hateoas.annotations.PresentationType;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
-import au.com.windyroad.hateoas.server.annotations.HateoasController;
+import au.com.windyroad.servicegateway.controller.RepositoryController;
 
 public class JavaAction extends Action {
 
     private Method method;
     private Object[] pathParameters;
     private Object javaController;
+    private String path;
 
     protected JavaAction() {
     }
 
-    public JavaAction(Object controller, Method method,
+    public JavaAction(Object controller, String path, Method method,
             Object... pathParameters) {
         super(method.getName(), extractParameters(method));
         this.javaController = controller;
         this.method = method;
         this.pathParameters = pathParameters;
+        this.path = path;
     }
 
     private static au.com.windyroad.hateoas.core.Parameter[] extractParameters(
@@ -71,13 +74,14 @@ public class JavaAction extends Action {
     }
 
     @Override
-    public URI getAddress() throws NoSuchMethodException, SecurityException {
+    public URI getAddress() throws NoSuchMethodException, SecurityException,
+            URISyntaxException {
         if (method != null) {
-            Class<?> controller = this.javaController.getClass()
-                    .getAnnotation(HateoasController.class).value();
-            URI uri = ControllerLinkBuilder.linkTo(controller, pathParameters)
-                    .toUri();
-            return uri;
+            Class<?> controller = RepositoryController.class;
+            String uri = ControllerLinkBuilder.linkTo(controller).toUri()
+                    .toString();
+            uri = uri.replace("/admin/**", "") + path;
+            return new URI(uri);
         } else {
             return null;
         }

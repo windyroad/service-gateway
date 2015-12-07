@@ -71,7 +71,7 @@ public class HtmlDriver extends RestDriver {
                 .findElements(By.className("entity"));
         assertThat(entities.size(), equalTo(1));
         assertThat(entities.get(0).getText(),
-                equalTo("Endpoint `test/" + endpointPath + '`'));
+                equalTo("Endpoint `" + endpointPath + '`'));
         entities.get(0).click();
     }
 

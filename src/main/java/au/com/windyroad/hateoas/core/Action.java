@@ -2,6 +2,7 @@ package au.com.windyroad.hateoas.core;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -51,7 +52,7 @@ public abstract class Action extends Resolvable {
 
     @JsonProperty("href")
     public abstract URI getAddress()
-            throws NoSuchMethodException, SecurityException;
+            throws NoSuchMethodException, SecurityException, URISyntaxException;
 
     /**
      * @return the parameters

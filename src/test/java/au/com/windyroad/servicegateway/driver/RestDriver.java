@@ -3,6 +3,7 @@ package au.com.windyroad.servicegateway.driver;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -119,7 +120,7 @@ public class RestDriver extends JavaDriver {
     @Override
     public void checkEndpointExists(String proxyName, String endpointPath)
             throws IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException {
+            InvocationTargetException, UnsupportedEncodingException {
         currentProxy = currentProxy.refresh();
         Entity endpoint = currentProxy.getProperties()
                 .getEndpoint(endpointPath);
