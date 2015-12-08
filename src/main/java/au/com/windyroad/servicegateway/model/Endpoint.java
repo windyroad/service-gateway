@@ -34,7 +34,7 @@ public class Endpoint {
 
     public static String getUrl(String target)
             throws UnsupportedEncodingException {
-        return "/admin/endpoints"
+        return "/admin/endpoints/"
                 + target.replaceFirst("://", "/").replaceFirst(":", "/");
     }
 }
