@@ -20,51 +20,6 @@ public class InMemoryRepository implements Repository {
     Map<String, ResolvedEntity<?>> resolvedEntities = new HashMap<>();
     MultiValueMap<String, EntityRelationship> children = new LinkedMultiValueMap<>();
 
-    // Map<String, ProxyEntity> proxies = new HashMap<>();
-    // Map<String, EndpointEntity> endpoints = new HashMap<>();
-
-    // @Override
-    // public ProxyEntity getProxy(String proxyName) {
-    // return proxies.get(proxyName);
-    // }
-    //
-    // @Override
-    // public void store(ProxyEntity proxy) {
-    // proxies.put(proxy.getProperties().getName(), proxy);
-    // }
-    //
-    // @Override
-    // public Collection<ProxyEntity> getProxies() {
-    // // TODO paging
-    // return proxies.values();
-    // }
-    //
-    // @Override
-    // public void deleteProxy(String proxyName) {
-    // proxies.remove(proxyName);
-    // }
-    //
-    // @Override
-    // public EndpointEntity getEndpoint(String target) {
-    // return this.endpoints.get(target);
-    // }
-    //
-    // @Override
-    // public void store(EndpointEntity endpoint) {
-    // this.endpoints.put(endpoint.getProperties().getTarget(), endpoint);
-    // }
-    //
-    // @Override
-    // public Collection<EndpointEntity> getEndpoints() {
-    // // TODO paging
-    // return endpoints.values();
-    // }
-    //
-    // @Override
-    // public ProxiesEntity getRoot() {
-    // return proxiesEntity;
-    // }
-
     @Override
     public ResolvedEntity<?> get(String path) {
         return resolvedEntities.get(path);

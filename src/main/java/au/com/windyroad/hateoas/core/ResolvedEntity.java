@@ -124,20 +124,6 @@ public class ResolvedEntity<T> extends Entity {
         String path = fullPath.replace(basePath, "");
         return (repository == null ? new ArrayList<>()
                 : repository.getChildren(path));
-        /*
-         * Set<EntityRelationship> entityRelationships = new HashSet<>(); if
-         * (properties != null) { for (Method method :
-         * properties.getClass().getMethods()) { HateoasChildren hateoasChildren
-         * = method .getAnnotation(HateoasChildren.class); if (hateoasChildren
-         * != null && method.getParameterTypes().length == 0) { Object entities
-         * = method.invoke(properties); if (entities instanceof Collection) {
-         * Collection<?> entityCollection = (Collection<?>) entities; for
-         * (Object entity : entityCollection) { entityRelationships.add(new
-         * EntityRelationship( (Entity) entity, hateoasChildren.value())); } }
-         * else { throw new RuntimeException("unknown entity collection: " +
-         * entities.getClass()); } } } } return
-         * ImmutableSet.copyOf(entityRelationships);
-         */
     }
 
     public Link getLink(String self) {
