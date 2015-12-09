@@ -11,12 +11,9 @@ import org.springframework.stereotype.Component;
 import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.hateoas.core.Relationship;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
-import au.com.windyroad.hateoas.server.annotations.HateoasController;
 import au.com.windyroad.servicegateway.Repository;
-import au.com.windyroad.servicegateway.controller.AdminProxyController;
 
 @Component
-@HateoasController(AdminProxyController.class)
 public class ProxyController {
 
     @Autowired
@@ -26,7 +23,7 @@ public class ProxyController {
     @Qualifier("serverRepository")
     Repository repository;
 
-    @HateoasAction(nature = HttpMethod.PUT, controller = AdminProxyController.class)
+    @HateoasAction(nature = HttpMethod.PUT)
     public void setEndpoint(EntityWrapper<Proxy> proxy, String proxyName,
             String target, String available)
                     throws UnsupportedEncodingException {
@@ -49,12 +46,12 @@ public class ProxyController {
         }
     }
 
-    @HateoasAction(nature = HttpMethod.DELETE, controller = AdminProxyController.class)
+    @HateoasAction(nature = HttpMethod.DELETE)
     public void deleteProxy(EntityWrapper<Proxy> proxy) {
         repository.remove(proxy);
     }
 
-    @HateoasAction(nature = HttpMethod.PUT, controller = AdminProxyController.class)
+    @HateoasAction(nature = HttpMethod.PUT)
     public EntityWrapper<Proxy> update(EntityWrapper<Proxy> proxy,
             String proxyName, String target) {
         proxy.getProperties().setTarget(target);

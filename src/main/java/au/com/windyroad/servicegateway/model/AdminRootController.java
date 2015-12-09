@@ -12,12 +12,9 @@ import org.springframework.web.client.HttpClientErrorException;
 import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.hateoas.core.Relationship;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
-import au.com.windyroad.hateoas.server.annotations.HateoasController;
 import au.com.windyroad.servicegateway.Repository;
-import au.com.windyroad.servicegateway.controller.AdminProxiesController;
 
 @Component
-@HateoasController(AdminProxiesController.class)
 public class AdminRootController {
 
     @Autowired
@@ -27,7 +24,7 @@ public class AdminRootController {
     @Qualifier("serverRepository")
     Repository repository;
 
-    @HateoasAction(nature = HttpMethod.POST, controller = AdminProxiesController.class)
+    @HateoasAction(nature = HttpMethod.POST)
     public EntityWrapper<?> createProxy(EntityWrapper<AdminRoot> entity,
             String proxyName, String endpoint) {
         String path = entity.getId() + "/" + proxyName;

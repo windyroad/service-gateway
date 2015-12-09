@@ -13,6 +13,4 @@ public @interface HateoasAction {
 
     HttpMethod nature() default HttpMethod.GET;
 
-    Class<?>controller();
-
 }
