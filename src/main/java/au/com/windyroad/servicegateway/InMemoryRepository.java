@@ -11,22 +11,23 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import au.com.windyroad.hateoas.core.EntityRelationship;
-import au.com.windyroad.hateoas.core.ResolvedEntity;
+import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.servicegateway.model.Endpoint;
 
 @org.springframework.stereotype.Repository("serverRepository")
 public class InMemoryRepository implements Repository {
 
-    Map<String, ResolvedEntity<?>> resolvedEntities = new HashMap<>();
+    Map<String, Object> entities = new HashMap<>();
+    Map<String, EntityWrapper<?>> resolvedEntities = new HashMap<>();
     MultiValueMap<String, EntityRelationship> children = new LinkedMultiValueMap<>();
 
     @Override
-    public ResolvedEntity<?> get(String path) {
+    public EntityWrapper<?> get(String path) {
         return resolvedEntities.get(path);
     }
 
     @Override
-    public void put(String path, ResolvedEntity<?> resolvedEntity) {
+    public void put(String path, EntityWrapper<?> resolvedEntity) {
         resolvedEntities.put(path, resolvedEntity);
     }
 
@@ -36,9 +37,9 @@ public class InMemoryRepository implements Repository {
     }
 
     @Override
-    public Collection<ResolvedEntity<?>> getEndpointsUnder(String target) {
-        List<ResolvedEntity<?>> rval = new ArrayList<>();
-        for (ResolvedEntity<?> entity : resolvedEntities.values()) {
+    public Collection<EntityWrapper<?>> getEndpointsUnder(String target) {
+        List<EntityWrapper<?>> rval = new ArrayList<>();
+        for (EntityWrapper<?> entity : resolvedEntities.values()) {
             boolean isEndpoint = entity.getNatures().contains("Endpoint");
             if (isEndpoint) {
                 String candidateTarget = ((Endpoint) entity.getProperties())
@@ -53,7 +54,7 @@ public class InMemoryRepository implements Repository {
     }
 
     @Override
-    public Collection<ResolvedEntity<?>> getProxies() {
+    public Collection<EntityWrapper<?>> getProxies() {
         return resolvedEntities.values().stream()
                 .filter(e -> e.getNatures().contains("Proxy"))
                 .collect(Collectors.toList());
@@ -69,7 +70,7 @@ public class InMemoryRepository implements Repository {
 
     @Override
     public void addChild(String parentPath, String childPath,
-            ResolvedEntity<?> child, String... natures) {
+            EntityWrapper<?> child, String... natures) {
         children.add(parentPath, new EntityRelationship(child, natures));
 
     }

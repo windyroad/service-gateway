@@ -31,12 +31,11 @@ import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 import au.com.windyroad.hateoas.server.annotations.HateoasChildren;
 import au.com.windyroad.hateoas.server.annotations.HateoasController;
 import au.com.windyroad.servicegateway.Repository;
-import au.com.windyroad.servicegateway.controller.RepositoryController;
 
 @JsonPropertyOrder({ "class", "properties", "entities", "actions", "links",
         "title" })
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class ResolvedEntity<T> extends Entity {
+public class EntityWrapper<T> extends Entity {
 
     public static URI buildUrl(Class<?> type, Object... parameters) {
         Class<?> controller = type.getAnnotation(HateoasController.class)
@@ -56,14 +55,17 @@ public class ResolvedEntity<T> extends Entity {
 
     private Repository repository;
 
-    public ResolvedEntity() {
+    private String path;
+
+    public EntityWrapper() {
     }
 
-    public ResolvedEntity(ApplicationContext context, Repository repository,
+    public EntityWrapper(ApplicationContext context, Repository repository,
             String path, T properties, String... args) {
         super(args);
         this.properties = properties;
         this.repository = repository;
+        this.path = path;
         HateoasController javaControllerAnnotation = properties.getClass()
                 .getAnnotation(HateoasController.class);
         Object controller = context.getBean(javaControllerAnnotation.value());
@@ -111,17 +113,6 @@ public class ResolvedEntity<T> extends Entity {
     public Collection<EntityRelationship> getEntities(int page)
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
-        Link link = this.getLink(Relationship.SELF);
-        if (link == null) {
-            return new ArrayList<>();
-        }
-        String fullPath = link.getAddress().toString();
-        Class<?> controller = RepositoryController.class;
-        String basePath = ControllerLinkBuilder.linkTo(controller).toUri()
-                .toString();
-        basePath = basePath.replace("/admin/**", "");
-
-        String path = fullPath.replace(basePath, "");
         return (repository == null ? new ArrayList<>()
                 : repository.getChildren(path));
     }
@@ -145,12 +136,12 @@ public class ResolvedEntity<T> extends Entity {
     }
 
     @Override
-    public <K, L extends ResolvedEntity<K>> L resolve(Class<L> type) {
+    public <K, L extends EntityWrapper<K>> L resolve(Class<L> type) {
         return (L) this;
     }
 
     @Override
-    public <K, L extends ResolvedEntity<K>> L resolve(
+    public <K, L extends EntityWrapper<K>> L resolve(
             ParameterizedTypeReference<L> type) {
         return (L) this;
     }
@@ -201,7 +192,7 @@ public class ResolvedEntity<T> extends Entity {
         return linkedEntity;
     }
 
-    public <L extends ResolvedEntity<T>> L refresh() {
+    public <L extends EntityWrapper<T>> L refresh() {
         return (L) getLink(Relationship.SELF).resolve(this.getClass());
     }
 

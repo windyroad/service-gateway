@@ -29,7 +29,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import au.com.windyroad.hateoas.core.MediaTypes;
-import au.com.windyroad.hateoas.core.ResolvedEntity;
+import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.servicegateway.Repository;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.model.Endpoint;
@@ -51,9 +51,9 @@ public class JavaDriver implements Driver {
     @Autowired
     CloseableHttpAsyncClient httpAsyncClient;
 
-    private ResolvedEntity<Proxy> currentProxy;
+    private EntityWrapper<Proxy> currentProxy;
 
-    private ResolvedEntity<Endpoint> currentEndpoint;
+    private EntityWrapper<Endpoint> currentEndpoint;
 
     @Autowired
     @Qualifier("serverRepository")
@@ -111,11 +111,11 @@ public class JavaDriver implements Driver {
             throws NoSuchMethodException, SecurityException,
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
-        ResolvedEntity<?> root = repository.get("/admin/proxies");
+        EntityWrapper<?> root = repository.get("/admin/proxies");
         Map<String, String> actionContext = new HashMap<>();
         actionContext.put("proxyName", proxyName);
         actionContext.put("endpoint", endpoint);
-        ParameterizedTypeReference<ResolvedEntity<Proxy>> type = new ParameterizedTypeReference<ResolvedEntity<Proxy>>() {
+        ParameterizedTypeReference<EntityWrapper<Proxy>> type = new ParameterizedTypeReference<EntityWrapper<Proxy>>() {
         };
         this.currentProxy = root.getAction("createProxy").invoke(actionContext)
                 .resolve(type);
@@ -134,10 +134,10 @@ public class JavaDriver implements Driver {
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, UnsupportedEncodingException,
             URISyntaxException {
-        ParameterizedTypeReference<ResolvedEntity<Endpoint>> type = new ParameterizedTypeReference<ResolvedEntity<Endpoint>>() {
+        ParameterizedTypeReference<EntityWrapper<Endpoint>> type = new ParameterizedTypeReference<EntityWrapper<Endpoint>>() {
         };
 
-        ResolvedEntity<Endpoint> endpoint = repository
+        EntityWrapper<Endpoint> endpoint = repository
                 .get(Endpoint.getUrl(endpointName)).resolve(type);
         assertThat(endpoint, notNullValue());
         currentEndpoint = endpoint.resolve(EndpointEntity.class);

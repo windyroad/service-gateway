@@ -30,7 +30,7 @@ import org.springframework.web.servlet.HandlerMapping;
 import au.com.windyroad.hateoas.core.Action;
 import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.MediaTypes;
-import au.com.windyroad.hateoas.core.ResolvedEntity;
+import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.servicegateway.Repository;
 
 @Controller
@@ -56,7 +56,7 @@ public class RepositoryController {
         if (!allRequestParams.isEmpty()) {
             url += "?" + request.getQueryString();
         }
-        ResolvedEntity<?> entity = repository.get(url);
+        EntityWrapper<?> entity = repository.get(url);
         if (entity == null) {
             return ResponseEntity.notFound().build();
         }
@@ -86,7 +86,7 @@ public class RepositoryController {
                     IllegalArgumentException, InvocationTargetException {
         String url = (String) request.getAttribute(
                 HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-        ResolvedEntity<?> entity = repository.get(url);
+        EntityWrapper<?> entity = repository.get(url);
         if (entity == null) {
             return ResponseEntity.notFound().build();
         }
@@ -120,7 +120,7 @@ public class RepositoryController {
 
         String url = (String) request.getAttribute(
                 HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-        ResolvedEntity<?> entity = repository.get(url);
+        EntityWrapper<?> entity = repository.get(url);
         if (entity == null) {
             return ResponseEntity.notFound().build();
         }

@@ -10,12 +10,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.hateoas.mvc.ControllerLinkBuilder;
+import org.springframework.hateoas.mvc.BasicLinkBuilder;
 import org.springframework.http.HttpMethod;
 
 import au.com.windyroad.hateoas.annotations.PresentationType;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
-import au.com.windyroad.servicegateway.controller.RepositoryController;
 
 public class JavaAction extends Action {
 
@@ -51,7 +50,7 @@ public class JavaAction extends Action {
     }
 
     @Override
-    public <T extends ResolvedEntity<?>> Entity invoke(
+    public <T extends EntityWrapper<?>> Entity invoke(
             Map<String, String> context) throws IllegalAccessException,
                     IllegalArgumentException, InvocationTargetException {
         List<Object> args = new ArrayList<>(getParameters().size());
@@ -76,15 +75,7 @@ public class JavaAction extends Action {
     @Override
     public URI getAddress() throws NoSuchMethodException, SecurityException,
             URISyntaxException {
-        if (method != null) {
-            Class<?> controller = RepositoryController.class;
-            String uri = ControllerLinkBuilder.linkTo(controller).toUri()
-                    .toString();
-            uri = uri.replace("/admin/**", "") + path;
-            return new URI(uri);
-        } else {
-            return null;
-        }
+        return BasicLinkBuilder.linkToCurrentMapping().slash(path).toUri();
     }
 
 }

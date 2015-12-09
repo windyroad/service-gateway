@@ -13,9 +13,9 @@ public abstract class Entity extends Resolvable {
         super(args);
     }
 
-    public abstract <K, T extends ResolvedEntity<K>> T resolve(Class<T> type);
+    public abstract <K, T extends EntityWrapper<K>> T resolve(Class<T> type);
 
-    public abstract <K, T extends ResolvedEntity<K>> T resolve(
+    public abstract <K, T extends EntityWrapper<K>> T resolve(
             ParameterizedTypeReference<T> type);
 
     @JsonIgnore

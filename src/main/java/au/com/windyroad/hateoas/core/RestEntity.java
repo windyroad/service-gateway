@@ -8,7 +8,7 @@ import org.springframework.context.ApplicationContext;
 
 import au.com.windyroad.servicegateway.Repository;
 
-public class RestEntity<T> extends ResolvedEntity<T> {
+public class RestEntity<T> extends EntityWrapper<T> {
 
     private Collection<EntityRelationship> entities = new ArrayList<>();
 

@@ -3,39 +3,23 @@ package au.com.windyroad.servicegateway;
 import java.util.Collection;
 
 import au.com.windyroad.hateoas.core.EntityRelationship;
-import au.com.windyroad.hateoas.core.ResolvedEntity;
+import au.com.windyroad.hateoas.core.EntityWrapper;
 
 public interface Repository {
 
-    // ProxyEntity getProxy(String proxyName);
-    //
-    // void store(ProxyEntity proxy);
-    //
-    // Collection<ProxyEntity> getProxies();
-    //
-    // void deleteProxy(String proxyName);
-    //
-    // EndpointEntity getEndpoint(String target);
-    //
-    // void store(EndpointEntity endpoint);
-    //
-    // Collection<EndpointEntity> getEndpoints();
-    //
-    // ProxiesEntity getRoot();
+    EntityWrapper<?> get(String path);
 
-    ResolvedEntity<?> get(String path);
-
-    void put(String path, ResolvedEntity<?> resolvedEntity);
+    void put(String path, EntityWrapper<?> resolvedEntity);
 
     void remove(String path);
 
-    Collection<ResolvedEntity<?>> getEndpointsUnder(String target);
+    Collection<EntityWrapper<?>> getEndpointsUnder(String target);
 
-    Collection<ResolvedEntity<?>> getProxies();
+    Collection<EntityWrapper<?>> getProxies();
 
     Collection<EntityRelationship> getChildren(String parentPath);
 
-    void addChild(String parentPath, String childPath, ResolvedEntity<?> child,
+    void addChild(String parentPath, String childPath, EntityWrapper<?> child,
             String... natures);
 
 }

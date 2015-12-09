@@ -40,7 +40,7 @@ public abstract class Action extends Resolvable {
         return identifier;
     }
 
-    public abstract <T extends ResolvedEntity<?>> Entity invoke(
+    public abstract <T extends EntityWrapper<?>> Entity invoke(
             Map<String, String> context) throws IllegalAccessException,
                     IllegalArgumentException, InvocationTargetException;
 

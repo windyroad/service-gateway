@@ -10,7 +10,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
 import au.com.windyroad.hateoas.core.Relationship;
-import au.com.windyroad.hateoas.core.ResolvedEntity;
+import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 import au.com.windyroad.hateoas.server.annotations.HateoasController;
 import au.com.windyroad.servicegateway.Repository;
@@ -31,17 +31,17 @@ public class ProxyController {
     public void setEndpoint(String proxyName, String target, String available)
             throws UnsupportedEncodingException {
         String parentPath = "/admin/proxies/" + proxyName;
-        ResolvedEntity<Proxy> proxy = (ResolvedEntity<Proxy>) repository
+        EntityWrapper<Proxy> proxy = (EntityWrapper<Proxy>) repository
                 .get(parentPath);
         String path = Endpoint.getUrl(target);
-        ResolvedEntity<Endpoint> endpoint = (ResolvedEntity<Endpoint>) repository
+        EntityWrapper<Endpoint> endpoint = (EntityWrapper<Endpoint>) repository
                 .get(path);
 
         if (endpoint == null) {
             String restOfTheUrl = target
                     .replace(proxy.getProperties().getTarget() + "/", "");
 
-            endpoint = new ResolvedEntity<Endpoint>(context, repository, path,
+            endpoint = new EntityWrapper<Endpoint>(context, repository, path,
                     new Endpoint(target, Boolean.parseBoolean(available)),
                     target);
 

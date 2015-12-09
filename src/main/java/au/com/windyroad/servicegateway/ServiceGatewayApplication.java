@@ -43,7 +43,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
-import au.com.windyroad.hateoas.core.ResolvedEntity;
+import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.servicegateway.model.Proxies;
 
 @SpringBootApplication
@@ -208,10 +208,12 @@ public class ServiceGatewayApplication {
     Repository repository;
 
     @Bean
-    public ResolvedEntity<Proxies> proxies() throws IllegalAccessException,
+    public EntityWrapper<Proxies> proxies() throws IllegalAccessException,
             IllegalArgumentException, InvocationTargetException,
             NoSuchMethodException, SecurityException {
-        ResolvedEntity<Proxies> resolvedEntity = new ResolvedEntity<Proxies>(
+        int autowireMode;
+        boolean dependencyCheck;
+        EntityWrapper<Proxies> resolvedEntity = new EntityWrapper<Proxies>(
                 context, repository, "/admin/proxies", new Proxies());
         AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
         bpp.setBeanFactory(context.getAutowireCapableBeanFactory());

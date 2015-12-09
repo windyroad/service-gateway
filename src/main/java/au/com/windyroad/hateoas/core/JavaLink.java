@@ -4,12 +4,10 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.hateoas.mvc.ControllerLinkBuilder;
+import org.springframework.hateoas.mvc.BasicLinkBuilder;
 import org.springframework.http.MediaType;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import au.com.windyroad.servicegateway.controller.RepositoryController;
 
 public class JavaLink extends Link {
 
@@ -43,15 +41,7 @@ public class JavaLink extends Link {
     @Override
     @JsonProperty("href")
     public URI getAddress() throws URISyntaxException {
-        if (properties != null) {
-            Class<?> controller = RepositoryController.class;
-            String uri = ControllerLinkBuilder.linkTo(controller).toUri()
-                    .toString();
-            uri = uri.replace("/admin/**", "") + path;
-            return new URI(uri);
-        } else {
-            return null;
-        }
+        return BasicLinkBuilder.linkToCurrentMapping().slash(path).toUri();
     }
 
     @Override

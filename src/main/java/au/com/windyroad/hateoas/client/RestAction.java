@@ -29,7 +29,7 @@ import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.LinkedEntity;
 import au.com.windyroad.hateoas.core.MediaTypes;
 import au.com.windyroad.hateoas.core.Parameter;
-import au.com.windyroad.hateoas.core.ResolvedEntity;
+import au.com.windyroad.hateoas.core.EntityWrapper;
 
 public class RestAction extends Action {
 
@@ -57,7 +57,7 @@ public class RestAction extends Action {
     }
 
     @Override
-    public <T extends ResolvedEntity<?>> Entity invoke(
+    public <T extends EntityWrapper<?>> Entity invoke(
             Map<String, String> context) throws IllegalAccessException,
                     IllegalArgumentException, InvocationTargetException {
         switch (nature) {
