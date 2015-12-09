@@ -32,7 +32,7 @@ public class Endpoint {
         return this.target;
     }
 
-    public static String getUrl(String target)
+    public static String buildUrl(String target)
             throws UnsupportedEncodingException {
         return "/admin/endpoints/"
                 + target.replaceFirst("://", "/").replaceFirst(":", "/");

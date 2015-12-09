@@ -38,6 +38,7 @@ public class JavaLink extends Link {
                 .toUri();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T resolve(ParameterizedTypeReference<T> type) {
         return (T) properties;

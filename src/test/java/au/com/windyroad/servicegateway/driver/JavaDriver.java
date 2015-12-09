@@ -138,7 +138,7 @@ public class JavaDriver implements Driver {
         };
 
         EntityWrapper<Endpoint> endpoint = repository
-                .get(Endpoint.getUrl(endpointName)).resolve(type);
+                .get(Endpoint.buildUrl(endpointName)).resolve(type);
         assertThat(endpoint, notNullValue());
         currentEndpoint = endpoint.resolve(EndpointEntity.class);
 

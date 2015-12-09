@@ -27,13 +27,13 @@ public class InMemoryRepository implements Repository {
     }
 
     @Override
-    public void put(String path, EntityWrapper<?> resolvedEntity) {
-        resolvedEntities.put(path, resolvedEntity);
+    public void put(EntityWrapper<?> resolvedEntity) {
+        resolvedEntities.put(resolvedEntity.getId(), resolvedEntity);
     }
 
     @Override
-    public void remove(String path) {
-        resolvedEntities.remove(path);
+    public void remove(EntityWrapper<?> entity) {
+        resolvedEntities.remove(entity.getId());
     }
 
     @Override
@@ -69,9 +69,9 @@ public class InMemoryRepository implements Repository {
     }
 
     @Override
-    public void addChild(String parentPath, String childPath,
-            EntityWrapper<?> child, String... natures) {
-        children.add(parentPath, new EntityRelationship(child, natures));
+    public void addChild(EntityWrapper<?> parent, EntityWrapper<?> child,
+            String... natures) {
+        children.add(parent.getId(), new EntityRelationship(child, natures));
 
     }
 

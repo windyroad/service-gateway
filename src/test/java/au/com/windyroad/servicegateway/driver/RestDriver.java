@@ -28,7 +28,7 @@ import au.com.windyroad.hateoas.core.EntityRelationship;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.model.EndpointEntity;
-import au.com.windyroad.servicegateway.model.ProxiesEntity;
+import au.com.windyroad.servicegateway.model.AdminRootEntity;
 import au.com.windyroad.servicegateway.model.Proxy;
 import au.com.windyroad.servicegateway.model.ProxyEntity;
 
@@ -104,11 +104,11 @@ public class RestDriver extends JavaDriver {
 
     }
 
-    ProxiesEntity getRoot() throws URISyntaxException {
+    AdminRootEntity getRoot() throws URISyntaxException {
         URI rootUrl = new URI(
                 "https://localhost:" + config.getPort() + "/admin/proxies");
 
-        return restTemplate.getForEntity(rootUrl, ProxiesEntity.class)
+        return restTemplate.getForEntity(rootUrl, AdminRootEntity.class)
                 .getBody();
     }
 

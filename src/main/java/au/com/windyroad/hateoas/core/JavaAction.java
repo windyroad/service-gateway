@@ -25,7 +25,8 @@ public class JavaAction extends Action {
     protected JavaAction() {
     }
 
-    public JavaAction(EntityWrapper<?> entity, Object controller, Method method) {
+    public JavaAction(EntityWrapper<?> entity, Object controller,
+            Method method) {
         super(method.getName(), extractParameters(method));
         this.javaController = controller;
         this.method = method;
@@ -37,11 +38,11 @@ public class JavaAction extends Action {
         List<Parameter> params = Arrays.asList(method.getParameters());
 
         List<au.com.windyroad.hateoas.core.Parameter> rval = new ArrayList<>();
-        for (int i = 0; i < params.size(); ++i) {
+        for (int i = 1; i < params.size(); ++i) {
             rval.add(new au.com.windyroad.hateoas.core.Parameter(
                     params.get(i).getName()));
         }
-        rval.add(new au.com.windyroad.hateoas.core.Parameter("trigger",
+        rval.add(new au.com.windyroad.hateoas.core.Parameter("action",
                 PresentationType.SUBMIT, method.getName()));
         return rval.toArray(new au.com.windyroad.hateoas.core.Parameter[0]);
     }
@@ -50,7 +51,8 @@ public class JavaAction extends Action {
     public <T extends EntityWrapper<?>> Entity invoke(
             Map<String, String> context) throws IllegalAccessException,
                     IllegalArgumentException, InvocationTargetException {
-        List<Object> args = new ArrayList<>(getParameters().size());
+        List<Object> args = new ArrayList<>(getParameters().size() + 1);
+        args.add(entity);
         for (au.com.windyroad.hateoas.core.Parameter param : getParameters()) {
             if (!PresentationType.SUBMIT.equals(param.getType())) {
                 args.add(context.get(param.getIdentifier()));

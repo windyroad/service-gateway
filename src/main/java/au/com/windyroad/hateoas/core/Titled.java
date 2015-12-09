@@ -1,6 +1,5 @@
 package au.com.windyroad.hateoas.core;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -12,32 +11,36 @@ import org.eclipse.jdt.annotation.Nullable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import au.com.windyroad.hateoas.annotations.Label;
-import au.com.windyroad.hateoas.annotations.Nature;
 import au.com.windyroad.hateoas.server.serialization.MessageSourceAwareSerializer;
 
-abstract public class Resolvable {
+abstract public class Titled {
 
     private Set<String> natures = new HashSet<>();
 
     @Nullable
-    String label = null;
+    String title = null;
 
-    public Resolvable(String... args) {
-        Nature natureAnnotation = this.getClass().getAnnotation(Nature.class);
-        if (natureAnnotation != null) {
-            Collections.addAll(natures, natureAnnotation.value());
-        }
-        natures.add(this.getClass().getSimpleName());
+    public Titled() {
+        // Nature natureAnnotation =
+        // this.getClass().getAnnotation(Nature.class);
+        // if (natureAnnotation != null) {
+        // Collections.addAll(natures, natureAnnotation.value());
+        // }
+        // natures.add(this.getClass().getSimpleName());
+    }
 
-        Label titleAnnotation = this.getClass().getAnnotation(Label.class);
-        if (titleAnnotation != null) {
-            setTitle(titleAnnotation.value(), args);
-        }
+    public Titled(String title) {
+        this();
+
+        // Label titleAnnotation = this.getClass().getAnnotation(Label.class);
+        // if (titleAnnotation != null) {
+        // setTitle(titleAnnotation.value(), args);
+        // }
+        this.title = title;
     }
 
     void setTitle(String template, String... args) {
-        label = interpolate(template, args);
+        title = interpolate(template, args);
     }
 
     private String interpolate(String value, String... args) {
@@ -56,9 +59,9 @@ abstract public class Resolvable {
         }
     }
 
-    public Resolvable(Set<String> natures, String label) {
+    public Titled(Set<String> natures, String title) {
         this.natures = natures;
-        this.label = label;
+        this.title = title;
     }
 
     /**
@@ -82,20 +85,20 @@ abstract public class Resolvable {
      */
     @JsonSerialize(using = MessageSourceAwareSerializer.class)
     @JsonProperty("title")
-    public String getLabel() {
-        return label;
+    public String getTitle() {
+        return title;
     }
 
     /**
-     * @param label
+     * @param title
      *            the label to set
      */
-    public void setLabel(String label) {
-        this.label = label;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-    public void setLabel(String label, Map<String, String> context) {
-        this.label = label;
+    public void setTitle(String title, Map<String, String> context) {
+        this.title = title;
     }
 
 }

@@ -27,13 +27,13 @@ public class LinkedEntity extends Entity {
             @JsonProperty("title") String label) {
         this.link = new RestLink(address, natures, label);
         setNatures(natures);
-        setLabel(label);
+        setTitle(label);
     }
 
     public LinkedEntity(Link link, Set<String> natures, String label) {
         this.link = link;
         setNatures(natures);
-        setLabel(label);
+        setTitle(label);
     }
 
     @Override

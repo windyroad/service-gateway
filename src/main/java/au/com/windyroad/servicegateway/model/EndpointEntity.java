@@ -11,8 +11,8 @@ public class EndpointEntity extends RestEntity<Endpoint> {
     }
 
     public EndpointEntity(ApplicationContext context, Repository repository,
-            String path, Endpoint endpoint, String... args) {
-        super(context, repository, path, endpoint, args);
+            String path, Endpoint endpoint, String title) {
+        super(context, repository, path, endpoint, title);
     }
 
 }

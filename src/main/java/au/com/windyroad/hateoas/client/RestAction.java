@@ -26,10 +26,10 @@ import com.google.common.collect.Maps;
 
 import au.com.windyroad.hateoas.core.Action;
 import au.com.windyroad.hateoas.core.Entity;
+import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.hateoas.core.LinkedEntity;
 import au.com.windyroad.hateoas.core.MediaTypes;
 import au.com.windyroad.hateoas.core.Parameter;
-import au.com.windyroad.hateoas.core.EntityWrapper;
 
 public class RestAction extends Action {
 
@@ -65,7 +65,7 @@ public class RestAction extends Action {
             Set<String> parameterKeys = getParameterKeys();
             Map<String, String> filteredParameters = Maps.filterKeys(context,
                     Predicates.in(parameterKeys));
-            filteredParameters.put("trigger", getIdentifier());
+            filteredParameters.put("action", getIdentifier());
             MultiValueMap<String, String> body = new LinkedMultiValueMap<>(
                     filteredParameters.size());
             for (Entry<String, String> entry : filteredParameters.entrySet()) {
@@ -88,7 +88,7 @@ public class RestAction extends Action {
             Set<String> parameterKeys = getParameterKeys();
             Map<String, String> filteredParameters = Maps.filterKeys(context,
                     Predicates.in(parameterKeys));
-            filteredParameters.put("trigger", getIdentifier());
+            filteredParameters.put("action", getIdentifier());
             MultiValueMap<String, String> body = new LinkedMultiValueMap<>(
                     filteredParameters.size());
             for (Entry<String, String> entry : filteredParameters.entrySet()) {

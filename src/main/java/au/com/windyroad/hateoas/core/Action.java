@@ -18,7 +18,7 @@ import au.com.windyroad.hateoas.client.RestAction;
 
 @JsonDeserialize(as = RestAction.class)
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public abstract class Action extends Resolvable {
+public abstract class Action extends Titled {
 
     private String identifier;
 

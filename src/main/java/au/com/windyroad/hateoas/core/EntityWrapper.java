@@ -27,7 +27,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.google.common.collect.ImmutableSet;
 
-import au.com.windyroad.hateoas.annotations.Label;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 import au.com.windyroad.hateoas.server.annotations.HateoasChildren;
 import au.com.windyroad.hateoas.server.annotations.HateoasController;
@@ -62,8 +61,8 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
     }
 
     public EntityWrapper(ApplicationContext context, Repository repository,
-            String path, T properties, String... args) {
-        super(args);
+            String path, T properties, String title) {
+        super(title);
         this.properties = properties;
         this.repository = repository;
         this.path = path;
@@ -79,11 +78,11 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
         }
         getNatures().add(properties.getClass().getSimpleName());
 
-        Label titleAnnotation = properties.getClass()
-                .getAnnotation(Label.class);
-        if (titleAnnotation != null) {
-            setTitle(titleAnnotation.value(), args);
-        }
+        // Label titleAnnotation = properties.getClass()
+        // .getAnnotation(Label.class);
+        // if (titleAnnotation != null) {
+        // setTitle(titleAnnotation.value(), args);
+        // }
     }
 
     protected void add(Action action) {
@@ -185,10 +184,7 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
     @Override
     public LinkedEntity toLinkedEntity() {
         LinkedEntity linkedEntity = new LinkedEntity(getLink(Relationship.SELF),
-                getNatures(), getLabel());
-        AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
-        bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
-        bpp.processInjection(linkedEntity);
+                getNatures(), getTitle());
         return linkedEntity;
     }
 

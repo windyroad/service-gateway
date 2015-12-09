@@ -29,8 +29,8 @@ import org.springframework.web.servlet.HandlerMapping;
 
 import au.com.windyroad.hateoas.core.Action;
 import au.com.windyroad.hateoas.core.Entity;
-import au.com.windyroad.hateoas.core.MediaTypes;
 import au.com.windyroad.hateoas.core.EntityWrapper;
+import au.com.windyroad.hateoas.core.MediaTypes;
 import au.com.windyroad.servicegateway.Repository;
 
 @Controller
@@ -91,7 +91,7 @@ public class RepositoryController {
             return ResponseEntity.notFound().build();
         }
 
-        String actionName = allRequestParams.getFirst("trigger");
+        String actionName = allRequestParams.getFirst("action");
         if (actionName == null) {
             // todo add body with classes indicating what is missing
             return ResponseEntity.badRequest().build();
@@ -127,9 +127,9 @@ public class RepositoryController {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.putAll(queryParams);
         params.putAll(bodyParams);
-        String actionName = queryParams.getFirst("trigger");
+        String actionName = queryParams.getFirst("action");
         if (actionName == null) {
-            actionName = bodyParams.getFirst("trigger");
+            actionName = bodyParams.getFirst("action");
         }
         if (actionName == null) {
             // todo add body with classes indicating what is missing

@@ -3,14 +3,13 @@ package au.com.windyroad.servicegateway.model;
 import java.io.UnsupportedEncodingException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
-import au.com.windyroad.hateoas.core.Relationship;
 import au.com.windyroad.hateoas.core.EntityWrapper;
+import au.com.windyroad.hateoas.core.Relationship;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 import au.com.windyroad.hateoas.server.annotations.HateoasController;
 import au.com.windyroad.servicegateway.Repository;
@@ -28,30 +27,20 @@ public class ProxyController {
     Repository repository;
 
     @HateoasAction(nature = HttpMethod.PUT, controller = AdminProxyController.class)
-    public void setEndpoint(String proxyName, String target, String available)
-            throws UnsupportedEncodingException {
-        String parentPath = "/admin/proxies/" + proxyName;
-        EntityWrapper<Proxy> proxy = (EntityWrapper<Proxy>) repository
-                .get(parentPath);
-        String path = Endpoint.getUrl(target);
+    public void setEndpoint(EntityWrapper<Proxy> proxy, String proxyName,
+            String target, String available)
+                    throws UnsupportedEncodingException {
+        String path = Endpoint.buildUrl(target);
         EntityWrapper<Endpoint> endpoint = (EntityWrapper<Endpoint>) repository
                 .get(path);
 
         if (endpoint == null) {
-            String restOfTheUrl = target
-                    .replace(proxy.getProperties().getTarget() + "/", "");
-
             endpoint = new EntityWrapper<Endpoint>(context, repository, path,
                     new Endpoint(target, Boolean.parseBoolean(available)),
-                    target);
+                    "Endpoint `" + target + "`");
 
-            // we shouldn't have to be autowiring the domain objects.
-            AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
-            bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
-            bpp.processInjection(endpoint);
-
-            repository.put(path, endpoint);
-            repository.addChild(parentPath, path, endpoint, Relationship.ITEM);
+            repository.put(endpoint);
+            repository.addChild(proxy, endpoint, Relationship.ITEM);
 
         } else {
             endpoint.getProperties()
@@ -61,15 +50,13 @@ public class ProxyController {
     }
 
     @HateoasAction(nature = HttpMethod.DELETE, controller = AdminProxyController.class)
-    public void deleteProxy(String proxyName) {
-        repository.remove(proxyName);
+    public void deleteProxy(EntityWrapper<Proxy> proxy) {
+        repository.remove(proxy);
     }
 
     @HateoasAction(nature = HttpMethod.PUT, controller = AdminProxyController.class)
-    public ProxyEntity update(String proxyName, String target) {
-        ProxyEntity proxy = (ProxyEntity) repository
-                .get("/admin/proxies/" + proxyName);
-
+    public EntityWrapper<Proxy> update(EntityWrapper<Proxy> proxy,
+            String proxyName, String target) {
         proxy.getProperties().setTarget(target);
 
         return proxy;

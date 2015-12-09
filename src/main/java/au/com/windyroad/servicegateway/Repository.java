@@ -9,9 +9,9 @@ public interface Repository {
 
     EntityWrapper<?> get(String path);
 
-    void put(String path, EntityWrapper<?> resolvedEntity);
+    void put(EntityWrapper<?> resolvedEntity);
 
-    void remove(String path);
+    void remove(EntityWrapper<?> entity);
 
     Collection<EntityWrapper<?>> getEndpointsUnder(String target);
 
@@ -19,7 +19,7 @@ public interface Repository {
 
     Collection<EntityRelationship> getChildren(String parentPath);
 
-    void addChild(String parentPath, String childPath, EntityWrapper<?> child,
+    void addChild(EntityWrapper<?> parent, EntityWrapper<?> child,
             String... natures);
 
 }

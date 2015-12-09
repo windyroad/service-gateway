@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import au.com.windyroad.servicegateway.model.ProxiesController;
+import au.com.windyroad.servicegateway.model.AdminRootController;
 
 //@Controller
 //@RequestMapping(value = "/admin/proxies")
@@ -17,7 +17,7 @@ public class AdminProxiesController {
     public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    ProxiesController proxiesController;
+    AdminRootController proxiesController;
 
     // @RequestMapping(method = RequestMethod.GET, produces = {
     // MediaTypes.SIREN_JSON_VALUE, MediaType.APPLICATION_JSON_VALUE })

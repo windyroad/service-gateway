@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(as = RestLink.class)
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-abstract public class Link extends Resolvable {
+abstract public class Link extends Titled {
 
     public Link() {
     }

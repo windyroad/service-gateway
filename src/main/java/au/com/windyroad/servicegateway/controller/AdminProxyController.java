@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import au.com.windyroad.servicegateway.model.ProxiesController;
+import au.com.windyroad.servicegateway.model.AdminRootController;
 import au.com.windyroad.servicegateway.model.ProxyController;
 
 //@Controller
@@ -21,7 +21,7 @@ public class AdminProxyController {
     ProxyController proxyController;
 
     @Autowired
-    ProxiesController proxiesController;
+    AdminRootController proxiesController;
 
     // @RequestMapping(method = RequestMethod.GET)
     // @ResponseBody

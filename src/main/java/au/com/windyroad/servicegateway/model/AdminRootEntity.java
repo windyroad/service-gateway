@@ -5,13 +5,13 @@ import org.springframework.context.ApplicationContext;
 import au.com.windyroad.hateoas.core.RestEntity;
 import au.com.windyroad.servicegateway.Repository;
 
-public class ProxyEntity extends RestEntity<Proxy> {
+public class AdminRootEntity extends RestEntity<AdminRoot> {
 
-    public ProxyEntity() {
+    public AdminRootEntity() {
     }
 
-    public ProxyEntity(ApplicationContext context, Repository repository,
-            String path, Proxy properties, String title) {
+    public AdminRootEntity(ApplicationContext context, Repository repository,
+            String path, AdminRoot properties, String title) {
         super(context, repository, path, properties, title);
     }
 
