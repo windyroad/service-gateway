@@ -19,20 +19,17 @@ import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 public class JavaAction extends Action {
 
     private Method method;
-    private Object[] pathParameters;
     private Object javaController;
-    private String path;
+    private EntityWrapper<?> entity;
 
     protected JavaAction() {
     }
 
-    public JavaAction(Object controller, String path, Method method,
-            Object... pathParameters) {
+    public JavaAction(EntityWrapper<?> entity, Object controller, Method method) {
         super(method.getName(), extractParameters(method));
         this.javaController = controller;
         this.method = method;
-        this.pathParameters = pathParameters;
-        this.path = path;
+        this.entity = entity;
     }
 
     private static au.com.windyroad.hateoas.core.Parameter[] extractParameters(
@@ -75,7 +72,7 @@ public class JavaAction extends Action {
     @Override
     public URI getAddress() throws NoSuchMethodException, SecurityException,
             URISyntaxException {
-        return BasicLinkBuilder.linkToCurrentMapping().slash(path).toUri();
+        return BasicLinkBuilder.linkToCurrentMapping().slash(entity).toUri();
     }
 
 }

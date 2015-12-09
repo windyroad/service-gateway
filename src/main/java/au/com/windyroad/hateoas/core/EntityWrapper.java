@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.hateoas.Identifiable;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -35,7 +36,7 @@ import au.com.windyroad.servicegateway.Repository;
 @JsonPropertyOrder({ "class", "properties", "entities", "actions", "links",
         "title" })
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class EntityWrapper<T> extends Entity {
+public class EntityWrapper<T> extends Entity implements Identifiable<String> {
 
     public static URI buildUrl(Class<?> type, Object... parameters) {
         Class<?> controller = type.getAnnotation(HateoasController.class)
@@ -69,12 +70,11 @@ public class EntityWrapper<T> extends Entity {
         HateoasController javaControllerAnnotation = properties.getClass()
                 .getAnnotation(HateoasController.class);
         Object controller = context.getBean(javaControllerAnnotation.value());
-        add(new NavigationalRelationship(
-                new JavaLink(controller, path, this, (Object[]) args),
+        add(new NavigationalRelationship(new JavaLink(this),
                 Relationship.SELF));
         for (Method method : javaControllerAnnotation.value().getMethods()) {
             if (method.getAnnotation(HateoasAction.class) != null) {
-                add(new JavaAction(controller, path, method, (Object[]) args));
+                add(new JavaAction(this, controller, method));
             }
         }
         getNatures().add(properties.getClass().getSimpleName());
@@ -200,6 +200,11 @@ public class EntityWrapper<T> extends Entity {
     @JsonIgnore
     public URI getAddress() throws URISyntaxException {
         return getLink(Relationship.SELF).getAddress();
+    }
+
+    @Override
+    public String getId() {
+        return this.path;
     }
 
 }
