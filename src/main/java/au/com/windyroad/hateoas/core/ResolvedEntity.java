@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 import au.com.windyroad.hateoas.server.annotations.HateoasChildren;
 import au.com.windyroad.hateoas.server.annotations.HateoasController;
 import au.com.windyroad.servicegateway.Repository;
+import au.com.windyroad.servicegateway.controller.RepositoryController;
 
 @JsonPropertyOrder({ "class", "properties", "entities", "actions", "links",
         "title" })
@@ -52,6 +54,8 @@ public class ResolvedEntity<T> extends Entity {
 
     T properties;
 
+    private Repository repository;
+
     public ResolvedEntity() {
     }
 
@@ -59,6 +63,7 @@ public class ResolvedEntity<T> extends Entity {
             String path, T properties, String... args) {
         super(args);
         this.properties = properties;
+        this.repository = repository;
         HateoasController javaControllerAnnotation = properties.getClass()
                 .getAnnotation(HateoasController.class);
         Object controller = context.getBean(javaControllerAnnotation.value());
@@ -97,42 +102,52 @@ public class ResolvedEntity<T> extends Entity {
     }
 
     @JsonProperty("entities")
-    public ImmutableSet<EntityRelationship> getEntities()
+    public Collection<EntityRelationship> getEntities()
             throws IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException {
+            InvocationTargetException, URISyntaxException {
         return getEntities(0);
     }
 
-    public ImmutableSet<EntityRelationship> getEntities(int page)
+    public Collection<EntityRelationship> getEntities(int page)
             throws IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException {
-        Set<EntityRelationship> entityRelationships = new HashSet<>();
-        if (properties != null) {
-            for (Method method : properties.getClass().getMethods()) {
-                HateoasChildren hateoasChildren = method
-                        .getAnnotation(HateoasChildren.class);
-                if (hateoasChildren != null
-                        && method.getParameterTypes().length == 0) {
-                    Object entities = method.invoke(properties);
-                    if (entities instanceof Collection) {
-                        Collection<?> entityCollection = (Collection<?>) entities;
-                        for (Object entity : entityCollection) {
-                            entityRelationships.add(new EntityRelationship(
-                                    (Entity) entity, hateoasChildren.value()));
-                        }
-                    } else {
-                        throw new RuntimeException("unknown entity collection: "
-                                + entities.getClass());
-                    }
-                }
-            }
+            InvocationTargetException, URISyntaxException {
+        Link link = this.getLink(Relationship.SELF);
+        if (link == null) {
+            return new ArrayList<>();
         }
-        return ImmutableSet.copyOf(entityRelationships);
+        String fullPath = link.getAddress().toString();
+        Class<?> controller = RepositoryController.class;
+        String basePath = ControllerLinkBuilder.linkTo(controller).toUri()
+                .toString();
+        basePath = basePath.replace("/admin/**", "");
+
+        String path = fullPath.replace(basePath, "");
+        return (repository == null ? new ArrayList<>()
+                : repository.getChildren(path));
+        /*
+         * Set<EntityRelationship> entityRelationships = new HashSet<>(); if
+         * (properties != null) { for (Method method :
+         * properties.getClass().getMethods()) { HateoasChildren hateoasChildren
+         * = method .getAnnotation(HateoasChildren.class); if (hateoasChildren
+         * != null && method.getParameterTypes().length == 0) { Object entities
+         * = method.invoke(properties); if (entities instanceof Collection) {
+         * Collection<?> entityCollection = (Collection<?>) entities; for
+         * (Object entity : entityCollection) { entityRelationships.add(new
+         * EntityRelationship( (Entity) entity, hateoasChildren.value())); } }
+         * else { throw new RuntimeException("unknown entity collection: " +
+         * entities.getClass()); } } } } return
+         * ImmutableSet.copyOf(entityRelationships);
+         */
     }
 
     public Link getLink(String self) {
-        return getLinks().stream().filter(l -> l.hasNature(Relationship.SELF))
-                .findAny().get().getLink();
+        Optional<NavigationalRelationship> link = getLinks().stream()
+                .filter(l -> l.hasNature(Relationship.SELF)).findAny();
+        if (link.isPresent()) {
+            return link.get().getLink();
+        } else {
+            return null;
+        }
     }
 
     public ImmutableSet<NavigationalRelationship> getLinks() {

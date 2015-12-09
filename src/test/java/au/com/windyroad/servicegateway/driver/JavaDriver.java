@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -33,7 +34,7 @@ import au.com.windyroad.servicegateway.Repository;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.model.Endpoint;
 import au.com.windyroad.servicegateway.model.EndpointEntity;
-import au.com.windyroad.servicegateway.model.ProxyEntity;
+import au.com.windyroad.servicegateway.model.Proxy;
 
 @Component
 @Profile(value = "default")
@@ -50,9 +51,9 @@ public class JavaDriver implements Driver {
     @Autowired
     CloseableHttpAsyncClient httpAsyncClient;
 
-    private ProxyEntity currentProxy;
+    private ResolvedEntity<Proxy> currentProxy;
 
-    private EndpointEntity currentEndpoint;
+    private ResolvedEntity<Endpoint> currentEndpoint;
 
     @Autowired
     @Qualifier("serverRepository")
@@ -114,8 +115,10 @@ public class JavaDriver implements Driver {
         Map<String, String> actionContext = new HashMap<>();
         actionContext.put("proxyName", proxyName);
         actionContext.put("endpoint", endpoint);
+        ParameterizedTypeReference<ResolvedEntity<Proxy>> type = new ParameterizedTypeReference<ResolvedEntity<Proxy>>() {
+        };
         this.currentProxy = root.getAction("createProxy").invoke(actionContext)
-                .resolve(ProxyEntity.class);
+                .resolve(type);
     }
 
     @Override
@@ -129,9 +132,13 @@ public class JavaDriver implements Driver {
     @Override
     public void checkEndpointExists(String path, String endpointName)
             throws IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException, UnsupportedEncodingException {
-        EndpointEntity endpoint = repository.get(Endpoint.getUrl(endpointName))
-                .resolve(EndpointEntity.class);
+            InvocationTargetException, UnsupportedEncodingException,
+            URISyntaxException {
+        ParameterizedTypeReference<ResolvedEntity<Endpoint>> type = new ParameterizedTypeReference<ResolvedEntity<Endpoint>>() {
+        };
+
+        ResolvedEntity<Endpoint> endpoint = repository
+                .get(Endpoint.getUrl(endpointName)).resolve(type);
         assertThat(endpoint, notNullValue());
         currentEndpoint = endpoint.resolve(EndpointEntity.class);
 

@@ -16,7 +16,8 @@ public interface Driver {
 
     void checkEndpointExists(String proxyName, String endpoint)
             throws IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException, UnsupportedEncodingException;
+            InvocationTargetException, UnsupportedEncodingException,
+            URISyntaxException;
 
     void createProxy(String proxyName, String endpoint)
             throws NoSuchMethodException, SecurityException,

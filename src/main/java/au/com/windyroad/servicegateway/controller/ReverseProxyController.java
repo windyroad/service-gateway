@@ -31,8 +31,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.servlet.HandlerMapping;
 
+import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.servicegateway.Repository;
-import au.com.windyroad.servicegateway.model.ProxyEntity;
+import au.com.windyroad.servicegateway.model.Proxy;
 
 @Controller
 public class ReverseProxyController {
@@ -44,12 +45,12 @@ public class ReverseProxyController {
 
         private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-        private ProxyEntity proxy;
+        private ResolvedEntity<Proxy> proxy;
 
         private String proxyName;
 
         public CBack(DeferredResult<ResponseEntity<?>> deferredResult,
-                ProxyEntity proxy, String proxyName, String target) {
+                ResolvedEntity<Proxy> proxy, String proxyName, String target) {
             this.deferredResult = deferredResult;
             this.target = target;
             this.proxyName = proxyName;
@@ -151,7 +152,8 @@ public class ReverseProxyController {
 
         String path = "/admin/proxies/" + proxyName;
 
-        ProxyEntity proxy = (ProxyEntity) repository.get(path);
+        ResolvedEntity<Proxy> proxy = (ResolvedEntity<Proxy>) repository
+                .get(path);
 
         if (proxy != null) {
             String url = (String) request.getAttribute(

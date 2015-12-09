@@ -1,6 +1,5 @@
 package au.com.windyroad.servicegateway.driver;
 
-import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import java.io.UnsupportedEncodingException;
@@ -11,6 +10,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.slf4j.Logger;
@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import au.com.windyroad.hateoas.core.Entity;
+import au.com.windyroad.hateoas.core.EntityRelationship;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.model.EndpointEntity;
@@ -120,13 +120,18 @@ public class RestDriver extends JavaDriver {
     @Override
     public void checkEndpointExists(String proxyName, String endpointPath)
             throws IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException, UnsupportedEncodingException {
+            InvocationTargetException, UnsupportedEncodingException,
+            URISyntaxException {
         currentProxy = currentProxy.refresh();
-        Entity endpoint = currentProxy.getProperties()
-                .getEndpoint(endpointPath);
+        Optional<EntityRelationship> endpoint;
+        endpoint = currentProxy.getEntities().stream().filter(e -> {
+            return e.getEntity().resolve(EndpointEntity.class).getProperties()
+                    .getTarget().equals(endpointPath);
+        }).findAny();
 
-        assertThat(endpoint, notNullValue());
-        currentEndpoint = endpoint.resolve(EndpointEntity.class);
+        assertTrue(endpoint.isPresent());
+        currentEndpoint = endpoint.get().getEntity()
+                .resolve(EndpointEntity.class);
     }
 
     @Override

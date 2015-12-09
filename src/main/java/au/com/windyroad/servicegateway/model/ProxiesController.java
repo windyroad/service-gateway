@@ -7,6 +7,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
+import au.com.windyroad.hateoas.core.Relationship;
 import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 import au.com.windyroad.hateoas.server.annotations.HateoasController;
@@ -33,13 +34,16 @@ public class ProxiesController {
         if (existingProxy != null) {
             return existingProxy;
         } else {
-            ProxyEntity proxy = new ProxyEntity(context, repository, path,
-                    new Proxy(proxyName, endpoint), proxyName);
+            ResolvedEntity<Proxy> proxy = new ResolvedEntity<Proxy>(context,
+                    repository, path, new Proxy(proxyName, endpoint),
+                    proxyName);
             AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
             bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
             bpp.processInjection(proxy);
 
             repository.put(path, proxy);
+            repository.addChild("/admin/proxies", path, proxy,
+                    Relationship.ITEM);
             return proxy;
         }
     }

@@ -2,10 +2,10 @@ package au.com.windyroad.servicegateway.model;
 
 import org.springframework.context.ApplicationContext;
 
-import au.com.windyroad.hateoas.core.ResolvedEntity;
+import au.com.windyroad.hateoas.core.RestEntity;
 import au.com.windyroad.servicegateway.Repository;
 
-public class ProxyEntity extends ResolvedEntity<Proxy> {
+public class ProxyEntity extends RestEntity<Proxy> {
 
     public ProxyEntity() {
     }

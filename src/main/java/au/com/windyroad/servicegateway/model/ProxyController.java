@@ -9,6 +9,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
+import au.com.windyroad.hateoas.core.Relationship;
+import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 import au.com.windyroad.hateoas.server.annotations.HateoasController;
 import au.com.windyroad.servicegateway.Repository;
@@ -28,16 +30,18 @@ public class ProxyController {
     @HateoasAction(nature = HttpMethod.PUT, controller = AdminProxyController.class)
     public void setEndpoint(String proxyName, String target, String available)
             throws UnsupportedEncodingException {
-        ProxyEntity proxy = (ProxyEntity) repository
-                .get("/admin/proxies/" + proxyName);
+        String parentPath = "/admin/proxies/" + proxyName;
+        ResolvedEntity<Proxy> proxy = (ResolvedEntity<Proxy>) repository
+                .get(parentPath);
         String path = Endpoint.getUrl(target);
-        EndpointEntity endpoint = (EndpointEntity) repository.get(path);
+        ResolvedEntity<Endpoint> endpoint = (ResolvedEntity<Endpoint>) repository
+                .get(path);
 
         if (endpoint == null) {
             String restOfTheUrl = target
                     .replace(proxy.getProperties().getTarget() + "/", "");
 
-            endpoint = new EndpointEntity(context, repository, path,
+            endpoint = new ResolvedEntity<Endpoint>(context, repository, path,
                     new Endpoint(target, Boolean.parseBoolean(available)),
                     target);
 
@@ -47,10 +51,12 @@ public class ProxyController {
             bpp.processInjection(endpoint);
 
             repository.put(path, endpoint);
+            repository.addChild(parentPath, path, endpoint, Relationship.ITEM);
+
         } else {
             endpoint.getProperties()
                     .setAvailable(Boolean.parseBoolean(available));
-            repository.put(path, endpoint);
+            // repository.put(path, endpoint);
         }
     }
 

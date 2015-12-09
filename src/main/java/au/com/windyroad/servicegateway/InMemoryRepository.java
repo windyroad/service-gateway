@@ -7,6 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
+import au.com.windyroad.hateoas.core.EntityRelationship;
 import au.com.windyroad.hateoas.core.ResolvedEntity;
 import au.com.windyroad.servicegateway.model.Endpoint;
 
@@ -14,6 +18,8 @@ import au.com.windyroad.servicegateway.model.Endpoint;
 public class InMemoryRepository implements Repository {
 
     Map<String, ResolvedEntity<?>> resolvedEntities = new HashMap<>();
+    MultiValueMap<String, EntityRelationship> children = new LinkedMultiValueMap<>();
+
     // Map<String, ProxyEntity> proxies = new HashMap<>();
     // Map<String, EndpointEntity> endpoints = new HashMap<>();
 
@@ -96,6 +102,21 @@ public class InMemoryRepository implements Repository {
         return resolvedEntities.values().stream()
                 .filter(e -> e.getNatures().contains("Proxy"))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Collection<EntityRelationship> getChildren(String parentPath) {
+        List<EntityRelationship> children = this.children.get(parentPath);
+
+        return children == null ? new ArrayList<EntityRelationship>()
+                : children;
+    }
+
+    @Override
+    public void addChild(String parentPath, String childPath,
+            ResolvedEntity<?> child, String... natures) {
+        children.add(parentPath, new EntityRelationship(child, natures));
+
     }
 
 }
