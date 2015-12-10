@@ -11,10 +11,10 @@ import au.com.windyroad.hateoas.core.EntityWrapper;
 public interface Repository
         extends PagingAndSortingRepository<EntityWrapper<?>, String> {
 
-    public List<EntityRelationship> findByEndpointsForProxy(
+    public List<EntityWrapper<?>> findByEndpointsForProxy(
             EntityWrapper<?> entity);
 
-    public List<EntityRelationship> findAllProxies(EntityWrapper<?> entity);
+    public List<EntityWrapper<?>> findAllProxies(EntityWrapper<?> entity);
 
     public void setChildren(EntityWrapper<?> entity,
             BiFunction<Repository, EntityWrapper<?>, List<EntityRelationship>> function);

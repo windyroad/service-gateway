@@ -45,6 +45,7 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.servicegateway.model.AdminRoot;
+import au.com.windyroad.servicegateway.model.AdminRootController;
 
 @SpringBootApplication
 @EnableAutoConfiguration
@@ -220,7 +221,7 @@ public class ServiceGatewayApplication {
         bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
         bpp.processInjection(entity);
         repository.save(entity);
-        repository.setChildren(entity, Repository::findAllProxies);
+        repository.setChildren(entity, AdminRootController::findAllProxies);
         return entity;
     }
 

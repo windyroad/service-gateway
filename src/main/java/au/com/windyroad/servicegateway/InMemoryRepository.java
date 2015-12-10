@@ -19,7 +19,6 @@ import org.springframework.web.client.HttpServerErrorException;
 
 import au.com.windyroad.hateoas.core.EntityRelationship;
 import au.com.windyroad.hateoas.core.EntityWrapper;
-import au.com.windyroad.hateoas.core.Relationship;
 import au.com.windyroad.servicegateway.model.Endpoint;
 import au.com.windyroad.servicegateway.model.Proxy;
 
@@ -29,61 +28,7 @@ public class InMemoryRepository implements Repository {
     Map<String, EntityWrapper<?>> entities = new HashMap<>();
     MultiValueMap<String, EntityRelationship> children = new LinkedMultiValueMap<>();
 
-    Map<String, BiFunction<Repository, EntityWrapper<?>, List<EntityRelationship>>> childrenQuery = new HashMap();
-
-    // @Override
-    // public EntityWrapper<?> get(String path) {
-    // return resolvedEntities.get(path);
-    // }
-    //
-    // @Override
-    // public void put(EntityWrapper<?> resolvedEntity) {
-    // resolvedEntities.put(resolvedEntity.getId(), resolvedEntity);
-    // }
-    //
-    // @Override
-    // public void remove(EntityWrapper<?> entity) {
-    // resolvedEntities.remove(entity.getId());
-    // }
-    //
-    // @Override
-    // public Collection<EntityWrapper<?>> getEndpointsUnder(String target) {
-    // List<EntityWrapper<?>> rval = new ArrayList<>();
-    // for (EntityWrapper<?> entity : resolvedEntities.values()) {
-    // boolean isEndpoint = entity.getNatures().contains("Endpoint");
-    // if (isEndpoint) {
-    // String candidateTarget = ((Endpoint) entity.getProperties())
-    // .getTarget();
-    // boolean underTarget = candidateTarget.startsWith(target);
-    // if (underTarget) {
-    // rval.add(entity);
-    // }
-    // }
-    // }
-    // return rval;
-    // }
-    //
-    // @Override
-    // public Collection<EntityWrapper<?>> getProxies() {
-    // return resolvedEntities.values().stream()
-    // .filter(e -> e.getNatures().contains("Proxy"))
-    // .collect(Collectors.toList());
-    // }
-    //
-    // @Override
-    // public Collection<EntityRelationship> getChildren(String parentPath) {
-    // List<EntityRelationship> children = this.children.get(parentPath);
-    //
-    // return children == null ? new ArrayList<EntityRelationship>()
-    // : children;
-    // }
-    //
-    // @Override
-    // public void addChild(EntityWrapper<?> parent, EntityWrapper<?> child,
-    // String... natures) {
-    // children.add(parent.getId(), new EntityRelationship(child, natures));
-    //
-    // }
+    Map<String, BiFunction<Repository, EntityWrapper<?>, List<EntityRelationship>>> childrenQuery = new HashMap<>();
 
     @Override
     public <S extends EntityWrapper<?>> S save(S entity) {
@@ -160,7 +105,7 @@ public class InMemoryRepository implements Repository {
     }
 
     @Override
-    public List<EntityRelationship> findByEndpointsForProxy(
+    public List<EntityWrapper<?>> findByEndpointsForProxy(
             EntityWrapper<?> entity) {
         return this.entities.values().stream().filter(e -> {
             if (!e.hasNature("Endpoint")) {
@@ -170,8 +115,7 @@ public class InMemoryRepository implements Repository {
             EntityWrapper<Endpoint> endpoint = (EntityWrapper<Endpoint>) e;
             String target = proxy.getProperties().getTarget();
             return endpoint.getProperties().getTarget().startsWith(target);
-        }).map(e -> new EntityRelationship(e, Relationship.ITEM))
-                .collect(Collectors.toList());
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -189,9 +133,8 @@ public class InMemoryRepository implements Repository {
     }
 
     @Override
-    public List<EntityRelationship> findAllProxies(EntityWrapper<?> entity) {
+    public List<EntityWrapper<?>> findAllProxies(EntityWrapper<?> entity) {
         return entities.values().stream().filter(e -> e.hasNature("Proxy"))
-                .map(e -> new EntityRelationship(e, Relationship.ITEM))
                 .collect(Collectors.toList());
     }
 

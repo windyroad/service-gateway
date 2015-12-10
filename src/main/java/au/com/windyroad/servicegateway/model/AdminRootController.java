@@ -1,5 +1,8 @@
 package au.com.windyroad.servicegateway.model;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -9,7 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 
+import au.com.windyroad.hateoas.core.EntityRelationship;
 import au.com.windyroad.hateoas.core.EntityWrapper;
+import au.com.windyroad.hateoas.core.Relationship;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 import au.com.windyroad.servicegateway.Repository;
 
@@ -40,8 +45,24 @@ public class AdminRootController {
             bpp.processInjection(proxy);
 
             repository.save(proxy);
-            repository.setChildren(proxy, Repository::findByEndpointsForProxy);
+            repository.setChildren(proxy,
+                    AdminRootController::findByEndpointsForProxy);
             return proxy;
         }
     }
+
+    static public List<EntityRelationship> findByEndpointsForProxy(
+            Repository repository, EntityWrapper<?> entity) {
+        return repository.findByEndpointsForProxy(entity).stream()
+                .map(e -> new EntityRelationship(e, Relationship.ITEM))
+                .collect(Collectors.toList());
+    }
+
+    static public List<EntityRelationship> findAllProxies(Repository repository,
+            EntityWrapper<?> entity) {
+        return repository.findByEndpointsForProxy(entity).stream()
+                .map(e -> new EntityRelationship(e, Relationship.ITEM))
+                .collect(Collectors.toList());
+    }
+
 }
