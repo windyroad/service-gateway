@@ -2,7 +2,9 @@ package au.com.windyroad.servicegateway.controller;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.script.ScriptException;
 import javax.servlet.http.HttpServletRequest;
@@ -12,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +22,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -107,11 +109,36 @@ public class RepositoryController {
         return ResponseEntity.created(result.getAddress()).build();
     }
 
+    @RequestMapping(method = RequestMethod.DELETE, produces = {
+            "application/vnd.siren+json",
+            "application/json" }, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    @ResponseBody
+    public ResponseEntity<?> delete(final HttpServletRequest request)
+            throws URISyntaxException, NoSuchMethodException, SecurityException,
+            ScriptException, IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException {
+        String url = (String) request.getAttribute(
+                HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+        EntityWrapper<?> entity = repository.get(url);
+        if (entity == null) {
+            return ResponseEntity.noContent().build();
+        }
+        Optional<Action> action = entity.getActions().stream()
+                .filter(e -> e.getNature().equals(HttpMethod.DELETE)).findAny();
+
+        if (!action.isPresent()) {
+            repository.remove(entity);
+        } else {
+            Entity result = action.get().invoke(new HashMap<>());
+        }
+        return ResponseEntity.noContent().build();
+    }
+
     @RequestMapping(method = RequestMethod.PUT, produces = {
             "application/vnd.siren+json",
             "application/json" }, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseBody
-    public ResponseEntity<?> post(@PathVariable("proxyName") String proxyName,
+    public ResponseEntity<?> post(
             @RequestParam MultiValueMap<String, String> queryParams,
             @RequestBody MultiValueMap<String, String> bodyParams,
             final HttpServletRequest request)

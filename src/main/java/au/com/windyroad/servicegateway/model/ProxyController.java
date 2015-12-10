@@ -49,6 +49,7 @@ public class ProxyController {
     @HateoasAction(nature = HttpMethod.DELETE)
     public void deleteProxy(EntityWrapper<Proxy> proxy) {
         repository.remove(proxy);
+        // todo: remove the children records
     }
 
     @HateoasAction(nature = HttpMethod.PUT)
