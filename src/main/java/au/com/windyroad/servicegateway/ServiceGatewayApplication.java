@@ -213,14 +213,15 @@ public class ServiceGatewayApplication {
             NoSuchMethodException, SecurityException {
         int autowireMode;
         boolean dependencyCheck;
-        EntityWrapper<AdminRoot> resolvedEntity = new EntityWrapper<AdminRoot>(
-                context, repository, "/admin/proxies", new AdminRoot(),
+        EntityWrapper<AdminRoot> entity = new EntityWrapper<AdminRoot>(context,
+                repository, "/admin/proxies", new AdminRoot(),
                 "Service Gateway");
         AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
         bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
-        bpp.processInjection(resolvedEntity);
-        repository.put(resolvedEntity);
-        return resolvedEntity;
+        bpp.processInjection(entity);
+        repository.save(entity);
+        repository.setChildren(entity, Repository::findAllProxies);
+        return entity;
     }
 
 }

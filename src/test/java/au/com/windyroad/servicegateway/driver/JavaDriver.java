@@ -28,8 +28,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import au.com.windyroad.hateoas.core.MediaTypes;
 import au.com.windyroad.hateoas.core.EntityWrapper;
+import au.com.windyroad.hateoas.core.MediaTypes;
 import au.com.windyroad.servicegateway.Repository;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.model.Endpoint;
@@ -111,7 +111,7 @@ public class JavaDriver implements Driver {
             throws NoSuchMethodException, SecurityException,
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
-        EntityWrapper<?> root = repository.get("/admin/proxies");
+        EntityWrapper<?> root = repository.findOne("/admin/proxies");
         Map<String, String> actionContext = new HashMap<>();
         actionContext.put("proxyName", proxyName);
         actionContext.put("endpoint", endpoint);
@@ -138,7 +138,7 @@ public class JavaDriver implements Driver {
         };
 
         EntityWrapper<Endpoint> endpoint = repository
-                .get(Endpoint.buildUrl(endpointName)).resolve(type);
+                .findOne(Endpoint.buildUrl(endpointName)).resolve(type);
         assertThat(endpoint, notNullValue());
         currentEndpoint = endpoint.resolve(EndpointEntity.class);
 

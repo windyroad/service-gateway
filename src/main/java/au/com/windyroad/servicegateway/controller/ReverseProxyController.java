@@ -153,7 +153,7 @@ public class ReverseProxyController {
         String path = "/admin/proxies/" + proxyName;
 
         EntityWrapper<Proxy> proxy = (EntityWrapper<Proxy>) repository
-                .get(path);
+                .findOne(path);
 
         if (proxy != null) {
             String url = (String) request.getAttribute(

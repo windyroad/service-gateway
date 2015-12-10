@@ -58,7 +58,7 @@ public class RepositoryController {
         if (!allRequestParams.isEmpty()) {
             url += "?" + request.getQueryString();
         }
-        EntityWrapper<?> entity = repository.get(url);
+        EntityWrapper<?> entity = repository.findOne(url);
         if (entity == null) {
             return ResponseEntity.notFound().build();
         }
@@ -88,7 +88,7 @@ public class RepositoryController {
                     IllegalArgumentException, InvocationTargetException {
         String url = (String) request.getAttribute(
                 HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-        EntityWrapper<?> entity = repository.get(url);
+        EntityWrapper<?> entity = repository.findOne(url);
         if (entity == null) {
             return ResponseEntity.notFound().build();
         }
@@ -119,7 +119,7 @@ public class RepositoryController {
             InvocationTargetException {
         String url = (String) request.getAttribute(
                 HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-        EntityWrapper<?> entity = repository.get(url);
+        EntityWrapper<?> entity = repository.findOne(url);
         if (entity == null) {
             return ResponseEntity.noContent().build();
         }
@@ -127,7 +127,7 @@ public class RepositoryController {
                 .filter(e -> e.getNature().equals(HttpMethod.DELETE)).findAny();
 
         if (!action.isPresent()) {
-            repository.remove(entity);
+            repository.delete(entity);
         } else {
             Entity result = action.get().invoke(new HashMap<>());
         }
@@ -147,7 +147,7 @@ public class RepositoryController {
 
         String url = (String) request.getAttribute(
                 HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-        EntityWrapper<?> entity = repository.get(url);
+        EntityWrapper<?> entity = repository.findOne(url);
         if (entity == null) {
             return ResponseEntity.notFound().build();
         }

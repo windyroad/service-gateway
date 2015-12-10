@@ -1,25 +1,23 @@
 package au.com.windyroad.servicegateway;
 
-import java.util.Collection;
+import java.util.List;
+import java.util.function.BiFunction;
+
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 import au.com.windyroad.hateoas.core.EntityRelationship;
 import au.com.windyroad.hateoas.core.EntityWrapper;
 
-public interface Repository {
+public interface Repository
+        extends PagingAndSortingRepository<EntityWrapper<?>, String> {
 
-    EntityWrapper<?> get(String path);
+    public List<EntityRelationship> findByEndpointsForProxy(
+            EntityWrapper<?> entity);
 
-    void put(EntityWrapper<?> resolvedEntity);
+    public List<EntityRelationship> findAllProxies(EntityWrapper<?> entity);
 
-    void remove(EntityWrapper<?> entity);
+    public void setChildren(EntityWrapper<?> entity,
+            BiFunction<Repository, EntityWrapper<?>, List<EntityRelationship>> function);
 
-    Collection<EntityWrapper<?>> getEndpointsUnder(String target);
-
-    Collection<EntityWrapper<?>> getProxies();
-
-    Collection<EntityRelationship> getChildren(String parentPath);
-
-    void addChild(EntityWrapper<?> parent, EntityWrapper<?> child,
-            String... natures);
-
+    public List<EntityRelationship> findChildren(EntityWrapper<?> entity);
 }

@@ -101,4 +101,8 @@ abstract public class Titled {
         this.title = title;
     }
 
+    public boolean hasNature(String nature) {
+        return this.getNatures().contains(nature);
+    }
+
 }

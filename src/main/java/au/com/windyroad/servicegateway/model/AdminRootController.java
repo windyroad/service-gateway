@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 
 import au.com.windyroad.hateoas.core.EntityWrapper;
-import au.com.windyroad.hateoas.core.Relationship;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 import au.com.windyroad.servicegateway.Repository;
 
@@ -28,7 +27,7 @@ public class AdminRootController {
     public EntityWrapper<?> createProxy(EntityWrapper<AdminRoot> entity,
             String proxyName, String endpoint) {
         String path = entity.getId() + "/" + proxyName;
-        EntityWrapper<?> existingProxy = repository.get(path);
+        EntityWrapper<?> existingProxy = repository.findOne(path);
 
         if (existingProxy != null) {
             throw new HttpClientErrorException(HttpStatus.CONFLICT);
@@ -40,8 +39,8 @@ public class AdminRootController {
             bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
             bpp.processInjection(proxy);
 
-            repository.put(proxy);
-            repository.addChild(entity, proxy, Relationship.ITEM);
+            repository.save(proxy);
+            repository.setChildren(proxy, Repository::findByEndpointsForProxy);
             return proxy;
         }
     }

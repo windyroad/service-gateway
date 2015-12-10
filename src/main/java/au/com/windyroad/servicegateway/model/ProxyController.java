@@ -9,7 +9,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
 import au.com.windyroad.hateoas.core.EntityWrapper;
-import au.com.windyroad.hateoas.core.Relationship;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 import au.com.windyroad.servicegateway.Repository;
 
@@ -29,15 +28,15 @@ public class ProxyController {
                     throws UnsupportedEncodingException {
         String path = Endpoint.buildUrl(target);
         EntityWrapper<Endpoint> endpoint = (EntityWrapper<Endpoint>) repository
-                .get(path);
+                .findOne(path);
 
         if (endpoint == null) {
             endpoint = new EntityWrapper<Endpoint>(context, repository, path,
                     new Endpoint(target, Boolean.parseBoolean(available)),
                     "Endpoint `" + target + "`");
 
-            repository.put(endpoint);
-            repository.addChild(proxy, endpoint, Relationship.ITEM);
+            repository.save(endpoint);
+            // repository.addChild(proxy, endpoint, Relationship.ITEM);
 
         } else {
             endpoint.getProperties()
@@ -48,8 +47,7 @@ public class ProxyController {
 
     @HateoasAction(nature = HttpMethod.DELETE)
     public void deleteProxy(EntityWrapper<Proxy> proxy) {
-        repository.remove(proxy);
-        // todo: remove the children records
+        repository.delete(proxy);
     }
 
     @HateoasAction(nature = HttpMethod.PUT)

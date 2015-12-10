@@ -113,7 +113,7 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
         return (repository == null ? new ArrayList<>()
-                : repository.getChildren(path));
+                : repository.findChildren(this));
     }
 
     public Link getLink(String self) {
