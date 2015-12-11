@@ -11,6 +11,9 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.StreamSupport;
 
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.slf4j.Logger;
@@ -27,8 +30,8 @@ import org.springframework.web.client.RestTemplate;
 import au.com.windyroad.hateoas.core.EntityRelationship;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
-import au.com.windyroad.servicegateway.model.EndpointEntity;
 import au.com.windyroad.servicegateway.model.AdminRootEntity;
+import au.com.windyroad.servicegateway.model.EndpointEntity;
 import au.com.windyroad.servicegateway.model.Proxy;
 import au.com.windyroad.servicegateway.model.ProxyEntity;
 
@@ -124,10 +127,12 @@ public class RestDriver extends JavaDriver {
             URISyntaxException {
         currentProxy = currentProxy.refresh();
         Optional<EntityRelationship> endpoint;
-        endpoint = currentProxy.getEntities().stream().filter(e -> {
-            return e.getEntity().resolve(EndpointEntity.class).getProperties()
-                    .getTarget().equals(endpointPath);
-        }).findAny();
+        endpoint = StreamSupport.stream(Spliterators.spliteratorUnknownSize(
+                currentProxy.getEntities().iterator(), Spliterator.ORDERED),
+                false).filter(e -> {
+                    return e.getEntity().resolve(EndpointEntity.class)
+                            .getProperties().getTarget().equals(endpointPath);
+                }).findAny();
 
         assertTrue(endpoint.isPresent());
         currentEndpoint = endpoint.get().getEntity()

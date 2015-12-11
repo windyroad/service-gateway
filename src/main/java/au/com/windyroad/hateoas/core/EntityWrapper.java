@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -112,8 +113,15 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
     public Collection<EntityRelationship> getEntities(int page)
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
-        return (repository == null ? new ArrayList<>()
-                : repository.findChildren(this));
+        List<EntityRelationship> rval = new ArrayList<>();
+        if (repository != null) {
+            Iterator<EntityRelationship> iterator = repository
+                    .findChildren(this);
+            while (iterator.hasNext()) {
+                rval.add(iterator.next());
+            }
+        }
+        return rval;
     }
 
     public Link getLink(String self) {
@@ -199,6 +207,7 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
     }
 
     @Override
+    @JsonIgnore
     public String getId() {
         return this.path;
     }

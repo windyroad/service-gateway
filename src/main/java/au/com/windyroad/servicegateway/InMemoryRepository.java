@@ -3,11 +3,10 @@ package au.com.windyroad.servicegateway;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +27,7 @@ public class InMemoryRepository implements Repository {
     Map<String, EntityWrapper<?>> entities = new HashMap<>();
     MultiValueMap<String, EntityRelationship> children = new LinkedMultiValueMap<>();
 
-    Map<String, BiFunction<Repository, EntityWrapper<?>, List<EntityRelationship>>> childrenQuery = new HashMap<>();
+    Map<String, BiFunction<Repository, EntityWrapper<?>, Iterator<EntityRelationship>>> childrenQuery = new HashMap<>();
 
     @Override
     public <S extends EntityWrapper<?>> S save(S entity) {
@@ -105,7 +104,7 @@ public class InMemoryRepository implements Repository {
     }
 
     @Override
-    public List<EntityWrapper<?>> findByEndpointsForProxy(
+    public Iterator<EntityWrapper<?>> findByEndpointsForProxy(
             EntityWrapper<?> entity) {
         return this.entities.values().stream().filter(e -> {
             if (!e.hasNature("Endpoint")) {
@@ -115,27 +114,27 @@ public class InMemoryRepository implements Repository {
             EntityWrapper<Endpoint> endpoint = (EntityWrapper<Endpoint>) e;
             String target = proxy.getProperties().getTarget();
             return endpoint.getProperties().getTarget().startsWith(target);
-        }).collect(Collectors.toList());
+        }).iterator();
     }
 
     @Override
     public void setChildren(EntityWrapper<?> entity,
-            BiFunction<Repository, EntityWrapper<?>, List<EntityRelationship>> function) {
+            BiFunction<Repository, EntityWrapper<?>, Iterator<EntityRelationship>> function) {
         childrenQuery.put(entity.getId(), function);
     }
 
     @Override
-    public List<EntityRelationship> findChildren(EntityWrapper<?> entity) {
-        BiFunction<Repository, EntityWrapper<?>, List<EntityRelationship>> function = childrenQuery
+    public Iterator<EntityRelationship> findChildren(EntityWrapper<?> entity) {
+        BiFunction<Repository, EntityWrapper<?>, Iterator<EntityRelationship>> function = childrenQuery
                 .get(entity.getId());
-        return function == null ? new ArrayList<>()
+        return function == null ? new ArrayList<EntityRelationship>().iterator()
                 : function.apply(this, entity);
     }
 
     @Override
-    public List<EntityWrapper<?>> findAllProxies(EntityWrapper<?> entity) {
+    public Iterator<EntityWrapper<?>> findAllProxies(EntityWrapper<?> entity) {
         return entities.values().stream().filter(e -> e.hasNature("Proxy"))
-                .collect(Collectors.toList());
+                .iterator();
     }
 
 }
