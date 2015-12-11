@@ -1,9 +1,10 @@
 package au.com.windyroad.servicegateway.model;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
@@ -55,45 +56,21 @@ public class AdminRootController {
 
     static public Iterator<EntityRelationship> findByEndpointsForProxy(
             Repository repository, EntityWrapper<?> entity) {
-        // return StreamSupport
-        // .stream(Spliterators.spliteratorUnknownSize(
-        // repository.findByEndpointsForProxy(entity),
-        // Spliterator.ORDERED), false)
-        // .map(e -> new EntityRelationship(e, Relationship.ITEM))
-        // .iterator();
-        //
-        List<EntityWrapper<?>> entities = new ArrayList<>();
-        Iterator<EntityWrapper<?>> iterator = repository
-                .findByEndpointsForProxy(entity);
-        while (iterator.hasNext()) {
-            entities.add(iterator.next());
-        }
-        Iterator<EntityRelationship> relIter = entities.stream()
+        return StreamSupport
+                .stream(Spliterators.spliteratorUnknownSize(
+                        repository.findByEndpointsForProxy(entity),
+                        Spliterator.ORDERED), false)
                 .map(e -> new EntityRelationship(e, Relationship.ITEM))
-                .iterator();
-        List<EntityRelationship> rels = new ArrayList<>();
-        while (relIter.hasNext()) {
-            rels.add(relIter.next());
-        }
-        return rels.iterator();
+                .collect(Collectors.toList()).iterator();
     }
 
     static public Iterator<EntityRelationship> findAllProxies(
             Repository repository, EntityWrapper<?> entity) {
-        // return StreamSupport
-        // .stream(Spliterators.spliteratorUnknownSize(
-        // repository.findAllProxies(entity), Spliterator.ORDERED),
-        // false).map(e -> new EntityRelationship(e, Relationship.ITEM))
-        // .iterator();
-        List<EntityWrapper<?>> entities = new ArrayList<>();
-        Iterator<EntityWrapper<?>> iterator = repository.findAllProxies(entity);
-        while (iterator.hasNext()) {
-            entities.add(iterator.next());
-        }
-        return entities.stream()
-                .map(e -> new EntityRelationship(e, Relationship.ITEM))
+        return StreamSupport
+                .stream(Spliterators.spliteratorUnknownSize(
+                        repository.findAllProxies(entity), Spliterator.ORDERED),
+                false).map(e -> new EntityRelationship(e, Relationship.ITEM))
                 .collect(Collectors.toList()).iterator();
-
     }
 
 }
