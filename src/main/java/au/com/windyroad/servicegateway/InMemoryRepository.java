@@ -127,8 +127,12 @@ public class InMemoryRepository implements Repository {
     public Iterator<EntityRelationship> findChildren(EntityWrapper<?> entity) {
         BiFunction<Repository, EntityWrapper<?>, Iterator<EntityRelationship>> function = childrenQuery
                 .get(entity.getId());
-        return function == null ? new ArrayList<EntityRelationship>().iterator()
-                : function.apply(this, entity);
+        if (function != null) {
+            Iterator<EntityRelationship> result = function.apply(this, entity);
+            return result;
+        }
+        final ArrayList<EntityRelationship> rval = new ArrayList<EntityRelationship>();
+        return rval.iterator();
     }
 
     @Override

@@ -113,14 +113,15 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
     public Iterator<EntityRelationship> getEntities(int page)
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
-        List<EntityRelationship> rval = new ArrayList<>();
         if (repository != null) {
-            Iterator<EntityRelationship> iterator = repository
-                    .findChildren(this);
-            while (iterator.hasNext()) {
-                rval.add(iterator.next());
-            }
+            return repository.findChildren(this);
+            // Iterator<EntityRelationship> iterator = repository
+            // .findChildren(this);
+            // while (iterator.hasNext()) {
+            // rval.add(iterator.next());
+            // }
         }
+        final List<EntityRelationship> rval = new ArrayList<>();
         return rval.iterator();
     }
 

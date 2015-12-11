@@ -3,6 +3,7 @@ package au.com.windyroad.servicegateway.model;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
@@ -91,7 +92,7 @@ public class AdminRootController {
         }
         return entities.stream()
                 .map(e -> new EntityRelationship(e, Relationship.ITEM))
-                .iterator();
+                .collect(Collectors.toList()).iterator();
 
     }
 
