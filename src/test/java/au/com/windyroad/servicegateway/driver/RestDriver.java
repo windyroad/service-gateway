@@ -127,9 +127,10 @@ public class RestDriver extends JavaDriver {
             URISyntaxException {
         currentProxy = currentProxy.refresh();
         Optional<EntityRelationship> endpoint;
-        endpoint = StreamSupport.stream(Spliterators.spliteratorUnknownSize(
-                currentProxy.getEntities().iterator(), Spliterator.ORDERED),
-                false).filter(e -> {
+        endpoint = StreamSupport
+                .stream(Spliterators.spliteratorUnknownSize(
+                        currentProxy.getEntities(), Spliterator.ORDERED), false)
+                .filter(e -> {
                     return e.getEntity().resolve(EndpointEntity.class)
                             .getProperties().getTarget().equals(endpointPath);
                 }).findAny();

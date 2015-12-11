@@ -104,13 +104,13 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
     }
 
     @JsonProperty("entities")
-    public Collection<EntityRelationship> getEntities()
+    public Iterator<EntityRelationship> getEntities()
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
         return getEntities(0);
     }
 
-    public Collection<EntityRelationship> getEntities(int page)
+    public Iterator<EntityRelationship> getEntities(int page)
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
         List<EntityRelationship> rval = new ArrayList<>();
@@ -121,7 +121,7 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
                 rval.add(iterator.next());
             }
         }
-        return rval;
+        return rval.iterator();
     }
 
     public Link getLink(String self) {
