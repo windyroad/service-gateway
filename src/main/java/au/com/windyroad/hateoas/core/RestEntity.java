@@ -3,7 +3,6 @@ package au.com.windyroad.hateoas.core;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 import org.springframework.context.ApplicationContext;
 
@@ -28,10 +27,10 @@ public class RestEntity<T> extends EntityWrapper<T> {
      * @see au.com.windyroad.hateoas.core.ResolvedEntity#getEntities(int)
      */
     @Override
-    public Iterator<EntityRelationship> getEntities(int page)
+    public Collection<EntityRelationship> getEntities(int page)
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException {
-        return this.entities.iterator();
+        return this.entities;
     }
 
     /*

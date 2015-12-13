@@ -9,11 +9,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
@@ -37,6 +38,8 @@ import au.com.windyroad.servicegateway.Repository;
         "title" })
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class EntityWrapper<T> extends Entity implements Identifiable<String> {
+
+    private static final int PAGE_SIZE = 10;
 
     public static URI buildUrl(Class<?> type, Object... parameters) {
         Class<?> controller = type.getAnnotation(HateoasController.class)
@@ -104,25 +107,22 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
     }
 
     @JsonProperty("entities")
-    public Iterator<EntityRelationship> getEntities()
+    public Collection<EntityRelationship> getEntities()
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
         return getEntities(0);
     }
 
-    public Iterator<EntityRelationship> getEntities(int page)
+    public Collection<EntityRelationship> getEntities(int page)
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
         if (repository != null) {
-            return repository.findChildren(this);
-            // Iterator<EntityRelationship> iterator = repository
-            // .findChildren(this);
-            // while (iterator.hasNext()) {
-            // rval.add(iterator.next());
-            // }
+            Stream<EntityRelationship> results = repository.findChildren(this);
+            return results.skip(page * PAGE_SIZE).limit(PAGE_SIZE)
+                    .collect(Collectors.toList());
         }
         final List<EntityRelationship> rval = new ArrayList<>();
-        return rval.iterator();
+        return rval;
     }
 
     public Link getLink(String self) {

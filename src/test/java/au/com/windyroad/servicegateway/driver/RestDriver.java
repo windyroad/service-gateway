@@ -11,9 +11,6 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.stream.StreamSupport;
 
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.slf4j.Logger;
@@ -127,13 +124,10 @@ public class RestDriver extends JavaDriver {
             URISyntaxException {
         currentProxy = currentProxy.refresh();
         Optional<EntityRelationship> endpoint;
-        endpoint = StreamSupport
-                .stream(Spliterators.spliteratorUnknownSize(
-                        currentProxy.getEntities(), Spliterator.ORDERED), false)
-                .filter(e -> {
-                    return e.getEntity().resolve(EndpointEntity.class)
-                            .getProperties().getTarget().equals(endpointPath);
-                }).findAny();
+        endpoint = currentProxy.getEntities().stream().filter(e -> {
+            return e.getEntity().resolve(EndpointEntity.class).getProperties()
+                    .getTarget().equals(endpointPath);
+        }).findAny();
 
         assertTrue(endpoint.isPresent());
         currentEndpoint = endpoint.get().getEntity()

@@ -1,10 +1,6 @@
 package au.com.windyroad.servicegateway.model;
 
-import java.util.Iterator;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
@@ -54,23 +50,16 @@ public class AdminRootController {
         }
     }
 
-    static public Iterator<EntityRelationship> findByEndpointsForProxy(
+    static public Stream<EntityRelationship> findByEndpointsForProxy(
             Repository repository, EntityWrapper<?> entity) {
-        return StreamSupport
-                .stream(Spliterators.spliteratorUnknownSize(
-                        repository.findByEndpointsForProxy(entity),
-                        Spliterator.ORDERED), false)
-                .map(e -> new EntityRelationship(e, Relationship.ITEM))
-                .collect(Collectors.toList()).iterator();
+        return repository.findByEndpointsForProxy(entity)
+                .map(e -> new EntityRelationship(e, Relationship.ITEM));
     }
 
-    static public Iterator<EntityRelationship> findAllProxies(
+    static public Stream<EntityRelationship> findAllProxies(
             Repository repository, EntityWrapper<?> entity) {
-        return StreamSupport
-                .stream(Spliterators.spliteratorUnknownSize(
-                        repository.findAllProxies(entity), Spliterator.ORDERED),
-                false).map(e -> new EntityRelationship(e, Relationship.ITEM))
-                .collect(Collectors.toList()).iterator();
+        return repository.findAllProxies(entity)
+                .map(e -> new EntityRelationship(e, Relationship.ITEM));
     }
 
 }
