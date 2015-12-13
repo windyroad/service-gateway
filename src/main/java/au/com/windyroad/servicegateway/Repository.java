@@ -17,7 +17,8 @@ public interface Repository {
     @Async
     public <S extends EntityWrapper<?>> Future<S> save(S entity);
 
-    public <S extends EntityWrapper<?>> Iterable<S> save(Iterable<S> entities);
+    public <S extends EntityWrapper<?>> Future<Iterable<S>> save(
+            Iterable<S> entities);
 
     public EntityWrapper<?> findOne(String id);
 

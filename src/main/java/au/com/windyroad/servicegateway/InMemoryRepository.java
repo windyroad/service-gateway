@@ -45,9 +45,16 @@ public class InMemoryRepository implements Repository {
     }
 
     @Override
-    public <S extends EntityWrapper<?>> Iterable<S> save(Iterable<S> entities) {
-        entities.forEach(e -> save(e));
-        return entities;
+    public <S extends EntityWrapper<?>> Future<Iterable<S>> save(
+            Iterable<S> entities) {
+        return CompletableFuture.supplyAsync(new Supplier<Iterable<S>>() {
+            @Override
+            public Iterable<S> get() {
+                entities.forEach(e -> save(e));
+                return entities;
+            }
+        });
+
     }
 
     @Override
