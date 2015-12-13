@@ -5,7 +5,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.springframework.data.domain.Page;
@@ -30,9 +33,15 @@ public class InMemoryRepository implements Repository {
     Map<String, BiFunction<Repository, EntityWrapper<?>, Stream<EntityRelationship>>> childrenQuery = new HashMap<>();
 
     @Override
-    public <S extends EntityWrapper<?>> S save(S entity) {
-        entities.put(entity.getId(), entity);
-        return entity;
+    public <S extends EntityWrapper<?>> Future<S> save(S entity) {
+        return CompletableFuture.supplyAsync(new Supplier<S>() {
+            @Override
+            public S get() {
+                entities.put(entity.getId(), entity);
+                return entity;
+            }
+        });
+
     }
 
     @Override

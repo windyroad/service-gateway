@@ -39,6 +39,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
@@ -48,6 +49,7 @@ import au.com.windyroad.servicegateway.model.AdminRoot;
 import au.com.windyroad.servicegateway.model.AdminRootController;
 
 @SpringBootApplication
+@EnableAsync
 @EnableAutoConfiguration
 @ComponentScan("au.com.windyroad")
 public class ServiceGatewayApplication {
