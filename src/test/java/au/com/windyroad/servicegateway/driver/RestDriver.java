@@ -11,6 +11,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.EntityRelationship;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
@@ -72,8 +74,9 @@ public class RestDriver extends JavaDriver {
         context.put("proxyName", proxyName);
         context.put("endpoint", endpoint);
 
-        currentProxy = getRoot().getAction("createProxy").invoke(context).get()
-                .resolve(ProxyEntity.class);
+        CompletableFuture<Entity> invocationResult = (CompletableFuture<Entity>) getRoot()
+                .getAction("createProxy").invoke(context);
+        currentProxy = invocationResult.get().resolve(ProxyEntity.class);
 
         Enhancer e = new Enhancer();
         e.setClassLoader(this.getClass().getClassLoader());
@@ -89,8 +92,9 @@ public class RestDriver extends JavaDriver {
                     for (int i = 0; i < params.length; ++i) {
                         context.put(params[i].getName(), args[i].toString());
                     }
-                    return currentProxy.getAction(method.getName())
-                            .invoke(context).get().resolve(ProxyEntity.class);
+                    CompletableFuture<Entity> xxxResult = (CompletableFuture<Entity>) currentProxy
+                            .getAction(method.getName()).invoke(context);
+                    return xxxResult.get().resolve(ProxyEntity.class);
 
                 } else {
                     throw new RuntimeException("`" + method.getName()

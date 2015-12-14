@@ -105,8 +105,8 @@ public class RepositoryController {
         }
         // todo: post actions should have a link return value
         // todo: automatically treat actions that return links as POST actions
-        Entity result = action.invoke(allRequestParams.toSingleValueMap())
-                .get();
+        Entity result = (Entity) action
+                .invoke(allRequestParams.toSingleValueMap()).get();
         return ResponseEntity.created(result.getAddress()).build();
     }
 
@@ -114,26 +114,38 @@ public class RepositoryController {
             "application/vnd.siren+json",
             "application/json" }, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseBody
-    public ResponseEntity<?> delete(final HttpServletRequest request)
-            throws URISyntaxException, NoSuchMethodException, SecurityException,
-            ScriptException, IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException, InterruptedException,
-            ExecutionException {
+    public CompletableFuture<ResponseEntity<?>> delete(
+            final HttpServletRequest request)
+                    throws URISyntaxException, NoSuchMethodException,
+                    SecurityException, ScriptException, IllegalAccessException,
+                    IllegalArgumentException, InvocationTargetException,
+                    InterruptedException, ExecutionException {
         String url = (String) request.getAttribute(
                 HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-        EntityWrapper<?> entity = repository.findOne(url).get();
-        if (entity == null) {
-            return ResponseEntity.noContent().build();
-        }
-        Optional<Action> action = entity.getActions().stream()
-                .filter(e -> e.getNature().equals(HttpMethod.DELETE)).findAny();
+        return repository.findOne(url).thenApplyAsync(entity -> {
+            if (entity == null) {
+                return ResponseEntity.noContent().build();
+            }
+            Optional<Action> actionOptional = entity.getActions().stream()
+                    .filter(e -> e.getNature().equals(HttpMethod.DELETE))
+                    .findAny();
 
-        if (!action.isPresent()) {
-            repository.delete(entity);
-        } else {
-            Entity result = action.get().invoke(new HashMap<>()).get();
-        }
-        return ResponseEntity.noContent().build();
+            if (!actionOptional.isPresent()) {
+                repository.delete(entity);
+            } else {
+                try {
+                    Action action = actionOptional.get();
+                    CompletableFuture<?> invocationResult = action
+                            .invoke(new HashMap<>());
+                    invocationResult.join();
+                } catch (Exception e) {
+                    LOGGER.error(e.getMessage(), e);
+                    return ResponseEntity
+                            .status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                }
+            }
+            return ResponseEntity.noContent().build();
+        });
     }
 
     @RequestMapping(method = RequestMethod.PUT, produces = {

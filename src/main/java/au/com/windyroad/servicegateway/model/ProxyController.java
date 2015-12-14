@@ -1,6 +1,7 @@
 package au.com.windyroad.servicegateway.model;
 
 import java.io.UnsupportedEncodingException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,8 +49,8 @@ public class ProxyController {
     }
 
     @HateoasAction(nature = HttpMethod.DELETE)
-    public void deleteProxy(EntityWrapper<Proxy> proxy) {
-        repository.delete(proxy);
+    public CompletableFuture<Void> deleteProxy(EntityWrapper<Proxy> proxy) {
+        return repository.delete(proxy);
     }
 
     @HateoasAction(nature = HttpMethod.PUT)

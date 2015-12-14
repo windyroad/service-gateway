@@ -41,9 +41,9 @@ public abstract class Action extends Titled {
         return identifier;
     }
 
-    public abstract CompletableFuture<Entity> invoke(
-            Map<String, String> context) throws IllegalAccessException,
-                    IllegalArgumentException, InvocationTargetException;
+    public abstract CompletableFuture<?> invoke(Map<String, String> context)
+            throws IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException;
 
     /**
      * @return the nature

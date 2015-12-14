@@ -121,8 +121,8 @@ public class JavaDriver implements Driver {
         actionContext.put("endpoint", endpoint);
         ParameterizedTypeReference<EntityWrapper<Proxy>> type = new ParameterizedTypeReference<EntityWrapper<Proxy>>() {
         };
-        CompletableFuture<Entity> result = root.getAction("createProxy")
-                .invoke(actionContext);
+        CompletableFuture<Entity> result = (CompletableFuture<Entity>) root
+                .getAction("createProxy").invoke(actionContext);
         this.currentProxy = result.get().resolve(type);
     }
 

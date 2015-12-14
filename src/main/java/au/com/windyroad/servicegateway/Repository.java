@@ -30,13 +30,14 @@ public interface Repository {
 
     public long count();
 
-    public void delete(String id);
+    public CompletableFuture<Void> delete(String id);
 
-    public void delete(EntityWrapper<?> entity);
+    public CompletableFuture<Void> delete(EntityWrapper<?> entity);
 
-    public void delete(Iterable<? extends EntityWrapper<?>> entities);
+    public CompletableFuture<Void> delete(
+            Iterable<? extends EntityWrapper<?>> entities);
 
-    public void deleteAll();
+    public CompletableFuture<Void> deleteAll();
 
     public Iterable<EntityWrapper<?>> findAll(Sort sort);
 

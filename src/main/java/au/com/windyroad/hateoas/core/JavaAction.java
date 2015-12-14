@@ -49,7 +49,7 @@ public class JavaAction extends Action {
     }
 
     @Override
-    public CompletableFuture<Entity> invoke(Map<String, String> context)
+    public CompletableFuture<?> invoke(Map<String, String> context)
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException {
         List<Object> args = new ArrayList<>(getParameters().size() + 1);
@@ -59,7 +59,7 @@ public class JavaAction extends Action {
                 args.add(context.get(param.getIdentifier()));
             }
         }
-        return (CompletableFuture<Entity>) method.invoke(javaController,
+        return (CompletableFuture<?>) method.invoke(javaController,
                 args.toArray());
 
     }

@@ -83,23 +83,33 @@ public class InMemoryRepository implements Repository {
     }
 
     @Override
-    public void delete(String id) {
-        entities.remove(id);
+    public CompletableFuture<Void> delete(String id) {
+        return CompletableFuture.runAsync(() -> {
+            entities.remove(id);
+        });
     }
 
     @Override
-    public void delete(EntityWrapper<?> entity) {
-        entities.remove(entity.getId());
+    public CompletableFuture<Void> delete(EntityWrapper<?> entity) {
+        return CompletableFuture.runAsync(() -> {
+            entities.remove(entity.getId());
+        });
+
     }
 
     @Override
-    public void delete(Iterable<? extends EntityWrapper<?>> entities) {
-        entities.forEach(e -> delete(e));
+    public CompletableFuture<Void> delete(
+            Iterable<? extends EntityWrapper<?>> entities) {
+        return CompletableFuture.runAsync(() -> {
+            entities.forEach(e -> delete(e));
+        });
     }
 
     @Override
-    public void deleteAll() {
-        entities.clear();
+    public CompletableFuture<Void> deleteAll() {
+        return CompletableFuture.runAsync(() -> {
+            entities.clear();
+        });
     }
 
     @Override
