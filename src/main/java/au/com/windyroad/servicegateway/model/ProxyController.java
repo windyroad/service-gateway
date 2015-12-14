@@ -1,6 +1,7 @@
 package au.com.windyroad.servicegateway.model;
 
 import java.io.UnsupportedEncodingException;
+import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -25,10 +26,11 @@ public class ProxyController {
     @HateoasAction(nature = HttpMethod.PUT)
     public void setEndpoint(EntityWrapper<Proxy> proxy, String proxyName,
             String target, String available)
-                    throws UnsupportedEncodingException {
+                    throws UnsupportedEncodingException, InterruptedException,
+                    ExecutionException {
         String path = Endpoint.buildUrl(target);
         EntityWrapper<Endpoint> endpoint = (EntityWrapper<Endpoint>) repository
-                .findOne(path);
+                .findOne(path).get();
 
         if (endpoint == null) {
             endpoint = new EntityWrapper<Endpoint>(context, repository, path,

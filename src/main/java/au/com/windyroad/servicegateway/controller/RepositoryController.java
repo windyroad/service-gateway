@@ -5,6 +5,8 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import javax.script.ScriptException;
 import javax.servlet.http.HttpServletRequest;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.servlet.HandlerMapping;
 
 import au.com.windyroad.hateoas.core.Action;
@@ -50,7 +53,7 @@ public class RepositoryController {
     @RequestMapping(method = RequestMethod.GET, produces = {
             MediaTypes.SIREN_JSON_VALUE, MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
-    public ResponseEntity<?> self(
+    public DeferredResult<ResponseEntity<?>> self(
             @RequestParam Map<String, Object> allRequestParams,
             final HttpServletRequest request) {
         String url = (String) request.getAttribute(
@@ -58,16 +61,18 @@ public class RepositoryController {
         if (!allRequestParams.isEmpty()) {
             url += "?" + request.getQueryString();
         }
-        EntityWrapper<?> entity = repository.findOne(url);
-        if (entity == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        // how do we render the entity according to the request params,
-        // which could be used to specific paging, filtering, sorting
-        // and partial rendering criteria?
-        // don't know. for the time being ignore the params
-        return ResponseEntity.ok(entity);
+        CompletableFuture<EntityWrapper<?>> entityFuture = repository
+                .findOne(url);
+        DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<ResponseEntity<?>>();
+        entityFuture.thenApplyAsync(entity -> {
+            if (entity == null) {
+                deferredResult.setResult(ResponseEntity.notFound().build());
+            } else {
+                deferredResult.setResult(ResponseEntity.ok(entity));
+            }
+            return entity;
+        });
+        return deferredResult;
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = { "text/html",
@@ -85,10 +90,11 @@ public class RepositoryController {
             final HttpServletRequest request)
                     throws URISyntaxException, NoSuchMethodException,
                     SecurityException, ScriptException, IllegalAccessException,
-                    IllegalArgumentException, InvocationTargetException {
+                    IllegalArgumentException, InvocationTargetException,
+                    InterruptedException, ExecutionException {
         String url = (String) request.getAttribute(
                 HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-        EntityWrapper<?> entity = repository.findOne(url);
+        EntityWrapper<?> entity = repository.findOne(url).get();
         if (entity == null) {
             return ResponseEntity.notFound().build();
         }
@@ -105,7 +111,8 @@ public class RepositoryController {
         }
         // todo: post actions should have a link return value
         // todo: automatically treat actions that return links as POST actions
-        Entity result = action.invoke(allRequestParams.toSingleValueMap());
+        Entity result = action.invoke(allRequestParams.toSingleValueMap())
+                .get();
         return ResponseEntity.created(result.getAddress()).build();
     }
 
@@ -116,10 +123,11 @@ public class RepositoryController {
     public ResponseEntity<?> delete(final HttpServletRequest request)
             throws URISyntaxException, NoSuchMethodException, SecurityException,
             ScriptException, IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException {
+            InvocationTargetException, InterruptedException,
+            ExecutionException {
         String url = (String) request.getAttribute(
                 HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-        EntityWrapper<?> entity = repository.findOne(url);
+        EntityWrapper<?> entity = repository.findOne(url).get();
         if (entity == null) {
             return ResponseEntity.noContent().build();
         }
@@ -129,7 +137,7 @@ public class RepositoryController {
         if (!action.isPresent()) {
             repository.delete(entity);
         } else {
-            Entity result = action.get().invoke(new HashMap<>());
+            Entity result = action.get().invoke(new HashMap<>()).get();
         }
         return ResponseEntity.noContent().build();
     }
@@ -143,11 +151,12 @@ public class RepositoryController {
             @RequestBody MultiValueMap<String, String> bodyParams,
             final HttpServletRequest request)
                     throws IllegalAccessException, IllegalArgumentException,
-                    InvocationTargetException, URISyntaxException {
+                    InvocationTargetException, URISyntaxException,
+                    InterruptedException, ExecutionException {
 
         String url = (String) request.getAttribute(
                 HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-        EntityWrapper<?> entity = repository.findOne(url);
+        EntityWrapper<?> entity = repository.findOne(url).get();
         if (entity == null) {
             return ResponseEntity.notFound().build();
         }

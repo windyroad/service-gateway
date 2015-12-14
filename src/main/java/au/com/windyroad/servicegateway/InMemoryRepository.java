@@ -6,9 +6,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 import java.util.function.BiFunction;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.springframework.data.domain.Page;
@@ -33,33 +31,28 @@ public class InMemoryRepository implements Repository {
     Map<String, BiFunction<Repository, EntityWrapper<?>, Stream<EntityRelationship>>> childrenQuery = new HashMap<>();
 
     @Override
-    public <S extends EntityWrapper<?>> Future<S> save(S entity) {
-        return CompletableFuture.supplyAsync(new Supplier<S>() {
-            @Override
-            public S get() {
-                entities.put(entity.getId(), entity);
-                return entity;
-            }
+    public <S extends EntityWrapper<?>> CompletableFuture<S> save(S entity) {
+        return CompletableFuture.supplyAsync(() -> {
+            entities.put(entity.getId(), entity);
+            return entity;
         });
 
     }
 
     @Override
-    public <S extends EntityWrapper<?>> Future<Iterable<S>> save(
+    public <S extends EntityWrapper<?>> CompletableFuture<Iterable<S>> save(
             Iterable<S> entities) {
-        return CompletableFuture.supplyAsync(new Supplier<Iterable<S>>() {
-            @Override
-            public Iterable<S> get() {
-                entities.forEach(e -> save(e));
-                return entities;
-            }
+        return CompletableFuture.supplyAsync(() -> {
+            entities.forEach(e -> save(e));
+            return entities;
         });
 
     }
 
     @Override
-    public EntityWrapper<?> findOne(String id) {
-        return entities.get(id);
+    public CompletableFuture<EntityWrapper<?>> findOne(String id) {
+        return CompletableFuture.supplyAsync(() -> entities.get(id));
+
     }
 
     @Override

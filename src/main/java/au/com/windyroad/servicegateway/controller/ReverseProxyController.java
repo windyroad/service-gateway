@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -147,13 +148,14 @@ public class ReverseProxyController {
             @PathVariable("proxyName") String proxyName)
                     throws NoSuchMethodException, SecurityException,
                     IllegalAccessException, IllegalArgumentException,
-                    InvocationTargetException, URISyntaxException {
+                    InvocationTargetException, URISyntaxException,
+                    InterruptedException, ExecutionException {
         DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<ResponseEntity<?>>();
 
         String path = "/admin/proxies/" + proxyName;
 
         EntityWrapper<Proxy> proxy = (EntityWrapper<Proxy>) repository
-                .findOne(path);
+                .findOne(path).get();
 
         if (proxy != null) {
             String url = (String) request.getAttribute(

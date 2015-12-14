@@ -1,6 +1,6 @@
 package au.com.windyroad.servicegateway;
 
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
@@ -15,12 +15,12 @@ import au.com.windyroad.hateoas.core.EntityWrapper;
 public interface Repository {
 
     @Async
-    public <S extends EntityWrapper<?>> Future<S> save(S entity);
+    public <S extends EntityWrapper<?>> CompletableFuture<S> save(S entity);
 
-    public <S extends EntityWrapper<?>> Future<Iterable<S>> save(
+    public <S extends EntityWrapper<?>> CompletableFuture<Iterable<S>> save(
             Iterable<S> entities);
 
-    public EntityWrapper<?> findOne(String id);
+    public CompletableFuture<EntityWrapper<?>> findOne(String id);
 
     public boolean exists(String id);
 

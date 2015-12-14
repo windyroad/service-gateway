@@ -11,6 +11,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.slf4j.Logger;
@@ -66,12 +67,12 @@ public class RestDriver extends JavaDriver {
     public void createProxy(String proxyName, String endpoint)
             throws RestClientException, URISyntaxException,
             IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException, NoSuchMethodException,
-            SecurityException {
+            InvocationTargetException, NoSuchMethodException, SecurityException,
+            InterruptedException, ExecutionException {
         context.put("proxyName", proxyName);
         context.put("endpoint", endpoint);
 
-        currentProxy = getRoot().getAction("createProxy").invoke(context)
+        currentProxy = getRoot().getAction("createProxy").invoke(context).get()
                 .resolve(ProxyEntity.class);
 
         Enhancer e = new Enhancer();
@@ -89,7 +90,7 @@ public class RestDriver extends JavaDriver {
                         context.put(params[i].getName(), args[i].toString());
                     }
                     return currentProxy.getAction(method.getName())
-                            .invoke(context).resolve(ProxyEntity.class);
+                            .invoke(context).get().resolve(ProxyEntity.class);
 
                 } else {
                     throw new RuntimeException("`" + method.getName()

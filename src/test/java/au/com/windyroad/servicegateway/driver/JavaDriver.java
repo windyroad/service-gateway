@@ -9,6 +9,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.apache.http.HttpResponse;
@@ -28,6 +30,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.async.DeferredResult;
 
+import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.hateoas.core.MediaTypes;
 import au.com.windyroad.servicegateway.Repository;
@@ -110,15 +113,17 @@ public class JavaDriver implements Driver {
     public void createProxy(String proxyName, String endpoint)
             throws NoSuchMethodException, SecurityException,
             IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException, URISyntaxException {
-        EntityWrapper<?> root = repository.findOne("/admin/proxies");
+            InvocationTargetException, URISyntaxException, InterruptedException,
+            ExecutionException {
+        EntityWrapper<?> root = repository.findOne("/admin/proxies").get();
         Map<String, String> actionContext = new HashMap<>();
         actionContext.put("proxyName", proxyName);
         actionContext.put("endpoint", endpoint);
         ParameterizedTypeReference<EntityWrapper<Proxy>> type = new ParameterizedTypeReference<EntityWrapper<Proxy>>() {
         };
-        this.currentProxy = root.getAction("createProxy").invoke(actionContext)
-                .resolve(type);
+        CompletableFuture<Entity> result = root.getAction("createProxy")
+                .invoke(actionContext);
+        this.currentProxy = result.get().resolve(type);
     }
 
     @Override
@@ -133,12 +138,12 @@ public class JavaDriver implements Driver {
     public void checkEndpointExists(String path, String endpointName)
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, UnsupportedEncodingException,
-            URISyntaxException {
+            URISyntaxException, InterruptedException, ExecutionException {
         ParameterizedTypeReference<EntityWrapper<Endpoint>> type = new ParameterizedTypeReference<EntityWrapper<Endpoint>>() {
         };
 
         EntityWrapper<Endpoint> endpoint = repository
-                .findOne(Endpoint.buildUrl(endpointName)).resolve(type);
+                .findOne(Endpoint.buildUrl(endpointName)).get().resolve(type);
         assertThat(endpoint, notNullValue());
         currentEndpoint = endpoint.resolve(EndpointEntity.class);
 

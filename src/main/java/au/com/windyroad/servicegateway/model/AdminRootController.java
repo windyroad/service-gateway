@@ -1,5 +1,6 @@
 package au.com.windyroad.servicegateway.model;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,26 +29,30 @@ public class AdminRootController {
     Repository repository;
 
     @HateoasAction(nature = HttpMethod.POST)
-    public EntityWrapper<?> createProxy(EntityWrapper<AdminRoot> entity,
-            String proxyName, String endpoint) {
+    public CompletableFuture<EntityWrapper<?>> createProxy(
+            EntityWrapper<AdminRoot> entity, String proxyName,
+            String endpoint) {
+
         String path = entity.getId() + "/" + proxyName;
-        EntityWrapper<?> existingProxy = repository.findOne(path);
+        CompletableFuture<EntityWrapper<?>> existingProxyFuture = repository
+                .findOne(path);
+        return existingProxyFuture.thenApplyAsync(existingProxy -> {
+            if (existingProxy != null) {
+                throw new HttpClientErrorException(HttpStatus.CONFLICT);
+            } else {
+                EntityWrapper<Proxy> proxy = new EntityWrapper<Proxy>(context,
+                        repository, path, new Proxy(proxyName, endpoint),
+                        proxyName);
+                AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
+                bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
+                bpp.processInjection(proxy);
 
-        if (existingProxy != null) {
-            throw new HttpClientErrorException(HttpStatus.CONFLICT);
-        } else {
-            EntityWrapper<Proxy> proxy = new EntityWrapper<Proxy>(context,
-                    repository, path, new Proxy(proxyName, endpoint),
-                    proxyName);
-            AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
-            bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
-            bpp.processInjection(proxy);
-
-            repository.save(proxy);
-            repository.setChildren(proxy,
-                    AdminRootController::findByEndpointsForProxy);
-            return proxy;
-        }
+                repository.save(proxy);
+                repository.setChildren(proxy,
+                        AdminRootController::findByEndpointsForProxy);
+                return proxy;
+            }
+        });
     }
 
     static public Stream<EntityRelationship> findByEndpointsForProxy(

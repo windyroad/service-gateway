@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import org.springframework.hateoas.mvc.BasicLinkBuilder;
 import org.springframework.http.HttpMethod;
@@ -48,9 +49,9 @@ public class JavaAction extends Action {
     }
 
     @Override
-    public <T extends EntityWrapper<?>> Entity invoke(
-            Map<String, String> context) throws IllegalAccessException,
-                    IllegalArgumentException, InvocationTargetException {
+    public CompletableFuture<Entity> invoke(Map<String, String> context)
+            throws IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException {
         List<Object> args = new ArrayList<>(getParameters().size() + 1);
         args.add(entity);
         for (au.com.windyroad.hateoas.core.Parameter param : getParameters()) {
@@ -58,7 +59,8 @@ public class JavaAction extends Action {
                 args.add(context.get(param.getIdentifier()));
             }
         }
-        return (Entity) method.invoke(javaController, args.toArray());
+        return (CompletableFuture<Entity>) method.invoke(javaController,
+                args.toArray());
 
     }
 

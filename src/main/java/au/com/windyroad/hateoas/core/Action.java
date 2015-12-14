@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import org.springframework.http.HttpMethod;
 
@@ -40,7 +41,7 @@ public abstract class Action extends Titled {
         return identifier;
     }
 
-    public abstract <T extends EntityWrapper<?>> Entity invoke(
+    public abstract CompletableFuture<Entity> invoke(
             Map<String, String> context) throws IllegalAccessException,
                     IllegalArgumentException, InvocationTargetException;
 

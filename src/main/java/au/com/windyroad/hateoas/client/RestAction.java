@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
@@ -26,7 +27,6 @@ import com.google.common.collect.Maps;
 
 import au.com.windyroad.hateoas.core.Action;
 import au.com.windyroad.hateoas.core.Entity;
-import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.hateoas.core.LinkedEntity;
 import au.com.windyroad.hateoas.core.MediaTypes;
 import au.com.windyroad.hateoas.core.Parameter;
@@ -57,57 +57,65 @@ public class RestAction extends Action {
     }
 
     @Override
-    public <T extends EntityWrapper<?>> Entity invoke(
-            Map<String, String> context) throws IllegalAccessException,
-                    IllegalArgumentException, InvocationTargetException {
+    public CompletableFuture<Entity> invoke(Map<String, String> context)
+            throws IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException {
         switch (nature) {
         case POST: {
-            Set<String> parameterKeys = getParameterKeys();
-            Map<String, String> filteredParameters = Maps.filterKeys(context,
-                    Predicates.in(parameterKeys));
-            filteredParameters.put("action", getIdentifier());
-            MultiValueMap<String, String> body = new LinkedMultiValueMap<>(
-                    filteredParameters.size());
-            for (Entry<String, String> entry : filteredParameters.entrySet()) {
-                body.add(entry.getKey(), entry.getValue());
-            }
-            RequestEntity<?> request = RequestEntity.post(address)
-                    .accept(MediaTypes.SIREN_JSON)
-                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                    .body(body);
-            URI location = restTemplate.postForLocation(address, request);
-            LinkedEntity linkedEntity = new LinkedEntity(location, null, null);
-            AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
-            bpp.setBeanFactory(
-                    applicationContext.getAutowireCapableBeanFactory());
-            bpp.processInjection(linkedEntity);
+            return CompletableFuture.supplyAsync(() -> {
+                Set<String> parameterKeys = getParameterKeys();
+                Map<String, String> filteredParameters = Maps
+                        .filterKeys(context, Predicates.in(parameterKeys));
+                filteredParameters.put("action", getIdentifier());
+                MultiValueMap<String, String> body = new LinkedMultiValueMap<>(
+                        filteredParameters.size());
+                for (Entry<String, String> entry : filteredParameters
+                        .entrySet()) {
+                    body.add(entry.getKey(), entry.getValue());
+                }
+                RequestEntity<?> request = RequestEntity.post(address)
+                        .accept(MediaTypes.SIREN_JSON)
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .body(body);
+                URI location = restTemplate.postForLocation(address, request);
+                LinkedEntity linkedEntity = new LinkedEntity(location, null,
+                        null);
+                AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
+                bpp.setBeanFactory(
+                        applicationContext.getAutowireCapableBeanFactory());
+                bpp.processInjection(linkedEntity);
 
-            return linkedEntity;
+                return linkedEntity;
+            });
         }
         case PUT: {
-            Set<String> parameterKeys = getParameterKeys();
-            Map<String, String> filteredParameters = Maps.filterKeys(context,
-                    Predicates.in(parameterKeys));
-            filteredParameters.put("action", getIdentifier());
-            MultiValueMap<String, String> body = new LinkedMultiValueMap<>(
-                    filteredParameters.size());
-            for (Entry<String, String> entry : filteredParameters.entrySet()) {
-                body.add(entry.getKey(), entry.getValue());
-            }
-            RequestEntity<?> request = RequestEntity.put(address)
-                    .accept(MediaTypes.SIREN_JSON)
-                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                    .body(body);
-            ResponseEntity<Void> response = restTemplate.exchange(request,
-                    Void.class);
-            LinkedEntity linkedEntity = new LinkedEntity(
-                    response.getHeaders().getLocation(), null, null);
-            AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
-            bpp.setBeanFactory(
-                    applicationContext.getAutowireCapableBeanFactory());
-            bpp.processInjection(linkedEntity);
+            return CompletableFuture.supplyAsync(() -> {
 
-            return linkedEntity;
+                Set<String> parameterKeys = getParameterKeys();
+                Map<String, String> filteredParameters = Maps
+                        .filterKeys(context, Predicates.in(parameterKeys));
+                filteredParameters.put("action", getIdentifier());
+                MultiValueMap<String, String> body = new LinkedMultiValueMap<>(
+                        filteredParameters.size());
+                for (Entry<String, String> entry : filteredParameters
+                        .entrySet()) {
+                    body.add(entry.getKey(), entry.getValue());
+                }
+                RequestEntity<?> request = RequestEntity.put(address)
+                        .accept(MediaTypes.SIREN_JSON)
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .body(body);
+                ResponseEntity<Void> response = restTemplate.exchange(request,
+                        Void.class);
+                LinkedEntity linkedEntity = new LinkedEntity(
+                        response.getHeaders().getLocation(), null, null);
+                AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
+                bpp.setBeanFactory(
+                        applicationContext.getAutowireCapableBeanFactory());
+                bpp.processInjection(linkedEntity);
+
+                return linkedEntity;
+            });
         }
         default:
             throw new HttpServerErrorException(HttpStatus.NOT_IMPLEMENTED);
