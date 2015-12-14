@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.servlet.HandlerMapping;
 
 import au.com.windyroad.hateoas.core.Action;
@@ -53,7 +52,7 @@ public class RepositoryController {
     @RequestMapping(method = RequestMethod.GET, produces = {
             MediaTypes.SIREN_JSON_VALUE, MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
-    public DeferredResult<ResponseEntity<?>> self(
+    public CompletableFuture<ResponseEntity<?>> self(
             @RequestParam Map<String, Object> allRequestParams,
             final HttpServletRequest request) {
         String url = (String) request.getAttribute(
@@ -61,18 +60,13 @@ public class RepositoryController {
         if (!allRequestParams.isEmpty()) {
             url += "?" + request.getQueryString();
         }
-        CompletableFuture<EntityWrapper<?>> entityFuture = repository
-                .findOne(url);
-        DeferredResult<ResponseEntity<?>> deferredResult = new DeferredResult<ResponseEntity<?>>();
-        entityFuture.thenApplyAsync(entity -> {
+        return repository.findOne(url).thenApplyAsync(entity -> {
             if (entity == null) {
-                deferredResult.setResult(ResponseEntity.notFound().build());
+                return ResponseEntity.notFound().build();
             } else {
-                deferredResult.setResult(ResponseEntity.ok(entity));
+                return ResponseEntity.ok(entity);
             }
-            return entity;
         });
-        return deferredResult;
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = { "text/html",
