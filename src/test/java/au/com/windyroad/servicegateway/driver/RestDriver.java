@@ -80,7 +80,7 @@ public class RestDriver extends JavaDriver {
         context.put("proxyName", proxyName);
         context.put("endpoint", endpoint);
 
-        CompletableFuture<?> invocationResult = getRoot()
+        CompletableFuture<?> invocationResult = getRestRoot()
                 .thenApplyAsync(root -> {
                     return root.getAction("createProxy");
                 }).thenApplyAsync(action -> {
@@ -122,7 +122,7 @@ public class RestDriver extends JavaDriver {
 
     }
 
-    CompletableFuture<EntityWrapper<AdminRoot>> getRoot()
+    CompletableFuture<EntityWrapper<AdminRoot>> getRestRoot()
             throws URISyntaxException {
         URI rootUrl = new URI(
                 "https://localhost:" + config.getPort() + "/admin/proxies");

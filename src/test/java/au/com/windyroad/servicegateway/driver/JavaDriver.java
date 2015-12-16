@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -108,24 +107,27 @@ public class JavaDriver implements Driver {
     @Autowired
     ApplicationContext context;
 
+    CompletableFuture<EntityWrapper<?>> getRoot() {
+        return repository.findOne("/admin/proxies");
+    }
+
     @Override
     public void createProxy(String proxyName, String endpoint)
             throws NoSuchMethodException, SecurityException,
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException, InterruptedException,
             ExecutionException {
-        EntityWrapper<?> root = repository.findOne("/admin/proxies").get();
-        Map<String, String> actionContext = new HashMap<>();
-        actionContext.put("proxyName", proxyName);
-        actionContext.put("endpoint", endpoint);
-        ParameterizedTypeReference<EntityWrapper<Proxy>> type = new ParameterizedTypeReference<EntityWrapper<Proxy>>() {
-        };
-        root.getAction("createProxy").invoke(actionContext)
-                .thenApplyAsync(result -> {
-                    CreatedLinkedEntity cle = (CreatedLinkedEntity) result;
-                    this.currentProxy = cle.resolve(type);
-                    return result;
-                });
+
+        repository.findOne("/admin/proxies").thenAcceptAsync(root -> {
+            Map<String, String> actionContext = new HashMap<>();
+            actionContext.put("proxyName", proxyName);
+            actionContext.put("endpoint", endpoint);
+            root.getAction("createProxy").invoke(actionContext)
+                    .thenAcceptAsync(result -> {
+                CreatedLinkedEntity cle = (CreatedLinkedEntity) result;
+                this.currentProxy = cle.resolve(Proxy.wrapperType());
+            });
+        });
     }
 
     @Override
