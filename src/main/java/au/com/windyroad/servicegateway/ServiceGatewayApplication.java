@@ -173,7 +173,7 @@ public class ServiceGatewayApplication {
                 .setDefaultRequestConfig(httpClientRequestConfig());
     }
 
-    @Bean(destroyMethod = "close")
+    @Bean // (destroyMethod = "close")
     public CloseableHttpAsyncClient httpAsyncClient() throws Exception {
         CloseableHttpAsyncClient client = httpAsyncClientBuilder().build();
         client.start();

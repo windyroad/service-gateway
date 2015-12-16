@@ -1,7 +1,6 @@
 package au.com.windyroad.hateoas.core;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +19,10 @@ public class LinkedEntity extends Entity {
         AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
         bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
         bpp.processInjection(this.link);
+    }
+
+    public LinkedEntity(URI address) {
+        this.link = new RestLink(address, null, null);
     }
 
     public LinkedEntity(@JsonProperty("href") URI address,
@@ -54,7 +57,7 @@ public class LinkedEntity extends Entity {
 
     @Override
     @JsonProperty("href")
-    public URI getAddress() throws URISyntaxException {
+    public URI getAddress() {
         return link.getAddress();
     }
 

@@ -1,6 +1,5 @@
 package au.com.windyroad.hateoas.core;
 
-import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -16,10 +15,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import au.com.windyroad.hateoas.client.RestAction;
+import au.com.windyroad.hateoas.client.RestActionBuilder;
 
-@JsonDeserialize(as = RestAction.class)
+@JsonDeserialize(as = RestAction.class, builder = RestActionBuilder.class)
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public abstract class Action extends Titled {
+public abstract class Action<T> extends Titled {
 
     private String identifier;
 
@@ -41,9 +41,7 @@ public abstract class Action extends Titled {
         return identifier;
     }
 
-    public abstract CompletableFuture<?> invoke(Map<String, String> context)
-            throws IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException;
+    public abstract CompletableFuture<T> invoke(Map<String, String> context);
 
     /**
      * @return the nature

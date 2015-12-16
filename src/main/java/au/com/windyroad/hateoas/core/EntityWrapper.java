@@ -16,6 +16,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.context.ApplicationContext;
@@ -29,7 +31,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.google.common.collect.ImmutableSet;
 
-import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 import au.com.windyroad.hateoas.server.annotations.HateoasChildren;
 import au.com.windyroad.hateoas.server.annotations.HateoasController;
 import au.com.windyroad.servicegateway.Repository;
@@ -38,6 +39,8 @@ import au.com.windyroad.servicegateway.Repository;
         "title" })
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class EntityWrapper<T> extends Entity implements Identifiable<String> {
+
+    private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     private static final int PAGE_SIZE = 10;
 
@@ -48,7 +51,7 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
         return uri;
     }
 
-    private Map<String, Action> actions = new HashMap<>();
+    private Map<String, Action<?>> actions = new HashMap<>();
 
     private ApplicationContext context;
 
@@ -76,8 +79,24 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
         add(new NavigationalRelationship(new JavaLink(this),
                 Relationship.SELF));
         for (Method method : javaControllerAnnotation.value().getMethods()) {
-            if (method.getAnnotation(HateoasAction.class) != null) {
-                add(new JavaAction(this, controller, method));
+            switch (JavaAction.determineMethodNature(method)) {
+            case DELETE:
+                actions.put(method.getName(),
+                        new JavaAction<Void>(this, controller, method));
+                break;
+            case POST:
+                actions.put(method.getName(),
+                        new JavaAction<CreatedLinkedEntity>(this, controller,
+                                method));
+                break;
+            case PUT:
+                actions.put(method.getName(),
+                        new JavaAction<UpdatedLinkedEntity>(this, controller,
+                                method));
+            case GET:
+                actions.put(method.getName(), new JavaAction<EntityWrapper<?>>(
+                        this, controller, method));
+            default:
             }
         }
         getNatures().add(properties.getClass().getSimpleName());
@@ -89,20 +108,16 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
         // }
     }
 
-    protected void add(Action action) {
-        this.actions.put(action.getIdentifier(), action);
-    }
-
     public void add(NavigationalRelationship navigationalRelationship) {
         navigationalRelationships.add(navigationalRelationship);
     }
 
-    public Action getAction(String identifier) {
+    public Action<?> getAction(String identifier) {
         return actions.get(identifier);
     }
 
     @JsonProperty("actions")
-    public ImmutableSet<Action> getActions() {
+    public ImmutableSet<Action<?>> getActions() {
         return ImmutableSet.copyOf(actions.values());
     }
 
@@ -154,8 +169,8 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
         return (L) this;
     }
 
-    protected void setActions(Action[] actions) {
-        for (Action action : actions) {
+    protected void setActions(Action<?>[] actions) {
+        for (Action<?> action : actions) {
             this.actions.put(action.getIdentifier(), action);
         }
     }
@@ -203,7 +218,7 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
 
     @Override
     @JsonIgnore
-    public URI getAddress() throws URISyntaxException {
+    public URI getAddress() {
         return getLink(Relationship.SELF).getAddress();
     }
 

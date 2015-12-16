@@ -5,15 +5,18 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.catalina.startup.Tomcat;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
+import org.apache.http.nio.conn.NHttpClientConnectionManager;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,11 +29,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.client.AsyncClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.client.HttpComponentsAsyncClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.BeanDescription;
@@ -161,7 +167,7 @@ public class ServiceGatewayTestConfiguration {
     }
 
     @Bean
-    public HttpClient httpClient() throws Exception {
+    public CloseableHttpClient httpClient() throws Exception {
         return httpClientBuilder().build();
     }
 
@@ -214,6 +220,47 @@ public class ServiceGatewayTestConfiguration {
                 Arrays.asList(new ClientHttpRequestInterceptor[] {
                         basicAuthHttpRequestIntercepter() }));
         return restTemplate;
+    }
+
+    @Bean
+    AsyncClientHttpRequestFactory asyncHttpClientFactory() throws Exception {
+        HttpComponentsAsyncClientHttpRequestFactory factory = new HttpComponentsAsyncClientHttpRequestFactory(
+                httpClient(), asyncHttpClient());
+        factory.setReadTimeout(200000);
+        return factory;
+    }
+
+    @Bean
+    CloseableHttpAsyncClient asyncHttpClient() throws Exception {
+        return asyncHttpClientBuilder().build();
+    }
+
+    @Bean
+    HttpAsyncClientBuilder asyncHttpClientBuilder() throws Exception {
+        NHttpClientConnectionManager connectionManager = serviceGatewayApplication
+                .nHttpClientConntectionManager();
+        RequestConfig config = httpClientRequestConfig();
+        return HttpAsyncClientBuilder.create()
+                .setConnectionManager(connectionManager)
+                .setConnectionManagerShared(true)
+                .setDefaultRequestConfig(config)
+                .setSSLContext(serviceGatewayApplication.sslContext());
+    }
+
+    @Bean
+    public AsyncRestTemplate asyncRestTemplate() throws Exception {
+        AsyncRestTemplate asyncRestTemplate = new AsyncRestTemplate(
+                asyncHttpClientFactory(), restTemplate());
+        List<HttpMessageConverter<?>> messageConverters = asyncRestTemplate
+                .getMessageConverters();
+        for (int i = 0; i < messageConverters.size(); ++i) {
+            if (messageConverters
+                    .get(i) instanceof MappingJackson2HttpMessageConverter) {
+                messageConverters.set(i, mappingJacksonHttpMessageConverter());
+            }
+        }
+        asyncRestTemplate.setMessageConverters(messageConverters);
+        return asyncRestTemplate;
     }
 
     @Autowired

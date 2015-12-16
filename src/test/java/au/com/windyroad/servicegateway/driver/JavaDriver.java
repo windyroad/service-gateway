@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import au.com.windyroad.hateoas.core.Entity;
+import au.com.windyroad.hateoas.core.CreatedLinkedEntity;
 import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.hateoas.core.MediaTypes;
 import au.com.windyroad.servicegateway.Repository;
@@ -121,9 +121,12 @@ public class JavaDriver implements Driver {
         actionContext.put("endpoint", endpoint);
         ParameterizedTypeReference<EntityWrapper<Proxy>> type = new ParameterizedTypeReference<EntityWrapper<Proxy>>() {
         };
-        CompletableFuture<Entity> result = (CompletableFuture<Entity>) root
-                .getAction("createProxy").invoke(actionContext);
-        this.currentProxy = result.get().resolve(type);
+        root.getAction("createProxy").invoke(actionContext)
+                .thenApplyAsync(result -> {
+                    CreatedLinkedEntity cle = (CreatedLinkedEntity) result;
+                    this.currentProxy = cle.resolve(type);
+                    return result;
+                });
     }
 
     @Override
@@ -139,14 +142,13 @@ public class JavaDriver implements Driver {
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, UnsupportedEncodingException,
             URISyntaxException, InterruptedException, ExecutionException {
-        ParameterizedTypeReference<EntityWrapper<Endpoint>> type = new ParameterizedTypeReference<EntityWrapper<Endpoint>>() {
-        };
-
-        EntityWrapper<Endpoint> endpoint = repository
-                .findOne(Endpoint.buildUrl(endpointName)).get().resolve(type);
-        assertThat(endpoint, notNullValue());
-        currentEndpoint = endpoint.resolve(EndpointEntity.class);
-
+        CompletableFuture<EntityWrapper<Endpoint>> future = repository
+                .findOne(Endpoint.buildUrl(endpointName))
+                .thenApplyAsync(endpoint -> {
+                    assertThat(endpoint, notNullValue());
+                    return endpoint.resolve(EndpointEntity.class);
+                });
+        currentEndpoint = future.join();
     }
 
     @Override

@@ -1,7 +1,6 @@
 package au.com.windyroad.hateoas.core;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.mvc.BasicLinkBuilder;
@@ -33,7 +32,7 @@ public class JavaLink extends Link {
 
     @Override
     @JsonProperty("href")
-    public URI getAddress() throws URISyntaxException {
+    public URI getAddress() {
         return BasicLinkBuilder.linkToCurrentMapping().slash(properties)
                 .toUri();
     }

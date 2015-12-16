@@ -23,11 +23,13 @@ import org.springframework.cglib.proxy.MethodInterceptor;
 import org.springframework.cglib.proxy.MethodProxy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.EntityRelationship;
+import au.com.windyroad.hateoas.core.FutureConverter;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.model.AdminRootEntity;
@@ -52,6 +54,9 @@ public class RestDriver extends JavaDriver {
     RestTemplate restTemplate;
 
     @Autowired
+    AsyncRestTemplate asyncRestTemplate;
+
+    @Autowired
     CloseableHttpAsyncClient httpAsyncClient;
 
     private ProxyEntity currentProxy;
@@ -74,9 +79,16 @@ public class RestDriver extends JavaDriver {
         context.put("proxyName", proxyName);
         context.put("endpoint", endpoint);
 
-        CompletableFuture<Entity> invocationResult = (CompletableFuture<Entity>) getRoot()
-                .getAction("createProxy").invoke(context);
-        currentProxy = invocationResult.get().resolve(ProxyEntity.class);
+        CompletableFuture<?> invocationResult = getRoot()
+                .thenApplyAsync(root -> {
+                    return root.getAction("createProxy");
+                }).thenApplyAsync(action -> {
+                    CompletableFuture<?> result = action.invoke(context);
+                    return result.join();
+                });
+
+        currentProxy = ((Entity) invocationResult.get())
+                .resolve(ProxyEntity.class);
 
         Enhancer e = new Enhancer();
         e.setClassLoader(this.getClass().getClassLoader());
@@ -109,12 +121,14 @@ public class RestDriver extends JavaDriver {
 
     }
 
-    AdminRootEntity getRoot() throws URISyntaxException {
+    CompletableFuture<AdminRootEntity> getRoot() throws URISyntaxException {
         URI rootUrl = new URI(
                 "https://localhost:" + config.getPort() + "/admin/proxies");
 
-        return restTemplate.getForEntity(rootUrl, AdminRootEntity.class)
-                .getBody();
+        return FutureConverter
+                .convert(asyncRestTemplate.getForEntity(rootUrl,
+                        AdminRootEntity.class))
+                .thenApplyAsync(r -> r.getBody());
     }
 
     @Override

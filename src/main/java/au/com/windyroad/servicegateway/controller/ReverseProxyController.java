@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -65,13 +66,7 @@ public class ReverseProxyController {
             actionContext.put("proxyName", proxyName);
             actionContext.put("target", target);
             actionContext.put("available", "false");
-            try {
-                proxy.getAction("setEndpoint").invoke(actionContext);
-            } catch (IllegalAccessException | IllegalArgumentException
-                    | InvocationTargetException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            proxy.getAction("setEndpoint").invoke(actionContext);
             deferredResult.setErrorResult(ex);
         }
 
@@ -101,13 +96,8 @@ public class ReverseProxyController {
                 actionContext.put("proxyName", proxyName);
                 actionContext.put("target", target);
                 actionContext.put("available", "true");
-                try {
-                    proxy.getAction("setEndpoint").invoke(actionContext);
-                } catch (IllegalAccessException | IllegalArgumentException
-                        | InvocationTargetException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                CompletableFuture<?> future = proxy.getAction("setEndpoint")
+                        .invoke(actionContext);
 
             } catch (Exception e) {
                 LOGGER.error("Failure while processing response:", e);

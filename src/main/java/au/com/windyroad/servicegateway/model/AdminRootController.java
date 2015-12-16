@@ -7,15 +7,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
+import au.com.windyroad.hateoas.core.CreatedLinkedEntity;
 import au.com.windyroad.hateoas.core.EntityRelationship;
 import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.hateoas.core.Relationship;
-import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 import au.com.windyroad.servicegateway.Repository;
 
 @Component
@@ -28,15 +29,19 @@ public class AdminRootController {
     @Qualifier("serverRepository")
     Repository repository;
 
-    @HateoasAction(nature = HttpMethod.POST)
-    public CompletableFuture<EntityWrapper<?>> createProxy(
+    public CompletableFuture<CreatedLinkedEntity> createProxy(
             EntityWrapper<AdminRoot> entity, String proxyName,
             String endpoint) {
 
         String path = entity.getId() + "/" + proxyName;
         CompletableFuture<EntityWrapper<?>> existingProxyFuture = repository
                 .findOne(path);
+
+        final RequestAttributes currentRequestAttributes = RequestContextHolder
+                .getRequestAttributes();
+
         return existingProxyFuture.thenApplyAsync(existingProxy -> {
+            RequestContextHolder.setRequestAttributes(currentRequestAttributes);
             if (existingProxy != null) {
                 throw new HttpClientErrorException(HttpStatus.CONFLICT);
             } else {
@@ -50,7 +55,7 @@ public class AdminRootController {
                 repository.save(proxy);
                 repository.setChildren(proxy,
                         AdminRootController::findByEndpointsForProxy);
-                return proxy;
+                return new CreatedLinkedEntity(proxy.getAddress());
             }
         });
     }
