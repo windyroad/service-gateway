@@ -24,6 +24,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.Identifiable;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
+import org.springframework.http.HttpMethod;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -81,24 +82,28 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
         add(new NavigationalRelationship(new JavaLink(this),
                 Relationship.SELF));
         for (Method method : javaControllerAnnotation.value().getMethods()) {
-            switch (JavaAction.determineMethodNature(method)) {
-            case DELETE:
-                actions.put(method.getName(),
-                        new JavaAction<Void>(this, controller, method));
-                break;
-            case POST:
-                actions.put(method.getName(),
-                        new JavaAction<CreatedLinkedEntity>(this, controller,
-                                method));
-                break;
-            case PUT:
-                actions.put(method.getName(),
-                        new JavaAction<UpdatedLinkedEntity>(this, controller,
-                                method));
-            case GET:
-                actions.put(method.getName(), new JavaAction<EntityWrapper<?>>(
-                        this, controller, method));
-            default:
+            HttpMethod httpMethod = JavaAction.determineMethodNature(method);
+            if (httpMethod != null) {
+                switch (httpMethod) {
+                case DELETE:
+                    actions.put(method.getName(),
+                            new JavaAction<Void>(this, controller, method));
+                    break;
+                case POST:
+                    actions.put(method.getName(),
+                            new JavaAction<CreatedLinkedEntity>(this,
+                                    controller, method));
+                    break;
+                case PUT:
+                    actions.put(method.getName(),
+                            new JavaAction<UpdatedLinkedEntity>(this,
+                                    controller, method));
+                case GET:
+                    actions.put(method.getName(),
+                            new JavaAction<EntityWrapper<?>>(this, controller,
+                                    method));
+                default:
+                }
             }
         }
         getNatures().add(properties.getClass().getSimpleName());

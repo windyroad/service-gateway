@@ -49,13 +49,10 @@ public class ReverseProxyController {
 
         private EntityWrapper<Proxy> proxy;
 
-        private String proxyName;
-
         public CBack(DeferredResult<ResponseEntity<?>> deferredResult,
-                EntityWrapper<Proxy> proxy, String proxyName, String target) {
+                EntityWrapper<Proxy> proxy, String target) {
             this.deferredResult = deferredResult;
             this.target = target;
-            this.proxyName = proxyName;
             this.proxy = proxy;
         }
 
@@ -63,7 +60,6 @@ public class ReverseProxyController {
         public void failed(Exception ex) {
             LOGGER.error("Failure while processing: ", ex);
             Map<String, String> actionContext = new HashMap<>();
-            actionContext.put("proxyName", proxyName);
             actionContext.put("target", target);
             actionContext.put("available", "false");
             proxy.getAction("setEndpoint").invoke(actionContext);
@@ -93,7 +89,6 @@ public class ReverseProxyController {
                 deferredResult.setResult(responseEntity);
 
                 Map<String, String> actionContext = new HashMap<>();
-                actionContext.put("proxyName", proxyName);
                 actionContext.put("target", target);
                 actionContext.put("available", "true");
                 CompletableFuture<?> future = proxy.getAction("setEndpoint")
@@ -154,8 +149,7 @@ public class ReverseProxyController {
             String target = proxy.getProperties().getTarget() + "/"
                     + restOfTheUrl;
             Map<String, String> actionContext = new HashMap<>();
-            actionContext.put("proxyName", proxyName);
-            actionContext.put("target", target);
+            actionContext.put("target", restOfTheUrl);
             actionContext.put("available", "false");
             proxy.getAction("setEndpoint").invoke(actionContext);
 
@@ -171,7 +165,7 @@ public class ReverseProxyController {
             LOGGER.debug("{ 'event': 'proxyReqeust', 'from': '" + url
                     + "', 'to': '" + target + "' }");
             httpAsyncClient.execute(newRequest,
-                    new CBack(deferredResult, proxy, proxyName, target));
+                    new CBack(deferredResult, proxy, restOfTheUrl));
 
         } else {
             LOGGER.error("{ 'error': 'proxy not found', 'proxyName' : '"

@@ -144,7 +144,7 @@ public class JavaDriver implements Driver {
             InvocationTargetException, UnsupportedEncodingException,
             URISyntaxException, InterruptedException, ExecutionException {
         CompletableFuture<EntityWrapper<Endpoint>> future = repository
-                .findOne(Endpoint.buildUrl(endpointName))
+                .findOne(Endpoint.buildPath(endpointName))
                 .thenApplyAsync(endpoint -> {
                     assertThat(endpoint, notNullValue());
                     return endpoint.resolve(Endpoint.wrapperType());

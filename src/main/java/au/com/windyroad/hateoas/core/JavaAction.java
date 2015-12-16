@@ -73,7 +73,7 @@ public class JavaAction<T> extends Action<T> {
                 }
             }
         }
-        return HttpMethod.HEAD;
+        return null;
     }
 
     private static au.com.windyroad.hateoas.core.Parameter[] extractParameters(

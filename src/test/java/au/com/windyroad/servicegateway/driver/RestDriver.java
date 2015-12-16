@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.cglib.proxy.MethodInterceptor;
 import org.springframework.cglib.proxy.MethodProxy;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
@@ -32,7 +33,7 @@ import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.EntityRelationship;
 import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.hateoas.core.FutureConverter;
-import au.com.windyroad.hateoas.server.annotations.HateoasAction;
+import au.com.windyroad.hateoas.core.UpdatedLinkedEntity;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.model.AdminRoot;
 import au.com.windyroad.servicegateway.model.Endpoint;
@@ -66,6 +67,9 @@ public class RestDriver extends JavaDriver {
 
     private Map<String, String> context = new HashMap<>();
 
+    @Autowired
+    ApplicationContext appContext;
+
     @Override
     public void clearProxies() {
 
@@ -98,27 +102,29 @@ public class RestDriver extends JavaDriver {
             @Override
             public Object intercept(Object obj, Method method, Object[] args,
                     MethodProxy proxy) throws Throwable {
-                HateoasAction hateoasAction = method
-                        .getAnnotation(HateoasAction.class);
-                if (hateoasAction != null) {
-                    Parameter[] params = method.getParameters();
-                    for (int i = 0; i < params.length; ++i) {
-                        context.put(params[i].getName(), args[i].toString());
-                    }
-                    CompletableFuture<Entity> xxxResult = (CompletableFuture<Entity>) currentProxy
-                            .getAction(method.getName()).invoke(context);
-                    return xxxResult.get().resolve(Proxy.wrapperType());
 
-                } else {
-                    throw new RuntimeException("`" + method.getName()
-                            + "` is not remotely callable");
+                Parameter[] params = method.getParameters();
+                for (int i = 0; i < params.length; ++i) {
+                    context.put(params[i].getName(), args[i].toString());
                 }
+                CompletableFuture<Entity> xxxResult = (CompletableFuture<Entity>) currentProxy
+                        .getAction(method.getName()).invoke(context);
+                return xxxResult;
             }
         });
+
         // create proxy using SomeConcreteClass() no-arg constructor
         Proxy myProxy = (Proxy) e.create();
         // create proxy using SomeConcreteClass(String) constructor
-        // myProxy.setEndpoint("foo", "false");
+        CompletableFuture<UpdatedLinkedEntity> result = myProxy
+                .setEndpoint(appContext, repository, "foo", "false");
+
+        result.thenAccept(entityLink -> {
+            assertTrue(entityLink != null);
+            EntityWrapper<Proxy> ep = entityLink.resolve(Proxy.wrapperType());
+            Proxy x = ep.getProperties();
+            assertTrue(x.getName() != null);
+        }).get();
 
     }
 

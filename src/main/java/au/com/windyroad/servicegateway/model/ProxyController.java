@@ -24,10 +24,11 @@ public class ProxyController {
     Repository repository;
 
     public CompletableFuture<UpdatedLinkedEntity> setEndpoint(
-            EntityWrapper<Proxy> proxy, String proxyName, String target,
-            String available) throws UnsupportedEncodingException,
-                    InterruptedException, ExecutionException {
-        String path = Endpoint.buildUrl(target);
+            EntityWrapper<Proxy> proxy, String target, String available)
+                    throws UnsupportedEncodingException, InterruptedException,
+                    ExecutionException {
+        String endpointPath = proxy.getProperties().getTarget() + "/" + target;
+        String path = Endpoint.buildPath(endpointPath);
         CompletableFuture<EntityWrapper<?>> future = repository.findOne(path);
 
         return future.thenApplyAsync(existingEndpoint -> {
@@ -35,8 +36,9 @@ public class ProxyController {
             if (existingEndpoint == null) {
                 endpoint = new EntityWrapper<Endpoint>(context, repository,
                         path,
-                        new Endpoint(target, Boolean.parseBoolean(available)),
-                        "Endpoint `" + target + "`");
+                        new Endpoint(endpointPath,
+                                Boolean.parseBoolean(available)),
+                        "Endpoint `" + endpointPath + "`");
             } else {
                 endpoint.getProperties()
                         .setAvailable(Boolean.parseBoolean(available));

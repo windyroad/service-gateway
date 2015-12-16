@@ -1,7 +1,5 @@
 package au.com.windyroad.servicegateway.model;
 
-import java.io.UnsupportedEncodingException;
-
 import org.springframework.core.ParameterizedTypeReference;
 
 import au.com.windyroad.hateoas.annotations.Label;
@@ -40,8 +38,7 @@ public class Endpoint {
         return this.target;
     }
 
-    public static String buildUrl(String target)
-            throws UnsupportedEncodingException {
+    public static String buildPath(String target) {
         return "/admin/endpoints/"
                 + target.replaceFirst("://", "/").replaceFirst(":", "/");
     }

@@ -25,7 +25,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -160,14 +159,13 @@ public class RepositoryController {
             "application/vnd.siren+json",
             "application/json" }, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseBody
-    public ResponseEntity<?> post(
+    public ResponseEntity<?> put(
             @RequestParam MultiValueMap<String, String> queryParams,
-            @RequestBody MultiValueMap<String, String> bodyParams,
+
             final HttpServletRequest request)
                     throws IllegalAccessException, IllegalArgumentException,
                     InvocationTargetException, URISyntaxException,
                     InterruptedException, ExecutionException {
-
         String url = (String) request.getAttribute(
                 HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         EntityWrapper<?> entity = repository.findOne(url).get();
@@ -176,11 +174,7 @@ public class RepositoryController {
         }
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.putAll(queryParams);
-        params.putAll(bodyParams);
         String actionName = queryParams.getFirst("action");
-        if (actionName == null) {
-            actionName = bodyParams.getFirst("action");
-        }
         if (actionName == null) {
             // todo add body with classes indicating what is missing
             return ResponseEntity.badRequest().build();
