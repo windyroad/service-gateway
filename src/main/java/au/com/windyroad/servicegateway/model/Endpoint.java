@@ -2,7 +2,10 @@ package au.com.windyroad.servicegateway.model;
 
 import java.io.UnsupportedEncodingException;
 
+import org.springframework.core.ParameterizedTypeReference;
+
 import au.com.windyroad.hateoas.annotations.Label;
+import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.hateoas.server.annotations.HateoasController;
 
 @HateoasController(EndpointController.class)
@@ -11,6 +14,11 @@ public class Endpoint {
 
     private boolean available;
     private String target;
+
+    public static ParameterizedTypeReference<EntityWrapper<Endpoint>> wrapperType() {
+        return new ParameterizedTypeReference<EntityWrapper<Endpoint>>() {
+        };
+    }
 
     protected Endpoint() {
     }

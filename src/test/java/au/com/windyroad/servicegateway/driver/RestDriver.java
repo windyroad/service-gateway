@@ -22,6 +22,7 @@ import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.cglib.proxy.MethodInterceptor;
 import org.springframework.cglib.proxy.MethodProxy;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.client.RestClientException;
@@ -29,13 +30,13 @@ import org.springframework.web.client.RestTemplate;
 
 import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.EntityRelationship;
+import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.hateoas.core.FutureConverter;
 import au.com.windyroad.hateoas.server.annotations.HateoasAction;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
-import au.com.windyroad.servicegateway.model.AdminRootEntity;
-import au.com.windyroad.servicegateway.model.EndpointEntity;
+import au.com.windyroad.servicegateway.model.AdminRoot;
+import au.com.windyroad.servicegateway.model.Endpoint;
 import au.com.windyroad.servicegateway.model.Proxy;
-import au.com.windyroad.servicegateway.model.ProxyEntity;
 
 @Component
 @Profile(value = "integration")
@@ -59,9 +60,9 @@ public class RestDriver extends JavaDriver {
     @Autowired
     CloseableHttpAsyncClient httpAsyncClient;
 
-    private ProxyEntity currentProxy;
+    private EntityWrapper<Proxy> currentProxy;
 
-    private EndpointEntity currentEndpoint;
+    private EntityWrapper<Endpoint> currentEndpoint;
 
     private Map<String, String> context = new HashMap<>();
 
@@ -88,7 +89,7 @@ public class RestDriver extends JavaDriver {
                 });
 
         currentProxy = ((Entity) invocationResult.get())
-                .resolve(ProxyEntity.class);
+                .resolve(Proxy.wrapperType());
 
         Enhancer e = new Enhancer();
         e.setClassLoader(this.getClass().getClassLoader());
@@ -106,7 +107,7 @@ public class RestDriver extends JavaDriver {
                     }
                     CompletableFuture<Entity> xxxResult = (CompletableFuture<Entity>) currentProxy
                             .getAction(method.getName()).invoke(context);
-                    return xxxResult.get().resolve(ProxyEntity.class);
+                    return xxxResult.get().resolve(Proxy.wrapperType());
 
                 } else {
                     throw new RuntimeException("`" + method.getName()
@@ -121,14 +122,15 @@ public class RestDriver extends JavaDriver {
 
     }
 
-    CompletableFuture<AdminRootEntity> getRoot() throws URISyntaxException {
+    CompletableFuture<EntityWrapper<AdminRoot>> getRoot()
+            throws URISyntaxException {
         URI rootUrl = new URI(
                 "https://localhost:" + config.getPort() + "/admin/proxies");
 
         return FutureConverter
-                .convert(asyncRestTemplate.getForEntity(rootUrl,
-                        AdminRootEntity.class))
-                .thenApplyAsync(r -> r.getBody());
+                .convert(asyncRestTemplate.exchange(rootUrl, HttpMethod.GET,
+                        null, AdminRoot.wrapperType()))
+                .thenApply(r -> r.getBody());
     }
 
     @Override
@@ -142,15 +144,16 @@ public class RestDriver extends JavaDriver {
             InvocationTargetException, UnsupportedEncodingException,
             URISyntaxException {
         currentProxy = currentProxy.refresh();
-        Optional<EntityRelationship> endpoint;
-        endpoint = currentProxy.getEntities().stream().filter(e -> {
-            return e.getEntity().resolve(EndpointEntity.class).getProperties()
-                    .getTarget().equals(endpointPath);
+        Optional<EntityRelationship> optionalEndpoint;
+        optionalEndpoint = currentProxy.getEntities().stream().filter(e -> {
+            EntityWrapper<Endpoint> endpoint = e.getEntity()
+                    .resolve(Endpoint.wrapperType());
+            return endpoint.getProperties().getTarget().equals(endpointPath);
         }).findAny();
 
-        assertTrue(endpoint.isPresent());
-        currentEndpoint = endpoint.get().getEntity()
-                .resolve(EndpointEntity.class);
+        assertTrue(optionalEndpoint.isPresent());
+        currentEndpoint = optionalEndpoint.get().getEntity()
+                .resolve(Endpoint.wrapperType());
     }
 
     @Override

@@ -1,5 +1,8 @@
 package au.com.windyroad.servicegateway.model;
 
+import org.springframework.core.ParameterizedTypeReference;
+
+import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.hateoas.server.annotations.HateoasController;
 
 @HateoasController(ProxyController.class)
@@ -7,6 +10,11 @@ public class Proxy {
 
     private String target;
     private String name;
+
+    public static ParameterizedTypeReference<EntityWrapper<Proxy>> wrapperType() {
+        return new ParameterizedTypeReference<EntityWrapper<Proxy>>() {
+        };
+    }
 
     protected Proxy() {
     }

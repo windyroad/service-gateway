@@ -29,6 +29,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.collect.ImmutableSet;
 
 import au.com.windyroad.hateoas.server.annotations.HateoasChildren;
@@ -38,6 +39,7 @@ import au.com.windyroad.servicegateway.Repository;
 @JsonPropertyOrder({ "class", "properties", "entities", "actions", "links",
         "title" })
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@JsonDeserialize(as = RestEntity.class)
 public class EntityWrapper<T> extends Entity implements Identifiable<String> {
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());

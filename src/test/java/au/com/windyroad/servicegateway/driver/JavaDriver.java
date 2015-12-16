@@ -36,7 +36,6 @@ import au.com.windyroad.hateoas.core.MediaTypes;
 import au.com.windyroad.servicegateway.Repository;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.model.Endpoint;
-import au.com.windyroad.servicegateway.model.EndpointEntity;
 import au.com.windyroad.servicegateway.model.Proxy;
 
 @Component
@@ -146,7 +145,7 @@ public class JavaDriver implements Driver {
                 .findOne(Endpoint.buildUrl(endpointName))
                 .thenApplyAsync(endpoint -> {
                     assertThat(endpoint, notNullValue());
-                    return endpoint.resolve(EndpointEntity.class);
+                    return endpoint.resolve(Endpoint.wrapperType());
                 });
         currentEndpoint = future.join();
     }
