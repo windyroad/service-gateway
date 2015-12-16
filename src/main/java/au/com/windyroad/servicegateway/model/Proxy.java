@@ -7,10 +7,8 @@ import org.springframework.core.ParameterizedTypeReference;
 
 import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.hateoas.core.UpdatedLinkedEntity;
-import au.com.windyroad.hateoas.server.annotations.HateoasController;
 import au.com.windyroad.servicegateway.Repository;
 
-@HateoasController(ProxyController.class)
 public class Proxy {
 
     private String target;

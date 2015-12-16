@@ -76,12 +76,20 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
         this.properties = properties;
         this.repository = repository;
         this.path = path;
-        HateoasController javaControllerAnnotation = properties.getClass()
-                .getAnnotation(HateoasController.class);
-        Object controller = context.getBean(javaControllerAnnotation.value());
         add(new NavigationalRelationship(new JavaLink(this),
                 Relationship.SELF));
-        for (Method method : javaControllerAnnotation.value().getMethods()) {
+        HateoasController javaControllerAnnotation = properties.getClass()
+                .getAnnotation(HateoasController.class);
+        Method[] methods;
+        Object controller;
+        if (javaControllerAnnotation != null) {
+            controller = context.getBean(javaControllerAnnotation.value());
+            methods = javaControllerAnnotation.value().getMethods();
+        } else {
+            methods = this.getClass().getMethods();
+            controller = this;
+        }
+        for (Method method : methods) {
             HttpMethod httpMethod = JavaAction.determineMethodNature(method);
             if (httpMethod != null) {
                 switch (httpMethod) {

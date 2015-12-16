@@ -210,12 +210,19 @@ public class ServiceGatewayApplication {
     @Qualifier("serverRepository")
     Repository repository;
 
+    // @Bean
+    // AutowiredAnnotationBeanPostProcessor
+    // autowiredAnnotationBeanPostProcessor() {
+    // AutowiredAnnotationBeanPostProcessor bpp = new
+    // AutowiredAnnotationBeanPostProcessor();
+    // // bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
+    // return bpp;
+    // }
+
     @Bean
     public EntityWrapper<AdminRoot> proxies() throws IllegalAccessException,
             IllegalArgumentException, InvocationTargetException,
             NoSuchMethodException, SecurityException {
-        int autowireMode;
-        boolean dependencyCheck;
         EntityWrapper<AdminRoot> entity = new EntityWrapper<AdminRoot>(context,
                 repository, "/admin/proxies", new AdminRoot(),
                 "Service Gateway");

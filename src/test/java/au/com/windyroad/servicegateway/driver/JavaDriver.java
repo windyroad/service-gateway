@@ -118,16 +118,15 @@ public class JavaDriver implements Driver {
             InvocationTargetException, URISyntaxException, InterruptedException,
             ExecutionException {
 
-        repository.findOne("/admin/proxies").thenAcceptAsync(root -> {
+        repository.findOne("/admin/proxies").thenApplyAsync(root -> {
             Map<String, String> actionContext = new HashMap<>();
             actionContext.put("proxyName", proxyName);
             actionContext.put("endpoint", endpoint);
-            root.getAction("createProxy").invoke(actionContext)
-                    .thenAcceptAsync(result -> {
-                CreatedLinkedEntity cle = (CreatedLinkedEntity) result;
-                this.currentProxy = cle.resolve(Proxy.wrapperType());
-            });
-        });
+            return root.getAction("createProxy").invoke(actionContext);
+        }).thenAccept(result -> {
+            CreatedLinkedEntity cle = (CreatedLinkedEntity) result.join();
+            this.currentProxy = cle.resolve(Proxy.wrapperType());
+        }).get();
     }
 
     @Override

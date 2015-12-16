@@ -7,14 +7,12 @@ import java.util.concurrent.ExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
 
 import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.hateoas.core.UpdatedLinkedEntity;
 import au.com.windyroad.servicegateway.Repository;
 
-@Component
-public class ProxyController {
+public class ProxyController extends EntityWrapper<Proxy> {
 
     @Autowired
     ApplicationContext context;
@@ -22,6 +20,15 @@ public class ProxyController {
     @Autowired
     @Qualifier("serverRepository")
     Repository repository;
+
+    protected ProxyController() {
+
+    }
+
+    public ProxyController(ApplicationContext context, Repository repository,
+            String path, Proxy properties, String title) {
+        super(context, repository, path, properties, title);
+    }
 
     public CompletableFuture<UpdatedLinkedEntity> setEndpoint(
             EntityWrapper<Proxy> proxy, String target, String available)

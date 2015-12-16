@@ -45,9 +45,8 @@ public class AdminRootController {
             if (existingProxy != null) {
                 throw new HttpClientErrorException(HttpStatus.CONFLICT);
             } else {
-                EntityWrapper<Proxy> proxy = new EntityWrapper<Proxy>(context,
-                        repository, path, new Proxy(proxyName, endpoint),
-                        proxyName);
+                ProxyController proxy = new ProxyController(context, repository,
+                        path, new Proxy(proxyName, endpoint), proxyName);
                 AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
                 bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
                 bpp.processInjection(proxy);
@@ -55,7 +54,7 @@ public class AdminRootController {
                 repository.save(proxy);
                 repository.setChildren(proxy,
                         AdminRootController::findByEndpointsForProxy);
-                return new CreatedLinkedEntity(proxy.getAddress());
+                return new CreatedLinkedEntity(proxy);
             }
         });
     }
