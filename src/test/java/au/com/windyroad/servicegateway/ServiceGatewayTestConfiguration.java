@@ -48,6 +48,7 @@ import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import au.com.windyroad.hateoas.client.AutowiringDeserializer;
+import au.com.windyroad.hateoas.client.EntityWrapperProxyDeserializer;
 import au.com.windyroad.hateoas.client.SpringBeanHandlerInstantiator;
 import au.com.windyroad.servicegateway.driver.WebDriverFactory;
 
@@ -299,7 +300,18 @@ public class ServiceGatewayTestConfiguration {
             }
         });
 
-        builder.modules(module);
+        SimpleModule module2 = new SimpleModule();
+        module2.setDeserializerModifier(new BeanDeserializerModifier() {
+            @Override
+            public JsonDeserializer<?> modifyDeserializer(
+                    DeserializationConfig config, BeanDescription beanDesc,
+                    JsonDeserializer<?> deserializer) {
+                return new EntityWrapperProxyDeserializer(context,
+                        deserializer);
+            }
+        });
+        builder.modules(module, module2);
+
         return builder;
     }
 

@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,45 +17,30 @@ import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.Identifiable;
-import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpMethod;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.collect.ImmutableSet;
 
-import au.com.windyroad.hateoas.server.annotations.HateoasChildren;
-import au.com.windyroad.hateoas.server.annotations.HateoasController;
 import au.com.windyroad.servicegateway.Repository;
 
 @JsonPropertyOrder({ "class", "properties", "entities", "actions", "links",
         "title" })
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-@JsonDeserialize(as = RestEntity.class)
 public class EntityWrapper<T> extends Entity implements Identifiable<String> {
-
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     private static final int PAGE_SIZE = 10;
 
-    public static URI buildUrl(Class<?> type, Object... parameters) {
-        Class<?> controller = type.getAnnotation(HateoasController.class)
-                .value();
-        URI uri = ControllerLinkBuilder.linkTo(controller, parameters).toUri();
-        return uri;
-    }
-
     private Map<String, Action<?>> actions = new HashMap<>();
 
-    private ApplicationContext context;
+    private Collection<EntityRelationship> entities = null;
 
     @JsonProperty("links")
     private Set<NavigationalRelationship> navigationalRelationships = new HashSet<>();
@@ -67,10 +51,10 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
 
     private String path;
 
-    public EntityWrapper() {
+    protected EntityWrapper() {
     }
 
-    public EntityWrapper(ApplicationContext context, Repository repository,
+    protected EntityWrapper(ApplicationContext context, Repository repository,
             String path, T properties, String title) {
         super(title);
         this.properties = properties;
@@ -78,38 +62,25 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
         this.path = path;
         add(new NavigationalRelationship(new JavaLink(this),
                 Relationship.SELF));
-        HateoasController javaControllerAnnotation = properties.getClass()
-                .getAnnotation(HateoasController.class);
-        Method[] methods;
-        Object controller;
-        if (javaControllerAnnotation != null) {
-            controller = context.getBean(javaControllerAnnotation.value());
-            methods = javaControllerAnnotation.value().getMethods();
-        } else {
-            methods = this.getClass().getMethods();
-            controller = this;
-        }
+        Method[] methods = this.getClass().getMethods();
         for (Method method : methods) {
             HttpMethod httpMethod = JavaAction.determineMethodNature(method);
             if (httpMethod != null) {
                 switch (httpMethod) {
                 case DELETE:
                     actions.put(method.getName(),
-                            new JavaAction<Void>(this, controller, method));
+                            new JavaAction<Void>(this, method));
                     break;
                 case POST:
                     actions.put(method.getName(),
-                            new JavaAction<CreatedLinkedEntity>(this,
-                                    controller, method));
+                            new JavaAction<CreatedLinkedEntity>(this, method));
                     break;
                 case PUT:
                     actions.put(method.getName(),
-                            new JavaAction<UpdatedLinkedEntity>(this,
-                                    controller, method));
+                            new JavaAction<UpdatedLinkedEntity>(this, method));
                 case GET:
                     actions.put(method.getName(),
-                            new JavaAction<EntityWrapper<?>>(this, controller,
-                                    method));
+                            new JavaAction<EntityWrapper<?>>(this, method));
                 default:
                 }
             }
@@ -121,6 +92,16 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
         // if (titleAnnotation != null) {
         // setTitle(titleAnnotation.value(), args);
         // }
+    }
+
+    public EntityWrapper(EntityWrapper<T> src) {
+        super(src.title);
+        this.properties = src.properties;
+        this.repository = src.repository;
+        this.path = src.path;
+        this.actions = src.actions;
+        this.entities = src.entities;
+        this.navigationalRelationships = src.navigationalRelationships;
     }
 
     public void add(NavigationalRelationship navigationalRelationship) {
@@ -146,6 +127,9 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
     public Collection<EntityRelationship> getEntities(int page)
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, URISyntaxException {
+        if (entities != null) {
+            return entities;
+        }
         if (repository != null) {
             Stream<EntityRelationship> results = repository.findChildren(this);
             return results.skip(page * PAGE_SIZE).limit(PAGE_SIZE)
@@ -184,40 +168,25 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
         return (L) this;
     }
 
-    protected void setActions(Action<?>[] actions) {
+    public void setActions(Action<?>[] actions) {
         for (Action<?> action : actions) {
             this.actions.put(action.getIdentifier(), action);
         }
+
     }
 
-    @Autowired
-    public void setApplicationContext(ApplicationContext context) {
-        this.context = context;
-        AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
-        bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
-        bpp.processInjection(properties);
-    }
+    // @Autowired
+    // public void setApplicationContext(ApplicationContext context) {
+    // this.context = context;
+    // AutowiredAnnotationBeanPostProcessor bpp = new
+    // AutowiredAnnotationBeanPostProcessor();
+    // bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
+    // bpp.processInjection(properties);
+    // }
 
-    public void setEntities(Collection<EntityRelationship> entityRelationships)
-            throws IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException {
-        if (properties != null) {
-            for (Method method : properties.getClass().getMethods()) {
-                HateoasChildren hateoasChildren = method
-                        .getAnnotation(HateoasChildren.class);
-                if (hateoasChildren != null
-                        && method.getParameterTypes().length != 0) {
-                    List<LinkedEntity> entities = new ArrayList<>();
-                    entityRelationships.stream()
-                            .filter(e -> Arrays.asList(e.getNature())
-                                    .contains(hateoasChildren.value()))
-                            .forEach(er -> entities
-                                    .add(er.getEntity().toLinkedEntity()));
-
-                    method.invoke(properties, entities);
-                }
-            }
-        }
+    public void setEntities(
+            Collection<EntityRelationship> entityRelationships) {
+        this.entities = entityRelationships;
     }
 
     @Override
@@ -227,9 +196,9 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
         return linkedEntity;
     }
 
-    public <L extends EntityWrapper<T>> L refresh() {
-        return (L) getLink(Relationship.SELF).resolve(this.getClass());
-    }
+    // public <L extends EntityWrapper<T>> L refresh() {
+    // return (L) getLink(Relationship.SELF).resolve(this.getClass());
+    // }
 
     @Override
     @JsonIgnore

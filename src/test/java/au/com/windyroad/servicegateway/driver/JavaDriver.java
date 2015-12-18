@@ -7,8 +7,6 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -34,8 +32,10 @@ import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.hateoas.core.MediaTypes;
 import au.com.windyroad.servicegateway.Repository;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
+import au.com.windyroad.servicegateway.model.AdminRootController;
 import au.com.windyroad.servicegateway.model.Endpoint;
-import au.com.windyroad.servicegateway.model.Proxy;
+import au.com.windyroad.servicegateway.model.EndpointController;
+import au.com.windyroad.servicegateway.model.ProxyController;
 
 @Component
 @Profile(value = "default")
@@ -52,9 +52,9 @@ public class JavaDriver implements Driver {
     @Autowired
     CloseableHttpAsyncClient httpAsyncClient;
 
-    private EntityWrapper<Proxy> currentProxy;
+    private ProxyController currentProxy;
 
-    private EntityWrapper<Endpoint> currentEndpoint;
+    private EndpointController currentEndpoint;
 
     @Autowired
     @Qualifier("serverRepository")
@@ -118,14 +118,12 @@ public class JavaDriver implements Driver {
             InvocationTargetException, URISyntaxException, InterruptedException,
             ExecutionException {
 
-        repository.findOne("/admin/proxies").thenApplyAsync(root -> {
-            Map<String, String> actionContext = new HashMap<>();
-            actionContext.put("proxyName", proxyName);
-            actionContext.put("endpoint", endpoint);
-            return root.getAction("createProxy").invoke(actionContext);
+        repository.findOne("/admin/proxies").thenApplyAsync(entity -> {
+            AdminRootController root = (AdminRootController) entity;
+            return root.createProxy(proxyName, endpoint);
         }).thenAccept(result -> {
-            CreatedLinkedEntity cle = (CreatedLinkedEntity) result.join();
-            this.currentProxy = cle.resolve(Proxy.wrapperType());
+            CreatedLinkedEntity cle = result.join();
+            this.currentProxy = cle.resolve(ProxyController.class);
         }).get();
     }
 
@@ -142,11 +140,11 @@ public class JavaDriver implements Driver {
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, UnsupportedEncodingException,
             URISyntaxException, InterruptedException, ExecutionException {
-        CompletableFuture<EntityWrapper<Endpoint>> future = repository
+        CompletableFuture<EndpointController> future = repository
                 .findOne(Endpoint.buildPath(endpointName))
                 .thenApplyAsync(endpoint -> {
                     assertThat(endpoint, notNullValue());
-                    return endpoint.resolve(Endpoint.wrapperType());
+                    return endpoint.resolve(EndpointController.class);
                 });
         currentEndpoint = future.join();
     }

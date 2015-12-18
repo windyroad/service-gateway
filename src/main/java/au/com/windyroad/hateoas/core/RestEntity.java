@@ -39,11 +39,12 @@ public class RestEntity<T> extends EntityWrapper<T> {
      * @see au.com.windyroad.hateoas.core.ResolvedEntity#setEntities(java.util.
      * Collection)
      */
-    @Override
-    public void setEntities(Collection<EntityRelationship> entityRelationships)
-            throws IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException {
-        this.entities.addAll(entityRelationships);
-    }
+    // @Override
+    // public void setEntities(Collection<EntityRelationship>
+    // entityRelationships)
+    // throws IllegalAccessException, IllegalArgumentException,
+    // InvocationTargetException {
+    // this.entities.addAll(entityRelationships);
+    // }
 
 }

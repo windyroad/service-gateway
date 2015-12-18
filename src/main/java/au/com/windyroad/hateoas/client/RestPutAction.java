@@ -54,14 +54,14 @@ public class RestPutAction extends RestAction<UpdatedLinkedEntity> {
 
     @Override
     public CompletableFuture<UpdatedLinkedEntity> invoke(
-            Map<String, String> context) {
+            Map<String, Object> context) {
         Set<String> parameterKeys = getParameterKeys();
-        Map<String, String> filteredParameters = Maps.filterKeys(context,
+        Map<String, Object> filteredParameters = Maps.filterKeys(context,
                 Predicates.in(parameterKeys));
         filteredParameters.put("action", getIdentifier());
-        MultiValueMap<String, String> body = new LinkedMultiValueMap<>(
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>(
                 filteredParameters.size());
-        for (Entry<String, String> entry : filteredParameters.entrySet()) {
+        for (Entry<String, Object> entry : filteredParameters.entrySet()) {
             body.add(entry.getKey(), entry.getValue());
         }
         RequestEntity<?> request = RequestEntity.put(getAddress())

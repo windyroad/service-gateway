@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostP
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -19,8 +18,8 @@ import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.hateoas.core.Relationship;
 import au.com.windyroad.servicegateway.Repository;
 
-@Component
-public class AdminRootController {
+public class AdminRootController extends EntityWrapper<AdminRoot>
+        implements IAdminRootController {
 
     @Autowired
     ApplicationContext context;
@@ -29,11 +28,26 @@ public class AdminRootController {
     @Qualifier("serverRepository")
     Repository repository;
 
-    public CompletableFuture<CreatedLinkedEntity> createProxy(
-            EntityWrapper<AdminRoot> entity, String proxyName,
+    protected AdminRootController() {
+
+    }
+
+    protected AdminRootController(AdminRootController src) {
+        super(src);
+        this.context = src.context;
+        this.repository = src.repository;
+    }
+
+    public AdminRootController(ApplicationContext context,
+            Repository repository, String path, AdminRoot properties,
+            String title) {
+        super(context, repository, path, properties, title);
+    }
+
+    public CompletableFuture<CreatedLinkedEntity> createProxy(String proxyName,
             String endpoint) {
 
-        String path = entity.getId() + "/" + proxyName;
+        String path = this.getId() + "/" + proxyName;
         CompletableFuture<EntityWrapper<?>> existingProxyFuture = repository
                 .findOne(path);
 

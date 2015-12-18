@@ -10,6 +10,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
@@ -28,7 +29,6 @@ import org.apache.http.nio.conn.NoopIOSessionStrategy;
 import org.apache.http.nio.conn.SchemeIOSessionStrategy;
 import org.apache.http.nio.conn.ssl.SSLIOSessionStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -37,6 +37,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -44,13 +45,13 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
-import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.servicegateway.model.AdminRoot;
 import au.com.windyroad.servicegateway.model.AdminRootController;
 
 @SpringBootApplication
 @EnableAsync
 @EnableAutoConfiguration
+@EnableAspectJAutoProxy
 @ComponentScan("au.com.windyroad")
 public class ServiceGatewayApplication {
 
@@ -220,16 +221,18 @@ public class ServiceGatewayApplication {
     // }
 
     @Bean
-    public EntityWrapper<AdminRoot> proxies() throws IllegalAccessException,
-            IllegalArgumentException, InvocationTargetException,
-            NoSuchMethodException, SecurityException {
-        EntityWrapper<AdminRoot> entity = new EntityWrapper<AdminRoot>(context,
+    public AdminRootController adminRootController()
+            throws IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException, NoSuchMethodException, SecurityException,
+            InterruptedException, ExecutionException {
+        AdminRootController entity = new AdminRootController(context,
                 repository, "/admin/proxies", new AdminRoot(),
                 "Service Gateway");
-        AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
-        bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
-        bpp.processInjection(entity);
-        repository.save(entity);
+        // AutowiredAnnotationBeanPostProcessor bpp = new
+        // AutowiredAnnotationBeanPostProcessor();
+        // bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
+        // bpp.processInjection(entity);
+        repository.save(entity).get();
         repository.setChildren(entity, AdminRootController::findAllProxies);
         return entity;
     }

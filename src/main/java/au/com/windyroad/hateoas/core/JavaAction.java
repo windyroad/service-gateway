@@ -21,17 +21,14 @@ import au.com.windyroad.hateoas.annotations.PresentationType;
 public class JavaAction<T> extends Action<T> {
 
     private Method method;
-    private Object javaController;
     private EntityWrapper<?> entity;
     private HttpMethod nature;
 
     protected JavaAction() {
     }
 
-    public JavaAction(EntityWrapper<?> entity, Object controller,
-            Method method) {
+    public JavaAction(EntityWrapper<?> entity, Method method) {
         super(method.getName(), extractParameters(method));
-        this.javaController = controller;
         this.method = method;
         this.entity = entity;
         this.nature = determineMethodNature(method);
@@ -81,7 +78,7 @@ public class JavaAction<T> extends Action<T> {
         List<Parameter> params = Arrays.asList(method.getParameters());
 
         List<au.com.windyroad.hateoas.core.Parameter> rval = new ArrayList<>();
-        for (int i = 1; i < params.size(); ++i) {
+        for (int i = 0; i < params.size(); ++i) {
             rval.add(new au.com.windyroad.hateoas.core.Parameter(
                     params.get(i).getName()));
         }
@@ -91,17 +88,15 @@ public class JavaAction<T> extends Action<T> {
     }
 
     @Override
-    public CompletableFuture<T> invoke(Map<String, String> context) {
-        List<Object> args = new ArrayList<>(getParameters().size() + 1);
-        args.add(entity);
+    public CompletableFuture<T> invoke(Map<String, Object> context) {
+        List<Object> args = new ArrayList<>(getParameters().size());
         for (au.com.windyroad.hateoas.core.Parameter param : getParameters()) {
             if (!PresentationType.SUBMIT.equals(param.getType())) {
                 args.add(context.get(param.getIdentifier()));
             }
         }
         try {
-            return (CompletableFuture<T>) method.invoke(javaController,
-                    args.toArray());
+            return (CompletableFuture<T>) method.invoke(entity, args.toArray());
         } catch (IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e) {
             throw new RuntimeException(e);

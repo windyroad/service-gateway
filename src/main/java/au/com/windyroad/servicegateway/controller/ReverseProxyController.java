@@ -3,8 +3,6 @@ package au.com.windyroad.servicegateway.controller;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -33,9 +31,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.servlet.HandlerMapping;
 
-import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.servicegateway.Repository;
-import au.com.windyroad.servicegateway.model.Proxy;
+import au.com.windyroad.servicegateway.model.ProxyController;
 
 @Controller
 public class ReverseProxyController {
@@ -47,10 +44,10 @@ public class ReverseProxyController {
 
         private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-        private EntityWrapper<Proxy> proxy;
+        private ProxyController proxy;
 
         public CBack(DeferredResult<ResponseEntity<?>> deferredResult,
-                EntityWrapper<Proxy> proxy, String target) {
+                ProxyController proxy, String target) {
             this.deferredResult = deferredResult;
             this.target = target;
             this.proxy = proxy;
@@ -59,10 +56,7 @@ public class ReverseProxyController {
         @Override
         public void failed(Exception ex) {
             LOGGER.error("Failure while processing: ", ex);
-            Map<String, String> actionContext = new HashMap<>();
-            actionContext.put("target", target);
-            actionContext.put("available", "false");
-            proxy.getAction("setEndpoint").invoke(actionContext);
+            proxy.setEndpoint(target, false);
             deferredResult.setErrorResult(ex);
         }
 
@@ -88,12 +82,7 @@ public class ReverseProxyController {
                 }
                 deferredResult.setResult(responseEntity);
 
-                Map<String, String> actionContext = new HashMap<>();
-                actionContext.put("target", target);
-                actionContext.put("available", "true");
-                CompletableFuture<?> future = proxy.getAction("setEndpoint")
-                        .invoke(actionContext);
-
+                CompletableFuture<?> future = proxy.setEndpoint(target, true);
             } catch (Exception e) {
                 LOGGER.error("Failure while processing response:", e);
                 deferredResult.setErrorResult(e);
@@ -139,8 +128,8 @@ public class ReverseProxyController {
 
         String path = "/admin/proxies/" + proxyName;
 
-        EntityWrapper<Proxy> proxy = (EntityWrapper<Proxy>) repository
-                .findOne(path).get();
+        ProxyController proxy = (ProxyController) repository.findOne(path)
+                .get();
 
         if (proxy != null) {
             String url = (String) request.getAttribute(
@@ -148,10 +137,7 @@ public class ReverseProxyController {
             String restOfTheUrl = url.replace("/proxy/" + proxyName + "/", "");
             String target = proxy.getProperties().getTarget() + "/"
                     + restOfTheUrl;
-            Map<String, String> actionContext = new HashMap<>();
-            actionContext.put("target", restOfTheUrl);
-            actionContext.put("available", "false");
-            proxy.getAction("setEndpoint").invoke(actionContext);
+            proxy.setEndpoint(restOfTheUrl, false);
 
             httpAsyncClient.start();
             HttpGet newRequest = new HttpGet(target);

@@ -1,8 +1,6 @@
 package au.com.windyroad.servicegateway.model;
 
-import java.io.UnsupportedEncodingException;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -25,46 +23,47 @@ public class ProxyController extends EntityWrapper<Proxy> {
 
     }
 
+    protected ProxyController(ProxyController src) {
+        super(src);
+        this.context = src.context;
+        this.repository = src.repository;
+    }
+
     public ProxyController(ApplicationContext context, Repository repository,
             String path, Proxy properties, String title) {
         super(context, repository, path, properties, title);
     }
 
-    public CompletableFuture<UpdatedLinkedEntity> setEndpoint(
-            EntityWrapper<Proxy> proxy, String target, String available)
-                    throws UnsupportedEncodingException, InterruptedException,
-                    ExecutionException {
-        String endpointPath = proxy.getProperties().getTarget() + "/" + target;
+    public CompletableFuture<UpdatedLinkedEntity> setEndpoint(String target,
+            boolean available) {
+        String endpointPath = this.getProperties().getTarget() + "/" + target;
         String path = Endpoint.buildPath(endpointPath);
         CompletableFuture<EntityWrapper<?>> future = repository.findOne(path);
 
         return future.thenApplyAsync(existingEndpoint -> {
-            EntityWrapper<Endpoint> endpoint = (EntityWrapper<Endpoint>) existingEndpoint;
+            EndpointController endpoint = (EndpointController) existingEndpoint;
             if (existingEndpoint == null) {
-                endpoint = new EntityWrapper<Endpoint>(context, repository,
-                        path,
-                        new Endpoint(endpointPath,
-                                Boolean.parseBoolean(available)),
+                endpoint = new EndpointController(context, repository, path,
+                        new Endpoint(endpointPath, available),
                         "Endpoint `" + endpointPath + "`");
             } else {
-                endpoint.getProperties()
-                        .setAvailable(Boolean.parseBoolean(available));
+                endpoint.getProperties().setAvailable(available);
             }
             repository.save(endpoint);
-            return new UpdatedLinkedEntity(endpoint.getAddress());
+            return new UpdatedLinkedEntity(endpoint);
         });
     }
 
-    public CompletableFuture<Void> deleteProxy(EntityWrapper<Proxy> proxy) {
-        return repository.delete(proxy);
+    public CompletableFuture<Void> deleteProxy() {
+        return repository.delete(this);
     }
 
-    public CompletableFuture<UpdatedLinkedEntity> update(
-            EntityWrapper<Proxy> proxy, String proxyName, String target) {
+    public CompletableFuture<UpdatedLinkedEntity> update(String proxyName,
+            String target) {
         return CompletableFuture.supplyAsync(() -> {
-            proxy.getProperties().setTarget(target);
-            repository.save(proxy);
-            return new UpdatedLinkedEntity(proxy.getAddress());
+            this.getProperties().setTarget(target);
+            repository.save(this);
+            return new UpdatedLinkedEntity(this);
         });
     }
 

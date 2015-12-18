@@ -1,16 +1,19 @@
 package au.com.windyroad.servicegateway.model;
 
+import java.io.Serializable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.ParameterizedTypeReference;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import au.com.windyroad.hateoas.core.EntityWrapper;
-import au.com.windyroad.hateoas.server.annotations.HateoasController;
+public class AdminRoot implements Serializable {
 
-@HateoasController(AdminRootController.class)
-public class AdminRoot {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -5101362070340337389L;
 
     @JsonIgnore
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
@@ -18,9 +21,7 @@ public class AdminRoot {
     public AdminRoot() {
     }
 
-    public static ParameterizedTypeReference<EntityWrapper<AdminRoot>> wrapperType() {
-        return new ParameterizedTypeReference<EntityWrapper<AdminRoot>>() {
-        };
-    }
+    @JsonProperty
+    private String foo = "42";
 
 }

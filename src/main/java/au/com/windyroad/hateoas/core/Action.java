@@ -41,7 +41,7 @@ public abstract class Action<T> extends Titled {
         return identifier;
     }
 
-    public abstract CompletableFuture<T> invoke(Map<String, String> context);
+    public abstract CompletableFuture<T> invoke(Map<String, Object> context);
 
     /**
      * @return the nature

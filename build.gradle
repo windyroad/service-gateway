@@ -56,6 +56,11 @@ dependencies {
 //	compile("org.springframework.boot:spring-boot-starter-mustache")
 	compile("org.springframework.boot:spring-boot-starter-web")
 	compile("org.springframework.boot:spring-boot-starter-actuator")
+    compile("org.springframework.boot:spring-boot-starter-aop")
+    compile("org.springframework:spring-aop")
+    compile("org.aspectj:aspectjweaver")
+    
+    
     compile 'org.springframework.hateoas:spring-hateoas'
     compile 'org.springframework.data:spring-data-commons'
 	compile("org.eclipse.jdt:org.eclipse.jdt.annotation:2.0.0")
@@ -114,6 +119,15 @@ test {
 	ext.outputDir = "${buildDir}/test-results"
 	outputs.dir file(outputDir)
 	systemProperties 'cucumber.options':  "--plugin json:${outputDir}/cucumber.json --plugin html:${outputDir}/html --plugin junit:${outputDir}/TEST-cucumber.xml"
+}
+
+task integrationTest(type: Test) {
+    testClassesDir = sourceSets.test.output.classesDir
+    classpath = sourceSets.test.runtimeClasspath
+    ext.outputDir = "${buildDir}/test-results-it"
+    outputs.dir file(outputDir)
+    systemProperty 'cucumber.options',  "--plugin json:${outputDir}/cucumber.json --plugin html:${outputDir}/html --plugin junit:${outputDir}/TEST-cucumber.xml"
+    systemProperty 'spring.profiles.active', 'integration'
 }
 
 gradle.taskGraph.afterTask { Task task, TaskState state ->

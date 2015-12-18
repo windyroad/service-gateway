@@ -86,7 +86,7 @@ public class RepositoryController {
             "application/json" }, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseBody
     public ResponseEntity<?> post(
-            @RequestParam MultiValueMap<String, String> allRequestParams,
+            @RequestParam MultiValueMap<String, Object> allRequestParams,
             final HttpServletRequest request)
                     throws URISyntaxException, NoSuchMethodException,
                     SecurityException, ScriptException, IllegalAccessException,
@@ -99,12 +99,12 @@ public class RepositoryController {
             return ResponseEntity.notFound().build();
         }
 
-        String actionName = allRequestParams.getFirst("action");
+        Object actionName = allRequestParams.getFirst("action");
         if (actionName == null) {
             // todo add body with classes indicating what is missing
             return ResponseEntity.badRequest().build();
         }
-        Action<?> action = entity.getAction(actionName);
+        Action<?> action = entity.getAction(actionName.toString());
         if (action == null) {
             // todo add body with classes indicating what is missing
             return ResponseEntity.badRequest().build();
@@ -160,7 +160,7 @@ public class RepositoryController {
             "application/json" }, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseBody
     public ResponseEntity<?> put(
-            @RequestParam MultiValueMap<String, String> queryParams,
+            @RequestParam MultiValueMap<String, Object> queryParams,
 
             final HttpServletRequest request)
                     throws IllegalAccessException, IllegalArgumentException,
@@ -172,9 +172,9 @@ public class RepositoryController {
         if (entity == null) {
             return ResponseEntity.notFound().build();
         }
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
         params.putAll(queryParams);
-        String actionName = queryParams.getFirst("action");
+        String actionName = (String) queryParams.getFirst("action");
         if (actionName == null) {
             // todo add body with classes indicating what is missing
             return ResponseEntity.badRequest().build();

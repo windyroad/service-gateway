@@ -4,12 +4,8 @@ import static org.junit.Assert.*;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -18,9 +14,6 @@ import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.proxy.Enhancer;
-import org.springframework.cglib.proxy.MethodInterceptor;
-import org.springframework.cglib.proxy.MethodProxy;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
@@ -33,11 +26,13 @@ import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.EntityRelationship;
 import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.hateoas.core.FutureConverter;
-import au.com.windyroad.hateoas.core.UpdatedLinkedEntity;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
-import au.com.windyroad.servicegateway.model.AdminRoot;
+import au.com.windyroad.servicegateway.model.AdminRootController;
 import au.com.windyroad.servicegateway.model.Endpoint;
+import au.com.windyroad.servicegateway.model.EndpointController;
+import au.com.windyroad.servicegateway.model.IAdminRootController;
 import au.com.windyroad.servicegateway.model.Proxy;
+import au.com.windyroad.servicegateway.model.ProxyController;
 
 @Component
 @Profile(value = "integration")
@@ -65,7 +60,8 @@ public class RestDriver extends JavaDriver {
 
     private EntityWrapper<Endpoint> currentEndpoint;
 
-    private Map<String, String> context = new HashMap<>();
+    // @Autowired
+    // AdminRootController arc;
 
     @Autowired
     ApplicationContext appContext;
@@ -81,62 +77,58 @@ public class RestDriver extends JavaDriver {
             IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, NoSuchMethodException, SecurityException,
             InterruptedException, ExecutionException {
-        context.put("proxyName", proxyName);
-        context.put("endpoint", endpoint);
 
+        IAdminRootController arc = (IAdminRootController) appContext
+                .getBean("adminRootController");
+        // arc.createProxy(proxyName, endpoint);
         CompletableFuture<?> invocationResult = getRestRoot()
                 .thenApplyAsync(root -> {
-                    return root.getAction("createProxy");
-                }).thenApplyAsync(action -> {
-                    CompletableFuture<?> result = action.invoke(context);
-                    return result.join();
+                    return root.createProxy(proxyName, endpoint).join();
                 });
 
         currentProxy = ((Entity) invocationResult.get())
-                .resolve(Proxy.wrapperType());
+                .resolve(ProxyController.class);
 
-        Enhancer e = new Enhancer();
-        e.setClassLoader(this.getClass().getClassLoader());
-        e.setSuperclass(Proxy.class);
-        e.setCallback(new MethodInterceptor() {
-            @Override
-            public Object intercept(Object obj, Method method, Object[] args,
-                    MethodProxy proxy) throws Throwable {
-
-                Parameter[] params = method.getParameters();
-                for (int i = 0; i < params.length; ++i) {
-                    context.put(params[i].getName(), args[i].toString());
-                }
-                CompletableFuture<Entity> xxxResult = (CompletableFuture<Entity>) currentProxy
-                        .getAction(method.getName()).invoke(context);
-                return xxxResult;
-            }
-        });
-
-        // create proxy using SomeConcreteClass() no-arg constructor
-        Proxy myProxy = (Proxy) e.create();
-        // create proxy using SomeConcreteClass(String) constructor
-        CompletableFuture<UpdatedLinkedEntity> result = myProxy
-                .setEndpoint(appContext, repository, "foo", "false");
-
-        result.thenAccept(entityLink -> {
-            assertTrue(entityLink != null);
-            EntityWrapper<Proxy> ep = entityLink.resolve(Proxy.wrapperType());
-            Proxy x = ep.getProperties();
-            assertTrue(x.getName() != null);
-        }).get();
-
+        /*
+         * Enhancer e = new Enhancer();
+         * e.setClassLoader(this.getClass().getClassLoader());
+         * e.setSuperclass(ProxyController.class); e.setCallback(new
+         * MethodInterceptor() {
+         * 
+         * @Override public Object intercept(Object obj, Method method, Object[]
+         * args, MethodProxy proxy) throws Throwable {
+         * 
+         * Map<String, Object> context = new HashMap<>();
+         * 
+         * Parameter[] params = method.getParameters(); for (int i = 0; i <
+         * params.length; ++i) { context.put(params[i].getName(), args[i]); }
+         * CompletableFuture<Entity> xxxResult = (CompletableFuture<Entity>)
+         * currentProxy .getAction(method.getName()).invoke(context); return
+         * xxxResult; } });
+         * 
+         * // create proxy using SomeConcreteClass() no-arg constructor
+         * ProxyController myProxy = (ProxyController) e.create(); // create
+         * proxy using SomeConcreteClass(String) constructor
+         * CompletableFuture<UpdatedLinkedEntity> result = myProxy
+         * .setEndpoint("foo", false);
+         * 
+         * result.thenAccept(entityLink -> { assertTrue(entityLink != null);
+         * EndpointController ep = entityLink
+         * .resolve(EndpointController.class);
+         * assertFalse(ep.getProperties().isAvailable()); }).get();
+         */
     }
 
-    CompletableFuture<EntityWrapper<AdminRoot>> getRestRoot()
+    CompletableFuture<AdminRootController> getRestRoot()
             throws URISyntaxException {
         URI rootUrl = new URI(
                 "https://localhost:" + config.getPort() + "/admin/proxies");
 
-        return FutureConverter
-                .convert(asyncRestTemplate.exchange(rootUrl, HttpMethod.GET,
-                        null, AdminRoot.wrapperType()))
-                .thenApply(r -> r.getBody());
+        return FutureConverter.convert(asyncRestTemplate.exchange(rootUrl,
+                HttpMethod.GET, null, AdminRootController.class))
+                .thenApply(r -> {
+                    return r.getBody();
+                });
     }
 
     @Override
@@ -149,17 +141,18 @@ public class RestDriver extends JavaDriver {
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, UnsupportedEncodingException,
             URISyntaxException {
-        currentProxy = currentProxy.refresh();
+        currentProxy = currentProxy.toLinkedEntity()
+                .resolve(ProxyController.class);
         Optional<EntityRelationship> optionalEndpoint;
         optionalEndpoint = currentProxy.getEntities().stream().filter(e -> {
-            EntityWrapper<Endpoint> endpoint = e.getEntity()
-                    .resolve(Endpoint.wrapperType());
+            EndpointController endpoint = e.getEntity()
+                    .resolve(EndpointController.class);
             return endpoint.getProperties().getTarget().equals(endpointPath);
         }).findAny();
 
         assertTrue(optionalEndpoint.isPresent());
         currentEndpoint = optionalEndpoint.get().getEntity()
-                .resolve(Endpoint.wrapperType());
+                .resolve(EndpointController.class);
     }
 
     @Override
