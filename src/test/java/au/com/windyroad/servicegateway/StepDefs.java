@@ -62,7 +62,7 @@ public class StepDefs {
     @When("^a request is successfully made to \"(.*?)\"$")
     public void a_request_is_successfully_made_to(String path)
             throws Throwable {
-        driver.get(path);
+        driver.getUrl(path);
     }
 
     @Then("^\"(.*?)\" will be listed in the endpoints proxied by \"/proxy/(.*?)\"$")

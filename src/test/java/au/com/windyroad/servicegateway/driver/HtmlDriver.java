@@ -56,9 +56,9 @@ public class HtmlDriver extends RestDriver {
     }
 
     @Override
-    public void get(String path) throws Exception {
+    public void getUrl(String path) throws Exception {
         // just being explicit about calling the rest driver's get
-        super.get(path);
+        super.getUrl(path);
     }
 
     @Override

@@ -11,7 +11,7 @@ public interface Driver {
 
     void checkPingService(String path) throws Exception;
 
-    void get(String path) throws Exception;
+    void getUrl(String path) throws Exception;
 
     void checkCurrentEndpointAvailable();
 

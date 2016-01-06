@@ -1,12 +1,12 @@
 package au.com.windyroad.servicegateway.driver;
 
-import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -28,12 +28,11 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import au.com.windyroad.hateoas.core.CreatedLinkedEntity;
-import au.com.windyroad.hateoas.core.EntityWrapper;
+import au.com.windyroad.hateoas.core.EntityRelationship;
 import au.com.windyroad.hateoas.core.MediaTypes;
 import au.com.windyroad.servicegateway.Repository;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import au.com.windyroad.servicegateway.model.AdminRootController;
-import au.com.windyroad.servicegateway.model.Endpoint;
 import au.com.windyroad.servicegateway.model.EndpointController;
 import au.com.windyroad.servicegateway.model.ProxyController;
 
@@ -107,8 +106,11 @@ public class JavaDriver implements Driver {
     @Autowired
     ApplicationContext context;
 
-    CompletableFuture<EntityWrapper<?>> getRoot() {
-        return repository.findOne("/admin/proxies");
+    CompletableFuture<AdminRootController> getRoot() {
+        return repository.findOne("/admin/proxies").thenApply(entity -> {
+            AdminRootController root = (AdminRootController) entity;
+            return root;
+        });
     }
 
     @Override
@@ -118,17 +120,16 @@ public class JavaDriver implements Driver {
             InvocationTargetException, URISyntaxException, InterruptedException,
             ExecutionException {
 
-        repository.findOne("/admin/proxies").thenApplyAsync(entity -> {
-            AdminRootController root = (AdminRootController) entity;
+        this.currentProxy = getRoot().thenApplyAsync(root -> {
             return root.createProxy(proxyName, endpoint);
-        }).thenAccept(result -> {
+        }).thenApplyAsync(result -> {
             CreatedLinkedEntity cle = result.join();
-            this.currentProxy = cle.resolve(ProxyController.class);
+            return cle.resolve(ProxyController.class);
         }).get();
     }
 
     @Override
-    public void get(String path) throws Exception {
+    public void getUrl(String path) throws Exception {
         ResponseEntity<String> response = restTemplate.getForEntity(
                 new URI("https://localhost:" + config.getPort() + path),
                 String.class);
@@ -136,17 +137,31 @@ public class JavaDriver implements Driver {
     }
 
     @Override
-    public void checkEndpointExists(String path, String endpointName)
+    public void checkEndpointExists(String path, String endpointPath)
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, UnsupportedEncodingException,
             URISyntaxException, InterruptedException, ExecutionException {
-        CompletableFuture<EndpointController> future = repository
-                .findOne(Endpoint.buildPath(endpointName))
-                .thenApplyAsync(endpoint -> {
-                    assertThat(endpoint, notNullValue());
-                    return endpoint.resolve(EndpointController.class);
-                });
-        currentEndpoint = future.join();
+        this.currentProxy = this.currentProxy.toLinkedEntity()
+                .resolve(ProxyController.class);
+
+        Optional<EntityRelationship> optionalEndpoint;
+        optionalEndpoint = currentProxy.getEntities().stream().filter(e -> {
+            EndpointController endpoint = e.getEntity()
+                    .resolve(EndpointController.class);
+            return endpoint.getProperties().getTarget().equals(endpointPath);
+        }).findAny();
+
+        assertTrue(optionalEndpoint.isPresent());
+        currentEndpoint = optionalEndpoint.get().getEntity()
+                .resolve(EndpointController.class);
+
+        // CompletableFuture<EndpointController> future = repository
+        // .findOne(Endpoint.buildPath(endpointName))
+        // .thenApplyAsync(endpoint -> {
+        // assertThat(endpoint, notNullValue());
+        // return endpoint.resolve(EndpointController.class);
+        // });
+        // currentEndpoint = future.join();
     }
 
     @Override
