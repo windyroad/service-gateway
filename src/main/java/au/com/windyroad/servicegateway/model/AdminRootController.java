@@ -18,8 +18,7 @@ import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.hateoas.core.Relationship;
 import au.com.windyroad.servicegateway.Repository;
 
-public class AdminRootController extends EntityWrapper<AdminRoot>
-        implements IAdminRootController {
+public class AdminRootController extends EntityWrapper<AdminRoot> {
 
     @Autowired
     ApplicationContext context;
