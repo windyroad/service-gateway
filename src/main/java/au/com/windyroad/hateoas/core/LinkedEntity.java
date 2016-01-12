@@ -21,8 +21,8 @@ public class LinkedEntity extends Entity {
         bpp.processInjection(this.link);
     }
 
-    public LinkedEntity(URI address) {
-        this.link = new RestLink(address, null, null);
+    public LinkedEntity(Link link) {
+        this.link = link;
     }
 
     public LinkedEntity(@JsonProperty("href") URI address,

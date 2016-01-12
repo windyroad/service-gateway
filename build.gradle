@@ -123,7 +123,6 @@ task unitTest(type: Test) {
     testClassesDir = sourceSets.test.output.classesDir
     classpath = sourceSets.test.runtimeClasspath
     ext.outputDir = "${buildDir}/test-results-ut"
-    sources.dir file("src")
     outputs.dir file(outputDir)
     systemProperty 'cucumber.options',  "--plugin json:${outputDir}/cucumber.json --plugin html:${outputDir}/html --plugin junit:${outputDir}/TEST-cucumber.xml"
 }
@@ -133,7 +132,6 @@ task integrationTest(type: Test, dependsOn : unitTest) {
     testClassesDir = sourceSets.test.output.classesDir
     classpath = sourceSets.test.runtimeClasspath
     ext.outputDir = "${buildDir}/test-results-it"
-    sources.dir file("src")
     outputs.dir file(outputDir)
     systemProperty 'cucumber.options',  "--plugin json:${outputDir}/cucumber.json --plugin html:${outputDir}/html --plugin junit:${outputDir}/TEST-cucumber.xml"
     systemProperty 'spring.profiles.active', 'integration'
@@ -143,7 +141,6 @@ task uiIntegrationTest(type: Test, dependsOn : integrationTest) {
     testClassesDir = sourceSets.test.output.classesDir
     classpath = sourceSets.test.runtimeClasspath
     ext.outputDir = "${buildDir}/test-results-ui"
-    sources.dir file("src")
     outputs.dir file(outputDir)
     systemProperty 'cucumber.options',  "--plugin json:${outputDir}/cucumber.json --plugin html:${outputDir}/html --plugin junit:${outputDir}/TEST-cucumber.xml"
     systemProperty 'spring.profiles.active', 'ui-integration'

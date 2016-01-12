@@ -22,9 +22,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.embedded.EmbeddedServletContainerInitializedEvent;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainer;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -53,7 +55,8 @@ import au.com.windyroad.hateoas.client.SpringBeanHandlerInstantiator;
 import au.com.windyroad.servicegateway.driver.WebDriverFactory;
 
 @Configuration
-public class ServiceGatewayTestConfiguration {
+public class ServiceGatewayTestConfiguration implements
+        ApplicationListener<EmbeddedServletContainerInitializedEvent> {
     @Autowired
     ServiceGatewayApplication serviceGatewayApplication;
 
@@ -313,6 +316,12 @@ public class ServiceGatewayTestConfiguration {
         builder.modules(module, module2);
 
         return builder;
+    }
+
+    @Override
+    public void onApplicationEvent(
+            EmbeddedServletContainerInitializedEvent event) {
+        this.port = event.getEmbeddedServletContainer().getPort();
     }
 
 }

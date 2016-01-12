@@ -1,7 +1,5 @@
 package au.com.windyroad.hateoas.core;
 
-import java.net.URI;
-
 public class CreatedLinkedEntity extends LinkedEntity {
 
     public CreatedLinkedEntity(EntityWrapper<?> entity) {
@@ -9,8 +7,8 @@ public class CreatedLinkedEntity extends LinkedEntity {
                 entity.getTitle());
     }
 
-    public CreatedLinkedEntity(URI location) {
-        super(location);
+    public CreatedLinkedEntity(Link link) {
+        super(link);
     }
 
 }

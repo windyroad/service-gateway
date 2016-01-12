@@ -29,14 +29,10 @@ public class RestDriver extends JavaDriver {
     AsyncRestTemplate asyncRestTemplate;
 
     @Override
-    CompletableFuture<AdminRootController> getRoot() {
+    CompletableFuture<AdminRootController> getRoot() throws URISyntaxException {
         URI rootUrl;
-        try {
-            rootUrl = new URI(
-                    "https://localhost:" + config.getPort() + "/admin/proxies");
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
+        rootUrl = new URI(
+                "https://localhost:" + config.getPort() + "/admin/proxies");
 
         return FutureConverter.convert(asyncRestTemplate.exchange(rootUrl,
                 HttpMethod.GET, null, AdminRootController.class))

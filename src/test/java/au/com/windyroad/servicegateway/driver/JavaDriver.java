@@ -106,7 +106,7 @@ public class JavaDriver implements Driver {
     @Autowired
     ApplicationContext context;
 
-    CompletableFuture<AdminRootController> getRoot() {
+    CompletableFuture<AdminRootController> getRoot() throws URISyntaxException {
         return repository.findOne("/admin/proxies").thenApply(entity -> {
             AdminRootController root = (AdminRootController) entity;
             return root;

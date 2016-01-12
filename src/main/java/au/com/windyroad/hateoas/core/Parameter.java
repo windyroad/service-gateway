@@ -15,11 +15,12 @@ public class Parameter {
 
     public Parameter(@JsonProperty("name") String identifier) {
         this.identifier = identifier;
+        this.type = "text";
     }
 
     public Parameter(String identifier, String type, String value) {
         this(identifier);
-        this.type = type;
+        this.type = type == null ? "text" : type;
         this.value = value;
     }
 

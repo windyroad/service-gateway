@@ -26,6 +26,10 @@ public class RestLink extends Link {
     public RestLink() {
     }
 
+    public RestLink(URI address) {
+        this.address = address;
+    }
+
     public RestLink(URI address, Set<String> natures, String label) {
         super(natures, label);
         this.address = address;

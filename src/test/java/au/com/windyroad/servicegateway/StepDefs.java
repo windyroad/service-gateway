@@ -1,7 +1,5 @@
 package au.com.windyroad.servicegateway;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -29,14 +27,6 @@ public class StepDefs {
     @Autowired
     Driver driver;
 
-    @Autowired
-    ServiceGatewayTestConfiguration config;
-
-    @PostConstruct
-    private void initConfig() {
-        config.setPort(port);
-    }
-
     @Given("^there are no proxied endpoints listed$")
     public void there_are_no_proxied_endpoints_listed() throws Throwable {
         driver.clearProxies();
@@ -54,7 +44,7 @@ public class StepDefs {
 
     String normaliseUrl(String endpoint) {
         if (endpoint.startsWith("/")) {
-            endpoint = "https://localhost:" + config.getPort() + endpoint;
+            endpoint = "https://localhost:" + port + endpoint;
         }
         return endpoint;
     }

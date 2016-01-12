@@ -10,19 +10,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class JavaLink extends Link {
 
-    private EntityWrapper<?> properties;
+    private EntityWrapper<?> entity;
 
     protected JavaLink() {
     }
 
-    public JavaLink(EntityWrapper<?> properties) {
-        this.properties = properties;
+    public JavaLink(EntityWrapper<?> entity) {
+        this.entity = entity;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <T> T resolve(Class<T> type) {
-        return (T) properties;
+        return (T) entity;
     }
 
     @Override
@@ -33,13 +33,13 @@ public class JavaLink extends Link {
     @Override
     @JsonProperty("href")
     public URI getAddress() {
-        return BasicLinkBuilder.linkToCurrentMapping().slash(properties)
+        return BasicLinkBuilder.linkToCurrentMapping().slash(entity)
                 .toUri();
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <T> T resolve(ParameterizedTypeReference<T> type) {
-        return (T) properties;
+        return (T) entity;
     }
 }

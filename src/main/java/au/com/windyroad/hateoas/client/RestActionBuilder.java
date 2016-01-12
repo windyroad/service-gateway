@@ -2,11 +2,17 @@ package au.com.windyroad.hateoas.client;
 
 import java.net.URI;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.http.HttpMethod;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import au.com.windyroad.hateoas.core.Action;
 import au.com.windyroad.hateoas.core.Parameter;
+import au.com.windyroad.hateoas.core.RestLink;
 
 public class RestActionBuilder {
 
@@ -14,6 +20,18 @@ public class RestActionBuilder {
     private HttpMethod method;
     private URI href;
     private Parameter[] fields = {};
+
+    private RestTemplateResolver resolver;
+
+    @JsonCreator
+    public RestActionBuilder(@JacksonInject RestTemplateResolver resolver) {
+        this.resolver = resolver;
+    }
+
+    @PostConstruct
+    public void postConstruct() {
+
+    }
 
     @JsonProperty("method")
     public RestActionBuilder setMethod(HttpMethod method) {
@@ -39,16 +57,20 @@ public class RestActionBuilder {
         return this;
     }
 
-    public RestAction<?> build() {
+    public Action<?> build() {
         switch (method) {
         case POST:
-            return new RestPostAction(identifier, href, fields);
+            return new CreateAction(resolver, identifier, new RestLink(href),
+                    fields);
         case DELETE:
-            return new RestDeleteAction(identifier, href, fields);
+            return new DeleteAction(resolver, identifier, new RestLink(href),
+                    fields);
         case GET:
-            return new RestGetAction(identifier, href, fields);
+            return new GetAction(resolver, identifier, new RestLink(href),
+                    fields);
         case PUT:
-            return new RestPutAction(identifier, href, fields);
+            return new UpdateAction(resolver, identifier, new RestLink(href),
+                    fields);
         default:
             return null;
         }

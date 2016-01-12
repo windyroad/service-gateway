@@ -5,18 +5,16 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import org.springframework.hateoas.mvc.BasicLinkBuilder;
 import org.springframework.http.HttpMethod;
 
 import au.com.windyroad.hateoas.annotations.PresentationType;
+import au.com.windyroad.hateoas.client.Resolver;
 
 public class JavaAction<T> extends Action<T> {
 
@@ -28,7 +26,8 @@ public class JavaAction<T> extends Action<T> {
     }
 
     public JavaAction(EntityWrapper<?> entity, Method method) {
-        super(method.getName(), extractParameters(method));
+        super(null, method.getName(), new JavaLink(entity),
+                extractParameters(method));
         this.method = method;
         this.entity = entity;
         this.nature = determineMethodNature(method);
@@ -88,11 +87,12 @@ public class JavaAction<T> extends Action<T> {
     }
 
     @Override
-    public CompletableFuture<T> invoke(Map<String, Object> context) {
+    public CompletableFuture<T> doInvoke(Resolver resolver,
+            Map<String, Object> filteredParameters) {
         List<Object> args = new ArrayList<>(getParameters().size());
         for (au.com.windyroad.hateoas.core.Parameter param : getParameters()) {
             if (!PresentationType.SUBMIT.equals(param.getType())) {
-                args.add(context.get(param.getIdentifier()));
+                args.add(filteredParameters.get(param.getIdentifier()));
             }
         }
         try {
@@ -107,12 +107,6 @@ public class JavaAction<T> extends Action<T> {
     @Override
     public HttpMethod getNature() {
         return nature;
-    }
-
-    @Override
-    public URI getAddress() throws NoSuchMethodException, SecurityException,
-            URISyntaxException {
-        return BasicLinkBuilder.linkToCurrentMapping().slash(entity).toUri();
     }
 
 }

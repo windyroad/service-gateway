@@ -77,9 +77,9 @@ public class EntityWrapperProxyDeserializer extends DelegatingDeserializer {
                                             + "` cannot be executed remotely");
                         } else {
                             @SuppressWarnings("unchecked")
-                            CompletableFuture<Entity> xxxResult = (CompletableFuture<Entity>) action
+                            CompletableFuture<Entity> result = (CompletableFuture<Entity>) action
                                     .invoke(context);
-                            return xxxResult;
+                            return result;
                         }
                     }
                 }
