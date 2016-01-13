@@ -1,11 +1,11 @@
 package au.com.windyroad.hateoas.client;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.context.ApplicationContext;
@@ -26,6 +26,7 @@ import au.com.windyroad.hateoas.core.Link;
 import au.com.windyroad.hateoas.core.MediaTypes;
 import au.com.windyroad.hateoas.core.RestLink;
 import au.com.windyroad.hateoas.core.UpdatedLinkedEntity;
+import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 
 @Component()
 public class RestTemplateResolver implements Resolver {
@@ -132,9 +133,21 @@ public class RestTemplateResolver implements Resolver {
                 });
     }
 
+    @Autowired
+    ServiceGatewayTestConfiguration config;
+
     @Override
-    public <E> CompletableFuture<E> get(String path, Class<E> type) {
-        throw new NotImplementedException("TODO");
+    public <E> CompletableFuture<E> get(String path, Class<E> type)
+            throws URISyntaxException {
+        URI rootUrl = new URI(
+                "https://localhost:" + config.getPort() + "/admin/proxies");
+
+        return FutureConverter.convert(
+                restTemplate.exchange(rootUrl, HttpMethod.GET, null, type))
+                .thenApply(r -> {
+                    return r.getBody();
+                });
+
     }
 
 }
