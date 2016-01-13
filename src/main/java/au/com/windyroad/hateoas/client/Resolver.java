@@ -1,5 +1,6 @@
 package au.com.windyroad.hateoas.client;
 
+import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -10,16 +11,19 @@ import au.com.windyroad.hateoas.core.UpdatedLinkedEntity;
 
 public interface Resolver {
 
-    CompletableFuture<CreatedLinkedEntity> create(Link link,
+    public CompletableFuture<CreatedLinkedEntity> create(Link link,
             Map<String, Object> filteredParameters);
 
-    CompletableFuture<Void> delete(Link link,
+    public CompletableFuture<Void> delete(Link link,
             Map<String, Object> filteredParameters);
 
-    CompletableFuture<EntityWrapper<?>> get(Link link,
+    public CompletableFuture<EntityWrapper<?>> get(Link link,
             Map<String, Object> filteredParameters);
 
-    CompletableFuture<UpdatedLinkedEntity> update(Link link,
+    public CompletableFuture<UpdatedLinkedEntity> update(Link link,
             Map<String, Object> filteredParameters);
+
+    public <E> CompletableFuture<E> get(String path, Class<E> type)
+            throws URISyntaxException;
 
 }

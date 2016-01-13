@@ -3,13 +3,13 @@ package au.com.windyroad.servicegateway.driver;
 import java.net.URISyntaxException;
 import java.util.concurrent.CompletableFuture;
 
-import org.openqa.selenium.WebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import au.com.windyroad.hateoas.client.WebDriverResolver;
+import au.com.windyroad.hateoas.client.Resolver;
 import au.com.windyroad.servicegateway.model.AdminRootController;
 
 @Component
@@ -17,10 +17,8 @@ import au.com.windyroad.servicegateway.model.AdminRootController;
 public class HtmlDriver extends RestDriver {
 
     @Autowired
-    private WebDriver webDriver;
-
-    @Autowired
-    private WebDriverResolver webDriverResovler;
+    @Qualifier("webDriverResolver")
+    private Resolver resolver;
 
     @Value("${security.user.name:user}")
     String name;
@@ -30,8 +28,7 @@ public class HtmlDriver extends RestDriver {
 
     @Override
     CompletableFuture<AdminRootController> getRoot() throws URISyntaxException {
-        return webDriverResovler.get("/admin/proxies",
-                AdminRootController.class);
+        return resolver.get("/admin/proxies", AdminRootController.class);
     }
 
 }

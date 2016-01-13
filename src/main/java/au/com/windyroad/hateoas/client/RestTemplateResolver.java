@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.context.ApplicationContext;
@@ -129,6 +130,11 @@ public class RestTemplateResolver implements Resolver {
 
                     return linkedEntity;
                 });
+    }
+
+    @Override
+    public <E> CompletableFuture<E> get(String path, Class<E> type) {
+        throw new NotImplementedException("TODO");
     }
 
 }
