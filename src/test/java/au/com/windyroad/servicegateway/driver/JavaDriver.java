@@ -28,6 +28,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.async.DeferredResult;
 
+import au.com.windyroad.hateoas.client.Resolver;
 import au.com.windyroad.hateoas.core.CreatedLinkedEntity;
 import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.EntityRelationship;
@@ -43,6 +44,10 @@ import au.com.windyroad.servicegateway.model.ProxyController;
 public class JavaDriver implements Driver {
 
     public final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    @Qualifier("repositoryResolver")
+    private Resolver resolver;
 
     @Autowired
     ServiceGatewayTestConfiguration config;
@@ -109,10 +114,7 @@ public class JavaDriver implements Driver {
     ApplicationContext context;
 
     CompletableFuture<AdminRootController> getRoot() throws URISyntaxException {
-        return repository.findOne("/admin/proxies").thenApply(entity -> {
-            AdminRootController root = (AdminRootController) entity;
-            return root;
-        });
+        return resolver.get("/admin/proxies", AdminRootController.class);
     }
 
     @Override
