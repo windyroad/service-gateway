@@ -9,6 +9,8 @@ import java.util.concurrent.CompletableFuture;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
@@ -29,6 +31,8 @@ import au.com.windyroad.hateoas.core.UpdatedLinkedEntity;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 
 @Component()
+@Profile(value = "integration")
+@Primary
 public class RestTemplateResolver implements Resolver {
 
     @Autowired

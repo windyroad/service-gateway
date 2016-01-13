@@ -52,7 +52,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import au.com.windyroad.hateoas.client.AutowiringDeserializer;
 import au.com.windyroad.hateoas.client.EntityWrapperProxyDeserializer;
 import au.com.windyroad.hateoas.client.SpringBeanHandlerInstantiator;
-import au.com.windyroad.servicegateway.driver.WebDriverFactory;
+import au.com.windyroad.hateoas.client.WebDriverFactory;
 
 @Configuration
 public class ServiceGatewayTestConfiguration implements

@@ -1,4 +1,4 @@
-package au.com.windyroad.servicegateway.driver;
+package au.com.windyroad.hateoas.client;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

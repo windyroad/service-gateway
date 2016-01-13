@@ -21,6 +21,7 @@ import org.springframework.cglib.proxy.Enhancer;
 import org.springframework.cglib.proxy.MethodInterceptor;
 import org.springframework.cglib.proxy.MethodProxy;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.AsyncRestTemplate;
@@ -37,6 +38,7 @@ import cucumber.api.PendingException;
 
 @Component
 @Profile("ui-integration")
+@Primary
 public class WebDriverResolver implements Resolver {
 
     @Autowired
@@ -122,6 +124,7 @@ public class WebDriverResolver implements Resolver {
         });
     }
 
+    @Override
     public <E> CompletableFuture<E> get(String path, Class<E> type)
             throws URISyntaxException {
         return get(new URI("https://localhost:" + config.getPort() + path),
