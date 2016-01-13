@@ -34,26 +34,4 @@ public class HtmlDriver extends RestDriver {
                 AdminRootController.class);
     }
 
-    // @Override
-    // public void checkEndpointExists(String proxyName, String endpointPath) {
-    // webDriver.get(webDriver.getCurrentUrl());
-    // // need to find the linked entities on the page.
-    // WebElement entitiesContainer = webDriver.findElement(By.id("entities"));
-    //
-    // List<WebElement> entities = entitiesContainer
-    // .findElements(By.className("entity"));
-    // assertThat(entities.size(), equalTo(1));
-    // assertThat(entities.get(0).getText(),
-    // equalTo("Endpoint `" + endpointPath + '`'));
-    // entities.get(0).click();
-    // }
-
-    // @Override
-    // public void checkCurrentEndpointAvailable() {
-    // webDriver.get(webDriver.getCurrentUrl());
-    // WebElement available = webDriver
-    // .findElement(By.id("property:available"));
-    // assertThat(available.getText(), equalTo("true"));
-    // }
-
 }

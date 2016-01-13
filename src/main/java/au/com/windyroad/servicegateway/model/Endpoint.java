@@ -1,5 +1,7 @@
 package au.com.windyroad.servicegateway.model;
 
+import java.util.Map;
+
 import au.com.windyroad.hateoas.annotations.Label;
 
 @Label("Endpoint `{target}`")
@@ -9,6 +11,11 @@ public class Endpoint {
     private String target;
 
     protected Endpoint() {
+    }
+
+    public Endpoint(Map<String, String> properties) {
+        this.target = properties.get("target");
+        this.available = Boolean.parseBoolean(properties.get("available"));
     }
 
     public Endpoint(String target, boolean available) {

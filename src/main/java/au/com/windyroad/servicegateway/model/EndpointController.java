@@ -8,7 +8,7 @@ import au.com.windyroad.servicegateway.Repository;
 public class EndpointController extends EntityWrapper<Endpoint> {
 
     protected EndpointController() {
-
+        super(new Endpoint());
     }
 
     protected EndpointController(EndpointController src) {

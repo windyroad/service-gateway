@@ -4,6 +4,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +28,7 @@ import org.springframework.web.client.AsyncRestTemplate;
 import au.com.windyroad.hateoas.core.Action;
 import au.com.windyroad.hateoas.core.CreatedLinkedEntity;
 import au.com.windyroad.hateoas.core.Entity;
+import au.com.windyroad.hateoas.core.EntityRelationship;
 import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.hateoas.core.Link;
 import au.com.windyroad.hateoas.core.UpdatedLinkedEntity;
@@ -142,7 +145,7 @@ public class WebDriverResolver implements Resolver {
         e.setCallback(new MethodInterceptor() {
             @Override
             public Object intercept(Object obj, Method method, Object[] args,
-                    MethodProxy proxy) throws Throwable {
+                    MethodProxy methodProxy) throws Throwable {
 
                 if (method.getName().equals("getAction")) {
                     String actionName = args[0].toString();
@@ -176,10 +179,64 @@ public class WebDriverResolver implements Resolver {
                                 + form.getAttribute("method"));
                     }
 
+                } else if (method.getName().equals("reload")) {
+                    webDriver.get(webDriver.getCurrentUrl());
+                    return createProxy((Class<E>) args[0]);
+                } else if (method.getName().equals("getEntities")) {
+                    List<WebElement> entities = webDriver.findElements(
+                            By.cssSelector("#entities > div.row > a"));
+                    Collection<EntityRelationship> rval = new ArrayList<EntityRelationship>();
+                    for (WebElement entity : entities) {
+                        String[] classes = entity.getAttribute("class")
+                                .split("\\s");
+                        String title = entity.getText();
+                        rval.add(new EntityRelationship(
+                                new WebDriverLink(resolver, entity), title,
+                                classes));
+                    }
+                    return rval;
+                } else if (method.getName().equals("getProperties")) {
+                    Object instance = methodProxy.invokeSuper(obj,
+                            new Object[] {});
+                    Enhancer propertiesEnhancer = new Enhancer();
+                    propertiesEnhancer.setClassLoader(
+                            instance.getClass().getClassLoader());
+                    propertiesEnhancer.setSuperclass(instance.getClass());
+                    propertiesEnhancer.setCallback(new MethodInterceptor() {
+
+                        @Override
+                        public Object intercept(Object properties,
+                                Method propertiesMethod,
+                                Object[] propertiesMethodArgs,
+                                MethodProxy propertiesMethodProxy)
+                                        throws Throwable {
+                            String key = propertiesMethod.getName()
+                                    .toLowerCase()
+                                    .replaceFirst("^get", "property:")
+                                    .replaceFirst("^is", "property:");
+                            String value = webDriver.findElement(By.id(key))
+                                    .getText();
+                            if (propertiesMethod.getReturnType()
+                                    .isAssignableFrom(String.class)) {
+                                return value;
+                            } else if (propertiesMethod.getReturnType()
+                                    .isAssignableFrom(boolean.class)) {
+                                return Boolean.parseBoolean(value);
+                            } else {
+                                throw new PendingException(
+                                        "conversion not implemented for "
+                                                + propertiesMethod
+                                                        .getReturnType());
+                            }
+                        }
+                    });
+
+                    return propertiesEnhancer.create(new Class[] {},
+                            new Object[] {});
+
                 } else if (method.getName().equals("toLinkedEntity")
-                        || method.getName().equals("getEntities")
                         || method.getName().equals("getProperties")
-                        || method.getName().equals("getTitle")
+                        || method.getName().equals("getTitle    ")
                         || method.getName().equals("getNatures")
                         || method.getName().equals("getLinks")
                         || method.getName().equals("getLink")) {

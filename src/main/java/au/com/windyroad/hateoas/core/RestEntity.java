@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.context.ApplicationContext;
 
 import au.com.windyroad.servicegateway.Repository;
@@ -12,8 +13,9 @@ public class RestEntity<T> extends EntityWrapper<T> {
 
     private Collection<EntityRelationship> entities = new ArrayList<>();
 
-    public RestEntity() {
-
+    public RestEntity(T properties) {
+        super(properties);
+        throw new NotImplementedException("dead?");
     }
 
     public RestEntity(ApplicationContext context, Repository repository,

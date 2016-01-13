@@ -3,6 +3,7 @@ package au.com.windyroad.hateoas.core;
 import java.net.URI;
 import java.util.Set;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.context.ApplicationContext;
@@ -26,14 +27,14 @@ public class LinkedEntity extends Entity {
     }
 
     public LinkedEntity(@JsonProperty("href") URI address,
-            @JsonProperty("class") Set<String> natures,
-            @JsonProperty("title") String label) {
+            @JsonProperty("title") String label,
+            @JsonProperty("class") Set<String> natures) {
         this.link = new RestLink(address, natures, label);
         setNatures(natures);
         setTitle(label);
     }
 
-    public LinkedEntity(Link link, Set<String> natures, String label) {
+    public LinkedEntity(Link link, String label, Set<String> natures) {
         this.link = link;
         setNatures(natures);
         setTitle(label);
@@ -64,5 +65,10 @@ public class LinkedEntity extends Entity {
     @Override
     public LinkedEntity toLinkedEntity() {
         return this;
+    }
+
+    @Override
+    public <K, T extends EntityWrapper<K>> T reload(Class<T> type) {
+        throw new NotImplementedException("TODO");
     }
 }

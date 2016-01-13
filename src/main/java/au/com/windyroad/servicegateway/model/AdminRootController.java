@@ -28,7 +28,7 @@ public class AdminRootController extends EntityWrapper<AdminRoot> {
     Repository repository;
 
     protected AdminRootController() {
-
+        super(new AdminRoot());
     }
 
     protected AdminRootController(AdminRootController src) {

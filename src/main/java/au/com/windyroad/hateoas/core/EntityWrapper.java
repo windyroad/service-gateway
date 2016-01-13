@@ -51,7 +51,8 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
 
     private String path;
 
-    protected EntityWrapper() {
+    protected EntityWrapper(@JsonProperty("properties") T properties) {
+        this.properties = properties;
     }
 
     protected EntityWrapper(ApplicationContext context, Repository repository,
@@ -158,6 +159,11 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
     }
 
     @Override
+    public <K, L extends EntityWrapper<K>> L reload(Class<L> type) {
+        return (L) this;
+    }
+
+    @Override
     public <K, L extends EntityWrapper<K>> L resolve(Class<L> type) {
         return (L) this;
     }
@@ -192,7 +198,7 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
     @Override
     public LinkedEntity toLinkedEntity() {
         LinkedEntity linkedEntity = new LinkedEntity(getLink(Relationship.SELF),
-                getNatures(), getTitle());
+                getTitle(), getNatures());
         return linkedEntity;
     }
 

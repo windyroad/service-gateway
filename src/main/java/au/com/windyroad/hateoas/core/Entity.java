@@ -26,4 +26,6 @@ public abstract class Entity extends Titled {
 
     public abstract URI getAddress() throws URISyntaxException;
 
+    public abstract <K, T extends EntityWrapper<K>> T reload(Class<T> type);
+
 }

@@ -61,6 +61,9 @@ public class EntityWrapperProxyDeserializer extends DelegatingDeserializer {
                             || method.getName().equals("getLinks")
                             || method.getName().equals("getLink")) {
                         return proxy.invokeSuper(obj, args);
+                    } else if (method.getName().equals("reload")) {
+                        return ((EntityWrapper<?>) obj).getLink("self")
+                                .resolve((Class<?>) args[0]);
                     } else {
                         Map<String, Object> context = new HashMap<>();
 

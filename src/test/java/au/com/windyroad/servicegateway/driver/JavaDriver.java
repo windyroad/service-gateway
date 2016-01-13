@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -28,6 +29,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import au.com.windyroad.hateoas.core.CreatedLinkedEntity;
+import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.EntityRelationship;
 import au.com.windyroad.hateoas.core.MediaTypes;
 import au.com.windyroad.servicegateway.Repository;
@@ -141,27 +143,18 @@ public class JavaDriver implements Driver {
             throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, UnsupportedEncodingException,
             URISyntaxException, InterruptedException, ExecutionException {
-        this.currentProxy = this.currentProxy.toLinkedEntity()
-                .resolve(ProxyController.class);
+        this.currentProxy = this.currentProxy.reload(ProxyController.class);
 
         Optional<EntityRelationship> optionalEndpoint;
-        optionalEndpoint = currentProxy.getEntities().stream().filter(e -> {
-            EndpointController endpoint = e.getEntity()
-                    .resolve(EndpointController.class);
-            return endpoint.getProperties().getTarget().equals(endpointPath);
+        Collection<EntityRelationship> entities = currentProxy.getEntities();
+        optionalEndpoint = entities.stream().filter(e -> {
+            Entity entity = e.getEntity();
+            return entity.getTitle().contains(endpointPath);
         }).findAny();
 
         assertTrue(optionalEndpoint.isPresent());
         currentEndpoint = optionalEndpoint.get().getEntity()
                 .resolve(EndpointController.class);
-
-        // CompletableFuture<EndpointController> future = repository
-        // .findOne(Endpoint.buildPath(endpointName))
-        // .thenApplyAsync(endpoint -> {
-        // assertThat(endpoint, notNullValue());
-        // return endpoint.resolve(EndpointController.class);
-        // });
-        // currentEndpoint = future.join();
     }
 
     @Override

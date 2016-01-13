@@ -20,6 +20,7 @@ app.config(function($locationProvider, $httpProvider) {
 });
 
 function getLocation(href) {
+	console.log("getLocation(" + href + ")");
     var location = document.createElement("a");
     location.href = href;
     // IE doesn't populate all link properties when setting .href with a relative URL,
@@ -35,13 +36,21 @@ function getLocation(href) {
 app.controller('EntityController', function($scope, $http, $location, $window) {
 	var controller = this;
 	
-	
+	controller.processNavClick = function (event){
+		console.log("processNavClick");
+		console.log(event);
+		$http.get(event.target.href, {
+			cache: false
+		}).success(function(data) {
+			controller.entity = data;
+		});
+    };
 	
 	$http.get($window.location.href, {
 		cache: false
 	}).success(function(data) {
 		controller.entity = data;
-	})
+	});
 
 	controller.processForm = function(form) {
 		console.log("processForm");
@@ -57,9 +66,6 @@ app.controller('EntityController', function($scope, $http, $location, $window) {
 						'Content-Type' : action.type
 								|| "application/x-www-form-urlencoded"
 					}
-				// set the headers so angular passing info as form data (not
-				// request
-				// payload)
 				}).then(function successCallback(response) {
 			if (response.status == 201) {
 				var location = getLocation(response.headers("Location"));
@@ -82,9 +88,13 @@ app.controller('EntityController', function($scope, $http, $location, $window) {
 					});
 				}
 				else {
+					console.log("updating href LOC: " + location);
 					$window.location.href=location;
 					controller.entity = response.data;
 				}
+			}
+			else {
+				alert("TODO: handle " + response.status + " responses");
 			}
 		}, function errorCallback(response) {
 			alert("TODO: error handing");

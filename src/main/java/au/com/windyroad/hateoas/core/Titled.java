@@ -1,7 +1,6 @@
 package au.com.windyroad.hateoas.core;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -94,10 +93,6 @@ abstract public class Titled {
      *            the label to set
      */
     public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setTitle(String title, Map<String, String> context) {
         this.title = title;
     }
 

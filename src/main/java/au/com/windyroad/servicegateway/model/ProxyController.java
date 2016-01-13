@@ -20,7 +20,7 @@ public class ProxyController extends EntityWrapper<Proxy> {
     Repository repository;
 
     protected ProxyController() {
-
+        super(new Proxy());
     }
 
     protected ProxyController(ProxyController src) {
