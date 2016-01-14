@@ -1,4 +1,4 @@
-package au.com.windyroad.servicegateway.config;
+package au.com.windyroad.hateoas.server;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -10,10 +10,9 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import au.com.windyroad.hateoas.core.MediaTypes;
-import au.com.windyroad.servicegateway.ResponseHeaderInterceptor;
 
 @Configuration
-public class ServiceGatewayMvcConfig extends WebMvcConfigurerAdapter {
+public class WebConfiguration extends WebMvcConfigurerAdapter {
 
     @Override
     public void configureContentNegotiation(

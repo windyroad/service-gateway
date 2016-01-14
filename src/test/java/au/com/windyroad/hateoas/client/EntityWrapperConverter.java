@@ -1,4 +1,4 @@
-package au.com.windyroad.hateoas.core;
+package au.com.windyroad.hateoas.client;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.util.StdConverter;
 
+import au.com.windyroad.hateoas.core.Action;
 import au.com.windyroad.hateoas.core.entities.Entity;
 import au.com.windyroad.servicegateway.model.AdminRootController;
 
