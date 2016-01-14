@@ -14,7 +14,6 @@ import java.util.concurrent.CompletableFuture;
 import org.springframework.http.HttpMethod;
 
 import au.com.windyroad.hateoas.annotations.PresentationType;
-import au.com.windyroad.hateoas.client.Resolver;
 
 public class JavaAction<T> extends Action<T> {
 

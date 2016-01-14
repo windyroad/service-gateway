@@ -9,6 +9,7 @@ import au.com.windyroad.hateoas.core.Action;
 import au.com.windyroad.hateoas.core.CreatedLinkedEntity;
 import au.com.windyroad.hateoas.core.Link;
 import au.com.windyroad.hateoas.core.Parameter;
+import au.com.windyroad.hateoas.core.Resolver;
 
 public class CreateAction extends Action<CreatedLinkedEntity> {
 

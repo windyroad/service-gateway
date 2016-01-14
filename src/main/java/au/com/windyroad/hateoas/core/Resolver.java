@@ -1,13 +1,8 @@
-package au.com.windyroad.hateoas.client;
+package au.com.windyroad.hateoas.core;
 
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-
-import au.com.windyroad.hateoas.core.CreatedLinkedEntity;
-import au.com.windyroad.hateoas.core.EntityWrapper;
-import au.com.windyroad.hateoas.core.Link;
-import au.com.windyroad.hateoas.core.UpdatedLinkedEntity;
 
 public interface Resolver {
 

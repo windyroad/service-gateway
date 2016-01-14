@@ -25,6 +25,7 @@ import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.hateoas.core.FutureConverter;
 import au.com.windyroad.hateoas.core.Link;
 import au.com.windyroad.hateoas.core.MediaTypes;
+import au.com.windyroad.hateoas.core.Resolver;
 import au.com.windyroad.hateoas.core.RestLink;
 import au.com.windyroad.hateoas.core.UpdatedLinkedEntity;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;

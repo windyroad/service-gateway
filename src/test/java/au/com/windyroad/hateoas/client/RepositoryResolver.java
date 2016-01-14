@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component;
 import au.com.windyroad.hateoas.core.CreatedLinkedEntity;
 import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.hateoas.core.Link;
+import au.com.windyroad.hateoas.core.Resolver;
 import au.com.windyroad.hateoas.core.UpdatedLinkedEntity;
 import au.com.windyroad.servicegateway.Repository;
-import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 
 @Component()
 public class RepositoryResolver implements Resolver {
@@ -46,9 +46,6 @@ public class RepositoryResolver implements Resolver {
             Map<String, Object> filteredParameters) {
         throw new NotImplementedException("todo");
     }
-
-    @Autowired
-    ServiceGatewayTestConfiguration config;
 
     @Override
     public <E> CompletableFuture<E> get(String path, Class<E> type) {

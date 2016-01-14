@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Maps;
 
-import au.com.windyroad.hateoas.client.Resolver;
 import au.com.windyroad.hateoas.client.RestActionBuilder;
 
 @JsonDeserialize(builder = RestActionBuilder.class)

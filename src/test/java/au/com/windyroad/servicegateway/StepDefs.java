@@ -26,11 +26,11 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import au.com.windyroad.hateoas.client.Resolver;
 import au.com.windyroad.hateoas.core.CreatedLinkedEntity;
 import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.EntityRelationship;
 import au.com.windyroad.hateoas.core.MediaTypes;
+import au.com.windyroad.hateoas.core.Resolver;
 import au.com.windyroad.servicegateway.model.AdminRootController;
 import au.com.windyroad.servicegateway.model.EndpointController;
 import au.com.windyroad.servicegateway.model.ProxyController;

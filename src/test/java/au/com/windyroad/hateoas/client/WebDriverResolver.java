@@ -31,6 +31,7 @@ import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.EntityRelationship;
 import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.hateoas.core.Link;
+import au.com.windyroad.hateoas.core.Resolver;
 import au.com.windyroad.hateoas.core.UpdatedLinkedEntity;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import cucumber.api.PendingException;

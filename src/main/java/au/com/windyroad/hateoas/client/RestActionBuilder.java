@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import au.com.windyroad.hateoas.core.Action;
 import au.com.windyroad.hateoas.core.Parameter;
+import au.com.windyroad.hateoas.core.Resolver;
 import au.com.windyroad.hateoas.core.RestLink;
 
 public class RestActionBuilder {
@@ -21,10 +22,10 @@ public class RestActionBuilder {
     private URI href;
     private Parameter[] fields = {};
 
-    private RestTemplateResolver resolver;
+    private Resolver resolver;
 
     @JsonCreator
-    public RestActionBuilder(@JacksonInject RestTemplateResolver resolver) {
+    public RestActionBuilder(@JacksonInject Resolver resolver) {
         this.resolver = resolver;
     }
 

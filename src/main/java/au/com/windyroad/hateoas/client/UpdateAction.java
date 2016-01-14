@@ -8,6 +8,7 @@ import org.springframework.http.HttpMethod;
 import au.com.windyroad.hateoas.core.Action;
 import au.com.windyroad.hateoas.core.Link;
 import au.com.windyroad.hateoas.core.Parameter;
+import au.com.windyroad.hateoas.core.Resolver;
 import au.com.windyroad.hateoas.core.UpdatedLinkedEntity;
 
 public class UpdateAction extends Action<UpdatedLinkedEntity> {

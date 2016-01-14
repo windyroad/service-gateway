@@ -77,6 +77,8 @@ dependencies {
 	compile("org.webjars:bootstrap:3.2.0")
     compile("org.webjars:jquery:2.1.1")
     compile 'org.webjars.bower:angularjs:1.4.8'
+    compile 'org.apache.commons:commons-lang3:3.4'
+    
     
 	providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
 	

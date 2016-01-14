@@ -8,6 +8,7 @@ import org.springframework.http.HttpMethod;
 import au.com.windyroad.hateoas.core.Action;
 import au.com.windyroad.hateoas.core.Link;
 import au.com.windyroad.hateoas.core.Parameter;
+import au.com.windyroad.hateoas.core.Resolver;
 
 public class DeleteAction extends Action<Void> {
 
