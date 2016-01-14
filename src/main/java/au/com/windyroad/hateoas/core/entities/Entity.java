@@ -1,4 +1,4 @@
-package au.com.windyroad.hateoas.core;
+package au.com.windyroad.hateoas.core.entities;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -7,13 +7,19 @@ import org.springframework.core.ParameterizedTypeReference;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public abstract class Entity extends Titled {
+import au.com.windyroad.hateoas.core.Labelled;
+
+public abstract class Entity extends Labelled {
 
     public Entity() {
     }
 
-    public Entity(String title) {
-        super(title);
+    public Entity(Entity entity) {
+        super(entity);
+    }
+
+    public Entity(String label) {
+        super(label);
     }
 
     public abstract <K, T extends EntityWrapper<K>> T resolve(Class<T> type);

@@ -12,34 +12,22 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import au.com.windyroad.hateoas.server.serialization.MessageSourceAwareSerializer;
 
-abstract public class Titled {
+abstract public class Labelled {
 
     private Set<String> natures = new HashSet<>();
 
     @Nullable
-    String title = null;
+    String label = null;
 
-    public Titled() {
-        // Nature natureAnnotation =
-        // this.getClass().getAnnotation(Nature.class);
-        // if (natureAnnotation != null) {
-        // Collections.addAll(natures, natureAnnotation.value());
-        // }
-        // natures.add(this.getClass().getSimpleName());
+    public Labelled() {
     }
 
-    public Titled(String title) {
-        this();
-
-        // Label titleAnnotation = this.getClass().getAnnotation(Label.class);
-        // if (titleAnnotation != null) {
-        // setTitle(titleAnnotation.value(), args);
-        // }
-        this.title = title;
+    public Labelled(Labelled labelled) {
+        this.label = labelled.label;
     }
 
-    void setTitle(String template, String... args) {
-        title = interpolate(template, args);
+    void setLabel(String template, String... args) {
+        label = interpolate(template, args);
     }
 
     private String interpolate(String value, String... args) {
@@ -58,9 +46,13 @@ abstract public class Titled {
         }
     }
 
-    public Titled(Set<String> natures, String title) {
+    public Labelled(String label, Set<String> natures) {
         this.natures = natures;
-        this.title = title;
+        this.label = label;
+    }
+
+    public Labelled(String label) {
+        this.label = label;
     }
 
     /**
@@ -84,8 +76,8 @@ abstract public class Titled {
      */
     @JsonSerialize(using = MessageSourceAwareSerializer.class)
     @JsonProperty("title")
-    public String getTitle() {
-        return title;
+    public String getLabel() {
+        return label;
     }
 
     /**
@@ -93,7 +85,7 @@ abstract public class Titled {
      *            the label to set
      */
     public void setTitle(String title) {
-        this.title = title;
+        this.label = title;
     }
 
     public boolean hasNature(String nature) {

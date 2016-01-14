@@ -11,6 +11,15 @@ import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import au.com.windyroad.hateoas.client.RestTemplateResolver;
+import au.com.windyroad.hateoas.client.mixins.ActionMixin;
+import au.com.windyroad.hateoas.client.mixins.EntityRelationshipMixin;
+import au.com.windyroad.hateoas.client.mixins.LinkMixin;
+import au.com.windyroad.hateoas.client.mixins.NavigationalRelationshipMixin;
+import au.com.windyroad.hateoas.core.Action;
+import au.com.windyroad.hateoas.core.EntityRelationship;
+import au.com.windyroad.hateoas.core.Link;
+import au.com.windyroad.hateoas.core.NavigationalRelationship;
+import au.com.windyroad.hateoas.core.Resolver;
 
 @Configuration
 @Profile(value = "integration")
@@ -19,26 +28,18 @@ public class ServiceGatewayMapper {
     @Autowired
     RestTemplateResolver restTemplateResolver;
 
-    // @Autowired
-    // Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder;
-    //
-    //
-    // @Bean
-    // @Profile({ "integration", "ui-integration" })
-    // public ObjectMapper objectMapper() {
-    // ObjectMapper objectMapper = jackson2ObjectMapperBuilder.build();
-    // objectMapper.setInjectableValues(new InjectableValues.Std()
-    // .addValue(RestTemplateResolver.class, restTemplateResolver));
-    // return objectMapper;
-    // }
-
     @Autowired
     ApplicationContext context;
 
     @PostConstruct
     public void fixOm() {
         ObjectMapper om = context.getBean(ObjectMapper.class);
+        om.addMixIn(Action.class, ActionMixin.class);
+        om.addMixIn(Link.class, LinkMixin.class);
+        om.addMixIn(EntityRelationship.class, EntityRelationshipMixin.class);
+        om.addMixIn(NavigationalRelationship.class,
+                NavigationalRelationshipMixin.class);
         om.setInjectableValues(new InjectableValues.Std()
-                .addValue(RestTemplateResolver.class, restTemplateResolver));
+                .addValue(Resolver.class, restTemplateResolver));
     }
 }

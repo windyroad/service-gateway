@@ -1,4 +1,4 @@
-package au.com.windyroad.hateoas.core;
+package au.com.windyroad.hateoas.client;
 
 import java.net.URI;
 import java.util.Set;
@@ -13,6 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import au.com.windyroad.hateoas.core.Link;
+import au.com.windyroad.hateoas.core.MediaTypes;
 
 public class RestLink extends Link {
 
@@ -30,8 +33,13 @@ public class RestLink extends Link {
         this.address = address;
     }
 
-    public RestLink(URI address, Set<String> natures, String label) {
-        super(natures, label);
+    public RestLink(URI address, String label) {
+        super(label);
+        this.address = address;
+    }
+
+    public RestLink(URI address, String label, Set<String> natures) {
+        super(label, natures);
         this.address = address;
     }
 

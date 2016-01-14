@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.util.StdConverter;
 
+import au.com.windyroad.hateoas.core.entities.Entity;
 import au.com.windyroad.servicegateway.model.AdminRootController;
 
 @Component

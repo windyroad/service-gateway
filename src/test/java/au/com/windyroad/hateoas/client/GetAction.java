@@ -9,27 +9,24 @@ import au.com.windyroad.hateoas.core.Action;
 import au.com.windyroad.hateoas.core.Link;
 import au.com.windyroad.hateoas.core.Parameter;
 import au.com.windyroad.hateoas.core.Resolver;
-import au.com.windyroad.hateoas.core.UpdatedLinkedEntity;
+import au.com.windyroad.hateoas.core.entities.EntityWrapper;
 
-public class UpdateAction extends Action<UpdatedLinkedEntity> {
+public class GetAction extends Action<EntityWrapper<?>> {
 
-    public UpdateAction(Resolver resolver, String identifier, Link link,
+    public GetAction(Resolver resolver, String identifier, Link link,
             Parameter[] fields) {
         super(resolver, identifier, link, fields);
     }
 
     @Override
-    public CompletableFuture<UpdatedLinkedEntity> doInvoke(Resolver resolver,
+    public CompletableFuture<EntityWrapper<?>> doInvoke(Resolver resolver,
             Map<String, Object> filteredParameters) {
-        return resolver.update(getLink(), filteredParameters);
+        return resolver.get(getLink(), filteredParameters);
     }
 
-    /**
-     * @return the nature
-     */
     @Override
     public HttpMethod getNature() {
-        return HttpMethod.PUT;
+        return HttpMethod.GET;
     }
 
 }

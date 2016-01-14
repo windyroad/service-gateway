@@ -1,15 +1,14 @@
 package au.com.windyroad.hateoas.core;
 
-import java.net.URI;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+
+import au.com.windyroad.hateoas.core.entities.Entity;
+import au.com.windyroad.hateoas.core.entities.LinkedEntity;
 
 public class EntityRelationship extends Relationship {
 
@@ -28,14 +27,6 @@ public class EntityRelationship extends Relationship {
         AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
         bpp.setBeanFactory(context.getAutowireCapableBeanFactory());
         bpp.processInjection(this.entity);
-    }
-
-    @JsonCreator
-    public EntityRelationship(@JsonProperty("href") URI address,
-            @JsonProperty("title") String label,
-            @JsonProperty("rel") String... natures) {
-        super(natures);
-        this.entity = new LinkedEntity(address, label, null);
     }
 
     public EntityRelationship(Link link, String label, String[] natures) {

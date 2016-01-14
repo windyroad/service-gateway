@@ -2,9 +2,6 @@ package au.com.windyroad.servicegateway.model;
 
 import java.util.Map;
 
-import au.com.windyroad.hateoas.annotations.Label;
-
-@Label("Endpoint `{target}`")
 public class Endpoint {
 
     private boolean available;

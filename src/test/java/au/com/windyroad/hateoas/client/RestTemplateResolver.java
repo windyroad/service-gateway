@@ -20,14 +20,13 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.client.AsyncRestTemplate;
 
-import au.com.windyroad.hateoas.core.CreatedLinkedEntity;
-import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.hateoas.core.FutureConverter;
 import au.com.windyroad.hateoas.core.Link;
 import au.com.windyroad.hateoas.core.MediaTypes;
 import au.com.windyroad.hateoas.core.Resolver;
-import au.com.windyroad.hateoas.core.RestLink;
-import au.com.windyroad.hateoas.core.UpdatedLinkedEntity;
+import au.com.windyroad.hateoas.core.entities.CreatedEntity;
+import au.com.windyroad.hateoas.core.entities.EntityWrapper;
+import au.com.windyroad.hateoas.core.entities.UpdatedEntity;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 
 @Component()
@@ -42,7 +41,7 @@ public class RestTemplateResolver implements Resolver {
     private ApplicationContext applicationContext;
 
     @Override
-    public CompletableFuture<CreatedLinkedEntity> create(Link link,
+    public CompletableFuture<CreatedEntity> create(Link link,
             Map<String, Object> filteredParameters) {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>(
                 filteredParameters.size());
@@ -55,7 +54,7 @@ public class RestTemplateResolver implements Resolver {
         ListenableFuture<URI> locationFuture = restTemplate
                 .postForLocation(link.getAddress(), request);
         return FutureConverter.convert(locationFuture).thenApplyAsync(uri -> {
-            CreatedLinkedEntity linkedEntity = new CreatedLinkedEntity(
+            CreatedEntity linkedEntity = new CreatedEntity(
                     new RestLink(uri));
             AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
             bpp.setBeanFactory(
@@ -110,7 +109,7 @@ public class RestTemplateResolver implements Resolver {
     }
 
     @Override
-    public CompletableFuture<UpdatedLinkedEntity> update(Link link,
+    public CompletableFuture<UpdatedEntity> update(Link link,
             Map<String, Object> filteredParameters) {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>(
                 filteredParameters.size());
@@ -126,7 +125,7 @@ public class RestTemplateResolver implements Resolver {
                         Void.class);
         return FutureConverter.convert(responseFuture)
                 .thenApplyAsync(response -> {
-                    UpdatedLinkedEntity linkedEntity = new UpdatedLinkedEntity(
+                    UpdatedEntity linkedEntity = new UpdatedEntity(
                             new RestLink(response.getHeaders().getLocation()));
                     AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
                     bpp.setBeanFactory(

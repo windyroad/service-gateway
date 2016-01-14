@@ -5,14 +5,26 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * <p>
+ * Indicates how the input field for this method parameter should be presented.
+ * This may include any of the
+ * <a href= "http://www.w3.org/TR/html5/single-page.html#the-input-element">
+ * input types</a> specified in HTML5.
+ * </p>
+ * 
+ * 
+ * <p>
+ * The predefined input types provided as constants on this annotation where
+ * soured from
+ * <a href="http://www.w3.org/TR/html51/semantics.html#the-input-element"> http:
+ * //www.w3.org/TR/html51/semantics.html#the-input-element </a> on 2015/09/21</>
+ * 
+ */
 @Target({ ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PresentationType {
     String value();
-
-    // Soured from
-    // http://www.w3.org/TR/html51/semantics.html#the-input-element on
-    // 2015/09/21
 
     public static final String HIDDEN = "hidden";
     public static final String TEXT = "text";

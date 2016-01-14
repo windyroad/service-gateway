@@ -10,7 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
 
 import au.com.windyroad.hateoas.core.EntityRelationship;
-import au.com.windyroad.hateoas.core.EntityWrapper;
+import au.com.windyroad.hateoas.core.entities.EntityWrapper;
 
 public interface Repository {
 

@@ -1,4 +1,4 @@
-package au.com.windyroad.hateoas.core;
+package au.com.windyroad.hateoas.core.entities;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -28,6 +28,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.google.common.collect.ImmutableSet;
 
+import au.com.windyroad.hateoas.core.Action;
+import au.com.windyroad.hateoas.core.EntityRelationship;
+import au.com.windyroad.hateoas.core.JavaAction;
+import au.com.windyroad.hateoas.core.JavaLink;
+import au.com.windyroad.hateoas.core.Link;
+import au.com.windyroad.hateoas.core.NavigationalRelationship;
+import au.com.windyroad.hateoas.core.Relationship;
 import au.com.windyroad.servicegateway.Repository;
 
 @JsonPropertyOrder({ "class", "properties", "entities", "actions", "links",
@@ -56,8 +63,8 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
     }
 
     protected EntityWrapper(ApplicationContext context, Repository repository,
-            String path, T properties, String title) {
-        super(title);
+            String path, T properties, String label) {
+        super(label);
         this.properties = properties;
         this.repository = repository;
         this.path = path;
@@ -74,11 +81,11 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
                     break;
                 case POST:
                     actions.put(method.getName(),
-                            new JavaAction<CreatedLinkedEntity>(this, method));
+                            new JavaAction<CreatedEntity>(this, method));
                     break;
                 case PUT:
                     actions.put(method.getName(),
-                            new JavaAction<UpdatedLinkedEntity>(this, method));
+                            new JavaAction<UpdatedEntity>(this, method));
                 case GET:
                     actions.put(method.getName(),
                             new JavaAction<EntityWrapper<?>>(this, method));
@@ -96,7 +103,7 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
     }
 
     public EntityWrapper(EntityWrapper<T> src) {
-        super(src.title);
+        super(src);
         this.properties = src.properties;
         this.repository = src.repository;
         this.path = src.path;
@@ -198,7 +205,7 @@ public class EntityWrapper<T> extends Entity implements Identifiable<String> {
     @Override
     public LinkedEntity toLinkedEntity() {
         LinkedEntity linkedEntity = new LinkedEntity(getLink(Relationship.SELF),
-                getTitle(), getNatures());
+                getLabel(), getNatures());
         return linkedEntity;
     }
 

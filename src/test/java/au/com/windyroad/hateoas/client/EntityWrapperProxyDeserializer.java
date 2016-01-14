@@ -19,8 +19,8 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.std.DelegatingDeserializer;
 
 import au.com.windyroad.hateoas.core.Action;
-import au.com.windyroad.hateoas.core.Entity;
-import au.com.windyroad.hateoas.core.EntityWrapper;
+import au.com.windyroad.hateoas.core.entities.Entity;
+import au.com.windyroad.hateoas.core.entities.EntityWrapper;
 
 public class EntityWrapperProxyDeserializer extends DelegatingDeserializer {
 

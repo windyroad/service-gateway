@@ -1,11 +1,9 @@
-package au.com.windyroad.hateoas.core;
+package au.com.windyroad.hateoas.core.entities;
 
 import java.net.URI;
 import java.util.Set;
 
 import org.apache.commons.lang3.NotImplementedException;
-
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.context.ApplicationContext;
@@ -13,6 +11,8 @@ import org.springframework.core.ParameterizedTypeReference;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import au.com.windyroad.hateoas.core.Link;
 
 public class LinkedEntity extends Entity {
     private Link link;
@@ -28,13 +28,13 @@ public class LinkedEntity extends Entity {
         this.link = link;
     }
 
-    public LinkedEntity(@JsonProperty("href") URI address,
-            @JsonProperty("title") String label,
-            @JsonProperty("class") Set<String> natures) {
-        this.link = new RestLink(address, natures, label);
-        setNatures(natures);
-        setTitle(label);
-    }
+    // public LinkedEntity(@JsonProperty("href") URI address,
+    // @JsonProperty("title") String label,
+    // @JsonProperty("class") Set<String> natures) {
+    // this.link = new RestLink(address, natures, label);
+    // setNatures(natures);
+    // setTitle(label);
+    // }
 
     public LinkedEntity(Link link, String label, Set<String> natures) {
         this.link = link;

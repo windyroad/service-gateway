@@ -26,11 +26,11 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import au.com.windyroad.hateoas.core.CreatedLinkedEntity;
-import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.EntityRelationship;
 import au.com.windyroad.hateoas.core.MediaTypes;
 import au.com.windyroad.hateoas.core.Resolver;
+import au.com.windyroad.hateoas.core.entities.CreatedEntity;
+import au.com.windyroad.hateoas.core.entities.Entity;
 import au.com.windyroad.servicegateway.model.AdminRootController;
 import au.com.windyroad.servicegateway.model.EndpointController;
 import au.com.windyroad.servicegateway.model.ProxyController;
@@ -112,7 +112,7 @@ public class StepDefs {
         currentProxy = getRoot().thenApplyAsync(root -> {
             return root.createProxy(proxy, normaliseUrl(endpoint));
         }).thenApplyAsync(result -> {
-            CreatedLinkedEntity cle = result.join();
+            CreatedEntity cle = result.join();
             return cle.resolve(ProxyController.class);
         }).get();
     }
@@ -142,7 +142,7 @@ public class StepDefs {
         Collection<EntityRelationship> entities = currentProxy.getEntities();
         optionalEndpoint = entities.stream().filter(e -> {
             Entity entity = e.getEntity();
-            return entity.getTitle().contains(normaliseUrl(endpoint));
+            return entity.getLabel().contains(normaliseUrl(endpoint));
         }).findAny();
 
         assertTrue(optionalEndpoint.isPresent());

@@ -1,4 +1,4 @@
-package au.com.windyroad.hateoas.core;
+package au.com.windyroad.hateoas.client;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -7,6 +7,8 @@ import java.util.Collection;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.context.ApplicationContext;
 
+import au.com.windyroad.hateoas.core.EntityRelationship;
+import au.com.windyroad.hateoas.core.entities.EntityWrapper;
 import au.com.windyroad.servicegateway.Repository;
 
 public class RestEntity<T> extends EntityWrapper<T> {

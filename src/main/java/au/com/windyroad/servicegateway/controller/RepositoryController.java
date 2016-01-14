@@ -34,9 +34,9 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.servlet.HandlerMapping;
 
 import au.com.windyroad.hateoas.core.Action;
-import au.com.windyroad.hateoas.core.Entity;
-import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.hateoas.core.MediaTypes;
+import au.com.windyroad.hateoas.core.entities.Entity;
+import au.com.windyroad.hateoas.core.entities.EntityWrapper;
 import au.com.windyroad.servicegateway.Repository;
 
 @Controller

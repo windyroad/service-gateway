@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 
-import au.com.windyroad.hateoas.core.EntityWrapper;
-import au.com.windyroad.hateoas.core.UpdatedLinkedEntity;
+import au.com.windyroad.hateoas.core.entities.EntityWrapper;
+import au.com.windyroad.hateoas.core.entities.UpdatedEntity;
 import au.com.windyroad.servicegateway.Repository;
 
 public class ProxyController extends EntityWrapper<Proxy> {
@@ -34,7 +34,7 @@ public class ProxyController extends EntityWrapper<Proxy> {
         super(context, repository, path, properties, title);
     }
 
-    public CompletableFuture<UpdatedLinkedEntity> setEndpoint(String target,
+    public CompletableFuture<UpdatedEntity> setEndpoint(String target,
             boolean available) {
         String endpointPath = this.getProperties().getTarget() + "/" + target;
         String path = Endpoint.buildPath(endpointPath);
@@ -50,7 +50,7 @@ public class ProxyController extends EntityWrapper<Proxy> {
                 endpoint.getProperties().setAvailable(available);
             }
             repository.save(endpoint);
-            return new UpdatedLinkedEntity(endpoint);
+            return new UpdatedEntity(endpoint);
         });
     }
 
@@ -58,12 +58,12 @@ public class ProxyController extends EntityWrapper<Proxy> {
         return repository.delete(this);
     }
 
-    public CompletableFuture<UpdatedLinkedEntity> update(String proxyName,
+    public CompletableFuture<UpdatedEntity> update(String proxyName,
             String target) {
         return CompletableFuture.supplyAsync(() -> {
             this.getProperties().setTarget(target);
             repository.save(this);
-            return new UpdatedLinkedEntity(this);
+            return new UpdatedEntity(this);
         });
     }
 

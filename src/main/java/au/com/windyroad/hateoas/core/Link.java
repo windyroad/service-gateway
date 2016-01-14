@@ -8,17 +8,19 @@ import org.springframework.http.MediaType;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-@JsonDeserialize(as = RestLink.class)
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-abstract public class Link extends Titled {
+abstract public class Link extends Labelled {
 
     public Link() {
     }
 
-    public Link(Set<String> natures, String label) {
-        super(natures, label);
+    public Link(String label, Set<String> natures) {
+        super(label, natures);
+    }
+
+    public Link(String label) {
+        super(label);
     }
 
     public abstract <T> T resolve(Class<T> type);

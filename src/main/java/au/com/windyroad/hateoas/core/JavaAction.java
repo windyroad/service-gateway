@@ -14,6 +14,9 @@ import java.util.concurrent.CompletableFuture;
 import org.springframework.http.HttpMethod;
 
 import au.com.windyroad.hateoas.annotations.PresentationType;
+import au.com.windyroad.hateoas.core.entities.CreatedEntity;
+import au.com.windyroad.hateoas.core.entities.EntityWrapper;
+import au.com.windyroad.hateoas.core.entities.UpdatedEntity;
 
 public class JavaAction<T> extends Action<T> {
 
@@ -50,12 +53,12 @@ public class JavaAction<T> extends Action<T> {
                         return HttpMethod.DELETE;
                     } else if (Class.class
                             .isAssignableFrom(typeParam.getClass())
-                            && CreatedLinkedEntity.class
+                            && CreatedEntity.class
                                     .isAssignableFrom((Class<?>) typeParam)) {
                         return HttpMethod.POST;
                     } else if (Class.class
                             .isAssignableFrom(typeParam.getClass())
-                            && UpdatedLinkedEntity.class
+                            && UpdatedEntity.class
                                     .isAssignableFrom((Class<?>) typeParam)) {
                         return HttpMethod.PUT;
                     } else if (ParameterizedType.class

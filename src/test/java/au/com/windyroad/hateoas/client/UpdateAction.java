@@ -6,27 +6,30 @@ import java.util.concurrent.CompletableFuture;
 import org.springframework.http.HttpMethod;
 
 import au.com.windyroad.hateoas.core.Action;
-import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.hateoas.core.Link;
 import au.com.windyroad.hateoas.core.Parameter;
 import au.com.windyroad.hateoas.core.Resolver;
+import au.com.windyroad.hateoas.core.entities.UpdatedEntity;
 
-public class GetAction extends Action<EntityWrapper<?>> {
+public class UpdateAction extends Action<UpdatedEntity> {
 
-    public GetAction(Resolver resolver, String identifier, Link link,
+    public UpdateAction(Resolver resolver, String identifier, Link link,
             Parameter[] fields) {
         super(resolver, identifier, link, fields);
     }
 
     @Override
-    public CompletableFuture<EntityWrapper<?>> doInvoke(Resolver resolver,
+    public CompletableFuture<UpdatedEntity> doInvoke(Resolver resolver,
             Map<String, Object> filteredParameters) {
-        return resolver.get(getLink(), filteredParameters);
+        return resolver.update(getLink(), filteredParameters);
     }
 
+    /**
+     * @return the nature
+     */
     @Override
     public HttpMethod getNature() {
-        return HttpMethod.GET;
+        return HttpMethod.PUT;
     }
 
 }

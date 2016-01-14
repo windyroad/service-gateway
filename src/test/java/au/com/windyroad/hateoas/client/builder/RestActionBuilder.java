@@ -1,4 +1,4 @@
-package au.com.windyroad.hateoas.client;
+package au.com.windyroad.hateoas.client.builder;
 
 import java.net.URI;
 
@@ -10,10 +10,14 @@ import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import au.com.windyroad.hateoas.client.CreateAction;
+import au.com.windyroad.hateoas.client.DeleteAction;
+import au.com.windyroad.hateoas.client.GetAction;
+import au.com.windyroad.hateoas.client.RestLink;
+import au.com.windyroad.hateoas.client.UpdateAction;
 import au.com.windyroad.hateoas.core.Action;
 import au.com.windyroad.hateoas.core.Parameter;
 import au.com.windyroad.hateoas.core.Resolver;
-import au.com.windyroad.hateoas.core.RestLink;
 
 public class RestActionBuilder {
 

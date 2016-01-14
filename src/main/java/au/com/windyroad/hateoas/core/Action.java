@@ -15,15 +15,11 @@ import org.springframework.http.HttpMethod;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Maps;
 
-import au.com.windyroad.hateoas.client.RestActionBuilder;
-
-@JsonDeserialize(builder = RestActionBuilder.class)
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public abstract class Action<T> extends Titled {
+public abstract class Action<T> extends Labelled {
 
     private Resolver resolver;
 

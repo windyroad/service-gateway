@@ -2,7 +2,7 @@ package au.com.windyroad.servicegateway.model;
 
 import org.springframework.context.ApplicationContext;
 
-import au.com.windyroad.hateoas.core.EntityWrapper;
+import au.com.windyroad.hateoas.core.entities.EntityWrapper;
 import au.com.windyroad.servicegateway.Repository;
 
 public class EndpointController extends EntityWrapper<Endpoint> {

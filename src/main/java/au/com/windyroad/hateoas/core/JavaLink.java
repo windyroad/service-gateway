@@ -8,6 +8,8 @@ import org.springframework.http.MediaType;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import au.com.windyroad.hateoas.core.entities.EntityWrapper;
+
 public class JavaLink extends Link {
 
     private EntityWrapper<?> entity;

@@ -6,12 +6,12 @@ import java.util.concurrent.CompletableFuture;
 import org.springframework.http.HttpMethod;
 
 import au.com.windyroad.hateoas.core.Action;
-import au.com.windyroad.hateoas.core.CreatedLinkedEntity;
 import au.com.windyroad.hateoas.core.Link;
 import au.com.windyroad.hateoas.core.Parameter;
 import au.com.windyroad.hateoas.core.Resolver;
+import au.com.windyroad.hateoas.core.entities.CreatedEntity;
 
-public class CreateAction extends Action<CreatedLinkedEntity> {
+public class CreateAction extends Action<CreatedEntity> {
 
     public CreateAction(Resolver resolver, String identifier, Link link,
             Parameter[] fields) {
@@ -19,7 +19,7 @@ public class CreateAction extends Action<CreatedLinkedEntity> {
     }
 
     @Override
-    public CompletableFuture<CreatedLinkedEntity> doInvoke(Resolver resolver,
+    public CompletableFuture<CreatedEntity> doInvoke(Resolver resolver,
             Map<String, Object> filteredParameters) {
         return resolver.create(getLink(), filteredParameters);
     }

@@ -26,13 +26,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.AsyncRestTemplate;
 
 import au.com.windyroad.hateoas.core.Action;
-import au.com.windyroad.hateoas.core.CreatedLinkedEntity;
-import au.com.windyroad.hateoas.core.Entity;
 import au.com.windyroad.hateoas.core.EntityRelationship;
-import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.hateoas.core.Link;
 import au.com.windyroad.hateoas.core.Resolver;
-import au.com.windyroad.hateoas.core.UpdatedLinkedEntity;
+import au.com.windyroad.hateoas.core.entities.CreatedEntity;
+import au.com.windyroad.hateoas.core.entities.Entity;
+import au.com.windyroad.hateoas.core.entities.EntityWrapper;
+import au.com.windyroad.hateoas.core.entities.UpdatedEntity;
 import au.com.windyroad.servicegateway.ServiceGatewayTestConfiguration;
 import cucumber.api.PendingException;
 
@@ -54,7 +54,7 @@ public class WebDriverResolver implements Resolver {
     ServiceGatewayTestConfiguration config;
 
     @Override
-    public CompletableFuture<CreatedLinkedEntity> create(Link link,
+    public CompletableFuture<CreatedEntity> create(Link link,
             Map<String, Object> filteredParameters) {
         return CompletableFuture.supplyAsync(() -> {
             WebElement form = (new WebDriverWait(webDriver, 5))
@@ -72,7 +72,7 @@ public class WebDriverResolver implements Resolver {
                 }
             }
             form.findElement(By.cssSelector("button[type='submit']")).click();
-            CreatedLinkedEntity linkedEntity = new CreatedLinkedEntity(
+            CreatedEntity linkedEntity = new CreatedEntity(
                     new WebDriverLink(this,
                             webDriver.findElement(By.tagName("html"))));
             return linkedEntity;
@@ -110,7 +110,7 @@ public class WebDriverResolver implements Resolver {
     }
 
     @Override
-    public CompletableFuture<UpdatedLinkedEntity> update(Link link,
+    public CompletableFuture<UpdatedEntity> update(Link link,
             Map<String, Object> filteredParameters) {
         throw new PendingException();
     }

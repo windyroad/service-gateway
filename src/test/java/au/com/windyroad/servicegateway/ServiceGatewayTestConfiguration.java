@@ -203,9 +203,6 @@ public class ServiceGatewayTestConfiguration implements
     @Autowired
     ObjectMapper objectMapper;
 
-    @Autowired
-    List<ObjectMapper> objectMappers;
-
     @Bean
     public MappingJackson2HttpMessageConverter mappingJacksonHttpMessageConverter() {
         MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter(

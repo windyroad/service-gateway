@@ -12,10 +12,10 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
-import au.com.windyroad.hateoas.core.CreatedLinkedEntity;
 import au.com.windyroad.hateoas.core.EntityRelationship;
-import au.com.windyroad.hateoas.core.EntityWrapper;
 import au.com.windyroad.hateoas.core.Relationship;
+import au.com.windyroad.hateoas.core.entities.CreatedEntity;
+import au.com.windyroad.hateoas.core.entities.EntityWrapper;
 import au.com.windyroad.servicegateway.Repository;
 
 public class AdminRootController extends EntityWrapper<AdminRoot> {
@@ -43,7 +43,7 @@ public class AdminRootController extends EntityWrapper<AdminRoot> {
         super(context, repository, path, properties, title);
     }
 
-    public CompletableFuture<CreatedLinkedEntity> createProxy(String proxyName,
+    public CompletableFuture<CreatedEntity> createProxy(String proxyName,
             String endpoint) {
 
         String path = this.getId() + "/" + proxyName;
@@ -67,7 +67,7 @@ public class AdminRootController extends EntityWrapper<AdminRoot> {
                 repository.save(proxy);
                 repository.setChildren(proxy,
                         AdminRootController::findByEndpointsForProxy);
-                return new CreatedLinkedEntity(proxy);
+                return new CreatedEntity(proxy);
             }
         });
     }
