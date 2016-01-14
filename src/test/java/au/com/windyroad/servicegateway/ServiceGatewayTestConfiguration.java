@@ -1,6 +1,7 @@
 package au.com.windyroad.servicegateway;
 
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
@@ -120,6 +121,10 @@ public class ServiceGatewayTestConfiguration implements
 
     public int getPort() {
         return port;
+    }
+
+    public URI getBaseUri() {
+        return URI.create("https://" + sslHostname + ":" + getPort());
     }
 
     @Value("${au.com.windyroad.service-gateway.proxy.max.connections.total:100}")

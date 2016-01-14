@@ -211,6 +211,8 @@ public class ServiceGatewayApplication {
     @Qualifier("serverRepository")
     Repository repository;
 
+    private int port;
+
     // @Bean
     // AutowiredAnnotationBeanPostProcessor
     // autowiredAnnotationBeanPostProcessor() {

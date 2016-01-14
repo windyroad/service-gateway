@@ -3,7 +3,6 @@ package au.com.windyroad.hateoas.client;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -125,10 +124,8 @@ public class WebDriverResolver implements Resolver {
     }
 
     @Override
-    public <E> CompletableFuture<E> get(String path, Class<E> type)
-            throws URISyntaxException {
-        return get(new URI("https://localhost:" + config.getPort() + path),
-                type);
+    public <E> CompletableFuture<E> get(String path, Class<E> type) {
+        return get(config.getBaseUri().resolve(path), type);
     }
 
     <E> E createProxy(Class<E> klass) {

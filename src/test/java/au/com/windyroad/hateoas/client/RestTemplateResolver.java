@@ -1,7 +1,6 @@
 package au.com.windyroad.hateoas.client;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
@@ -141,10 +140,8 @@ public class RestTemplateResolver implements Resolver {
     ServiceGatewayTestConfiguration config;
 
     @Override
-    public <E> CompletableFuture<E> get(String path, Class<E> type)
-            throws URISyntaxException {
-        URI rootUrl = new URI(
-                "https://localhost:" + config.getPort() + "/admin/proxies");
+    public <E> CompletableFuture<E> get(String path, Class<E> type) {
+        URI rootUrl = config.getBaseUri().resolve(path);
 
         return FutureConverter.convert(
                 restTemplate.exchange(rootUrl, HttpMethod.GET, null, type))
